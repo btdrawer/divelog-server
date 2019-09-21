@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/User');
+const errorKeys = require('../variables/errorKeys');
 const handleError = require('../handlers/handleError');
 const routerUrls = require('../variables/routerUrls');
 
@@ -10,16 +11,16 @@ module.exports = async (req, res, next) => {
     try {
         switch(req.baseUrl) {
             case routerUrls.USER:
-                require('./accessToResource/user')(req, res, next, data);
+                await require('./accessToResource/user')(req, res, next, data);
                 break;
         }
 
         const user = await UserModel.findOne({
-            _id: data._id,
+            id: data._id,
             token: token
         });
 
-        if (!user) throw new Error(401);
+        if (!user) throw new Error(errorKeys.INVALID_AUTH);
 
         next();
     } catch (err) {
