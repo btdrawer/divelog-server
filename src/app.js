@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const routerUrls = require('./variables/routerUrls');
+
 const port = process.env.PORT;
 
 const app = express();
@@ -24,10 +26,10 @@ const clubRouter = require('./routes/club');
 const gearRouter = require('./routes/gear');
 const groupRouter = require('./routes/group');
 
-app.use('/user', userRouter);
-app.use('/club', clubRouter);
-app.use('/gear', gearRouter);
-app.use('/group', groupRouter);
+app.use(routerUrls.USER, userRouter);
+app.use(routerUrls.CLUB, clubRouter);
+app.use(routerUrls.GEAR, gearRouter);
+app.use(routerUrls.GROUP, groupRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const errorKeys = require('../variables/errorKeys');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
@@ -29,8 +30,7 @@ const UserSchema = new Schema(
         }
       ],
       accepted: Boolean
-    },
-    isAdmin: Boolean
+    }
   }
 );
 
@@ -44,7 +44,7 @@ UserSchema.pre('save', async function (next) {
       username: this.username
     });
 
-    if (user) throw new Error('A user with that username already exists.');
+    if (user) throw new Error(errorKeys.USERNAME_EXISTS);
   }
 
   next();
@@ -67,7 +67,7 @@ UserSchema.statics.authenticate = async (username, password) => {
     username: username
   });
 
-  const errorMessage = 'Username or password incorrect.';
+  const errorMessage = errorKeys.INVALID_AUTH;
 
   if (!user) throw new Error(errorMessage);
   else if (!bcrypt.compareSync(password, user.password)) throw new Error(errorMessage);

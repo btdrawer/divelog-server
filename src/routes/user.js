@@ -3,6 +3,7 @@ const router = express.Router();
 const UserModel = require('../models/User');
 const middleware = require('../middleware/auth');
 const routeBuilder = require('../helpers/routeBuilder');
+const handleError = require('../handlers/handleError');
 
 // Create new user
 router.post('/', async (req, res) => {
@@ -21,7 +22,7 @@ router.post('/', async (req, res) => {
             user, token
         });
     } catch (err) {
-        res.status(400).send(err);
+        handleError(res, err);
     }
 });
 
@@ -39,7 +40,7 @@ router.post('/login', async (req, res) => {
             user, token
         });
     } catch (err) {
-        res.status(400).send(err);
+        handleError(res, err, 401);
     }
 });
 
