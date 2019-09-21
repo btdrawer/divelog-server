@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/User');
+const handleError = require('../handlers/handleError');
 
 module.exports = async (req, res, next) => {
     const token = req.header('Authorization').replace('Bearer ', '');
@@ -8,13 +9,13 @@ module.exports = async (req, res, next) => {
     try {
         const user = await UserModel.findOne({
             _id: data._id,
-            'tokens.token': token
+            token: token
         });
 
         if (!user) throw new Error('Authentication failed.');
 
         next();
-    } catch (e) {
-        res.status(400).send(e);
+    } catch (err) {
+        handleError(res, err);
     }
 };

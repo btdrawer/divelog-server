@@ -19,14 +19,7 @@ const UserSchema = new Schema(
       type: String,
       required: true
     },
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true
-        }
-      }
-    ],
+    token: String,
     friends: {
       users: [
         {
@@ -35,13 +28,9 @@ const UserSchema = new Schema(
           required: true
         }
       ],
-      accepted: {
-        type: Boolean
-      }
+      accepted: Boolean
     },
-    isAdmin: {
-      type: Boolean
-    }
+    isAdmin: Boolean
   }
 );
 
@@ -51,11 +40,9 @@ UserSchema.pre('save', async function (next) {
   }
 
   if (this.isModified('username')) {
-    const user = await UserModel.findOne(
-      {
-        username: this.username
-      }
-    );
+    const user = await UserModel.findOne({
+      username: this.username
+    });
 
     if (user) throw new Error('A user with that username already exists.');
   }
@@ -64,15 +51,11 @@ UserSchema.pre('save', async function (next) {
 });
 
 UserSchema.methods.generateAuthToken = async function () {
-  const token = jwt.sign(
-    {
-      _id: this._id,
-      isAdmin: this.isAdmin
-    }, 
-    process.env.JWT_KEY
-  );
+  const token = jwt.sign({
+      _id: this._id
+  }, process.env.JWT_KEY);
 
-  this.tokens.concat({token});
+  this.token = token;
   
   await this.save();
 
@@ -84,7 +67,10 @@ UserSchema.statics.authenticate = async (username, password) => {
     username: username
   });
 
-  if (!bcrypt.compareSync(password, user.password)) throw new Error('Username or password incorrect.');
+  const errorMessage = 'Username or password incorrect.';
+
+  if (!user) throw new Error(errorMessage);
+  else if (!bcrypt.compareSync(password, user.password)) throw new Error(errorMessage);
 
   return user;
 }
