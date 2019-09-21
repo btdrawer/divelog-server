@@ -4,6 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+const dbUrl = process.env.MONGODB_URL;
+const port = process.env.PORT;
+
 const app = express();
 
 // view engine setup
@@ -17,39 +20,34 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/divelog', { useNewUrlParser: true });
+mongoose.connect(dbUrl, { useNewUrlParser: false });
 const db = mongoose.connection;
 
-db.on('error', console.log('Database connection error.'));
+db.on('error', err => console.log(err));
 
 const userRouter = require('./routes/user');
 const clubRouter = require('./routes/club');
 const gearRouter = require('./routes/gear');
-const friendRouter = require('./routes/friend');
-const messageRouter = require('./routes/message');
+const groupRouter = require('./routes/group');
 
-app.use('/users', userRouter);
+app.use('/user', userRouter);
 app.use('/club', clubRouter);
 app.use('/gear', gearRouter);
-app.use('/friends', friendRouter);
-app.use('/message', messageRouter);
+app.use('/group', groupRouter);
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
 
-app.listen(8080, () => console.log("Listening on port 8080"));
+app.listen(port, () => console.log(`Listening on port ${port}`));
 
 module.exports = app;

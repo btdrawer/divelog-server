@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const UserModel = require('../models/User');
 const middleware = require('../middleware/auth');
-const routeBuilder = require('../routeBuilder');
+const routeBuilder = require('../helpers/routeBuilder');
 
 // Create new user
 router.post('/', async (req, res) => {
@@ -15,15 +15,17 @@ router.post('/', async (req, res) => {
             }
         );
 
-        const token = await user.generateAuthToken();
-        
         await user.save();
 
-        res.status(200).send({
-            user, token
-        });
-    } catch (e) {
-        res.status(400).send(e);
+        const token = await user.generateAuthToken();
+
+        res.status(200).send(
+            {
+                user, token
+            }
+        );
+    } catch (err) {
+        res.status(400).send(err);
     }
 });
 
@@ -37,11 +39,13 @@ router.post('/login', async (req, res) => {
 
         const token = await user.generateAuthToken();
 
-        res.status(200).send({
-            user, token
-        });
-    } catch (e) {
-        res.status(400).send(e);
+        res.status(200).send(
+            {
+                user, token
+            }
+        );
+    } catch (err) {
+        res.status(400).send(err);
     }
 });
 

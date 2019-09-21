@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ClubModel = require('../models/club');
 const middleware = require('../middleware/auth');
-const routeBuilder = require('../routeBuilder');
+const routeBuilder = require('../helpers/routeBuilder');
 
 // Create new club
 router.post('/', middleware, async (req, res) => 

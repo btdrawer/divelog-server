@@ -1,9 +1,9 @@
 {
-  "name": "server",
+  "name": "divelog-server",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "env-cmd -f ./.env nodemon src/app.js",
     "test": "node ./node_modules/mocha/bin/mocha ./test/index"
   },
   "dependencies": {
@@ -12,16 +12,17 @@
     "chai-http": "^4.3.0",
     "cookie-parser": "^1.4.4",
     "debug": "~2.6.9",
+    "env-cmd": "^10.0.1",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jsonwebtoken": "^8.5.1",
     "mocha": "^5.2.0",
     "mongoose": "^5.7.1",
     "morgan": "^1.9.1",
-    "pug": "^2.0.4",
     "sequelize": "^5.18.4"
   },
   "devDependencies": {
-    "eslint": "^6.1.0"
+    "eslint": "^6.1.0",
+    "nodemon": "^1.19.2"
   }
 }

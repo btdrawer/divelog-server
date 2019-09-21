@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const GearModel = require('../models/gear');
 const middleware = require('../middleware/auth');
-const routeBuilder = require('../routeBuilder');
+const routeBuilder = require('../helpers/routeBuilder');
 
 // Create gear
 router.post('/', middleware, async (req, res) => 
