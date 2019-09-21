@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Schema = mongoose.Schema;
 
-const UserSchema = Schema(
+const UserSchema = new Schema(
   {
     name: {
       type: String,
@@ -45,22 +45,25 @@ const UserSchema = Schema(
   }
 );
 
-UserSchema.pre('save', async next => {
-  console.log('this', this);
+UserSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = bcrypt.hashSync(this.password, 10);
   }
 
-  const user = await UserModel.findOne({
-    username: this.username
-  });
+  if (this.isModified('username')) {
+    const user = await UserModel.findOne(
+      {
+        username: this.username
+      }
+    );
 
-  if (!user) throw new Error('A user with that username already exists.');
+    if (user) throw new Error('A user with that username already exists.');
+  }
 
   next();
 });
 
-UserSchema.methods.generateAuthToken = async () => {
+UserSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign(
     {
       _id: this._id,

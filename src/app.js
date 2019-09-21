@@ -3,8 +3,6 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
-const dbUrl = process.env.MONGODB_URL;
 const port = process.env.PORT;
 
 const app = express();
@@ -19,11 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const mongoose = require('mongoose');
-mongoose.connect(dbUrl, { useNewUrlParser: false });
-const db = mongoose.connection;
-
-db.on('error', err => console.log(err));
+require('./db/db');
 
 const userRouter = require('./routes/user');
 const clubRouter = require('./routes/club');

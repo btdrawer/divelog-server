@@ -7,7 +7,7 @@ const routeBuilder = require('../helpers/routeBuilder');
 // Create new user
 router.post('/', async (req, res) => {
     try {
-        const user = new UserModel(
+        const user = await new UserModel(
             {
                 name: req.body.name,
                 username: req.body.username,
@@ -50,20 +50,12 @@ router.post('/login', async (req, res) => {
 });
 
 // List all users
-router.get('/', middleware, async (req, res) => 
+router.get('/', middleware, async (req, res) => {
     routeBuilder(
-        await UserModel.find({})
-            .toArray((err, fields) => {
-                if (err) throw err;
-
-                fields.forEach(user => {
-                    delete user.password;
-                });
-            }
-        ),
+        await UserModel.find({}),
         res
     )
-);
+});
 
 // Get user by ID
 router.get('/:id', middleware, async (req, res) => 
