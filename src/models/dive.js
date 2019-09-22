@@ -1,30 +1,25 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const errorKeys = require('../variables/errorKeys');
 
 const DiveSchema = new Schema(
   {
-    time_in: {
-      type: Date
-    },
-    time_out: {
-      type: Date
-    },
-    safety_stop_time: {
-      type: Number
-    },
-    max_depth: {
-      type: Number
-    },
-    location: {
-      type: String
-    },
+    time_in: Date,
+    time_out: Date,
+    bottom_time: Number,
+    safety_stop_time: Number,
+    dive_time: Number,
+    max_depth: Number,
+    location: String,
+    description: String,
     club: {
       type: Schema.Types.ObjectId,
       ref: 'Club'
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
+      required: true
     },
     buddies: [{
       type: Schema.Types.ObjectId,
@@ -33,8 +28,24 @@ const DiveSchema = new Schema(
     gear: [{
       type: Schema.Types.ObjectId,
       ref: 'Gear'
-    }]
+    }],
+    public: Boolean
   }
 );
+
+DiveSchema.pre('save', function (next) {
+  this.dive_time = (this.time_out - this.time_in) * 60;
+
+  if (this.dive_time < 0) throw new Error(errorKeys.INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT);
+  
+  if (
+    this.dive_time < 
+    (this.bottom_time + this.safety_stop_time)
+  ) {
+    throw new Error(errorKeys.INVALID_ARGUMENT_DIVE_TIME_EXCEEDED);
+  }
+
+  next();
+});
 
 module.exports = mongoose.model('Dive', DiveSchema);

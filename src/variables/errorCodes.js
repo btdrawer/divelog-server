@@ -14,5 +14,14 @@ module.exports = {
     USERNAME_EXISTS: {
         code: 409,
         message: 'A user with that username already exists.'
+    },
+    INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT: {
+        code: 422,
+        message: 'Time in cannot be later than time out.'
+    },
+    INVALID_ARGUMENT_DIVE_TIME_EXCEEDED: {
+        code: 422,
+        message: 'Bottom and safety stop time cannot exceed dive time \
+            (The difference between time in and time out).'
     }
 }

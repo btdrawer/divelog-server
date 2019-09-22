@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const errorKeys = require('../variables/errorKeys');
+const handleError = require('../handlers/handleError');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
@@ -33,20 +34,34 @@ const UserSchema = new Schema(
 );
 
 UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    this.password = bcrypt.hashSync(this.password, 10);
-  }
+  if (this.isModified('password')) this.password = bcrypt.hashSync(this.password, 10);
 
   if (this.isModified('username')) {
     const user = await UserModel.findOne({
       username: this.username
+    });
+  
+    if (user) throw new Error(errorKeys.USERNAME_EXISTS);
+  }
+
+  next();
+});
+
+UserSchema.pre('findOneAndUpdate', async function (next) {
+  if (this._update.password) {
+    this._update.password = bcrypt.hashSync(this._update.password, 10);
+  }
+
+  if (this._update.username) {
+    const user = await UserModel.findOne({
+      username: this._update.username
     });
 
     if (user) throw new Error(errorKeys.USERNAME_EXISTS);
   }
 
   next();
-});
+})
 
 UserSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign({

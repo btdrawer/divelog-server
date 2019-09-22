@@ -3,7 +3,7 @@ const router = express.Router();
 const GearModel = require('../models/gear');
 const middleware = require('../middleware/auth');
 const routeBuilder = require('../helpers/routeBuilder');
-const getAuthData = require('../helpers/getAuthData');
+const getAuthData = require('../middleware/getAuthData');
 
 // Create gear
 router.post('/', middleware, async (req, res) => 
@@ -46,7 +46,8 @@ router.put('/:id', middleware, async (req, res) =>
     routeBuilder(
         await GearModel.findOneAndUpdate({
             _id: req.params.id
-        }, req.body.new_properties),
+        }, req.body.new_properties,
+        {new: true}),
         res,
         'PUT'
     )

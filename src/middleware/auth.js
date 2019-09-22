@@ -1,5 +1,5 @@
 const UserModel = require('../models/User');
-const getAuthData = require('../helpers/getAuthData');
+const getAuthData = require('./getAuthData');
 const routerUrls = require('../variables/routerUrls');
 const errorKeys = require('../variables/errorKeys');
 const handleError = require('../handlers/handleError');
@@ -16,11 +16,17 @@ module.exports = async (req, res, next) => {
         if (!user) throw new Error(errorKeys.INVALID_AUTH);
 
         switch(req.baseUrl) {
-            case routerUrls.USER:
-                await require('./accessToResource/user')(req, next, data);
+            case routerUrls.DIVE:
+                await require('./accessToResource/dive')(req, data);
+                break;
+            case routerUrls.CLUB:
+                await require('./accessToResource/club')(req, data);
                 break;
             case routerUrls.GEAR:
-                await require('./accessToResource/gear')(req, next, data);
+                await require('./accessToResource/gear')(req, data);
+                break;
+            case routerUrls.GROUP:
+                await require('./accessToResource/group')(req, data);
                 break;
             default:
                 break;

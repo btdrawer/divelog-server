@@ -5,7 +5,10 @@ module.exports = {
         "node": true,
         "mocha": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended"
+    ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
@@ -14,6 +17,8 @@ module.exports = {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "plugins": ["prettier"],
     "rules": {
+        "prettier/prettier": "error"
     }
 };
