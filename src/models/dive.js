@@ -26,19 +26,15 @@ const DiveSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User'
     },
-    buddies: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-      }
-    ],
-    gear: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Gear'
-      }
-    ]
+    buddies: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    gear: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Gear'
+    }]
   }
 );
 
-module.exports = mongoose.mnodel('Dive', DiveSchema);
+module.exports = mongoose.model('Dive', DiveSchema);

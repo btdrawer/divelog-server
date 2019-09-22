@@ -7,24 +7,20 @@ const GroupSchema = new Schema(
       type: String,
       max: 30
     },
-    participants: [
-      {
+    participants: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    messages: [{
+      text: {
+        type: String,
+        required: true
+      },
+      sender: {
         type: Schema.Types.ObjectId,
         ref: 'User'
       }
-    ],
-    messages: [
-      {
-        text: {
-          type: String,
-          required: true
-        },
-        sender: {
-          type: Schema.Types.ObjectId,
-          ref: 'User'
-        }
-      }
-    ]
+    }]
   }
 );
 

@@ -21,16 +21,14 @@ const UserSchema = new Schema(
       required: true
     },
     token: String,
-    friends: {
-      users: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-          required: true
-        }
-      ],
+    friends: [{
+      user:
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      },
       accepted: Boolean
-    }
+    }]
   }
 );
 

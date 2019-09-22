@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
             user, token
         });
     } catch (err) {
-        handleError(res, err, 401);
+        handleError(res, err);
     }
 });
 
@@ -48,7 +48,8 @@ router.post('/login', async (req, res) => {
 router.get('/', middleware, async (req, res) => {
     routeBuilder(
         await UserModel.find({}),
-        res
+        res,
+        'GET'
     )
 });
 
@@ -58,7 +59,8 @@ router.get('/:id', middleware, async (req, res) =>
         await UserModel.findOne({
             _id: req.params.id
         }),
-        res
+        res,
+        'GET'
     )
 );
 
@@ -68,7 +70,8 @@ router.put('/:id', middleware, async (req, res) =>
         await UserModel.updateOne({
             _id: req.params.id
         }, req.body.updated_fields),
-        res
+        res,
+        'PUT'
     )
 );
 
@@ -78,7 +81,8 @@ router.delete('/:id', middleware, async (req, res) =>
         await UserModel.deleteOne({
             _id: req.params.id
         }),
-        res
+        res,
+        'DELETE'
     )
 );
 
