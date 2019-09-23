@@ -1,6 +1,8 @@
 const errorCodes = require('../variables/errorCodes');
 
 module.exports = (res, err) => {
+    console.log(err);
+    
     const {code, message} = errorCodes[err.message];
 
     console.log('Error code:', code);

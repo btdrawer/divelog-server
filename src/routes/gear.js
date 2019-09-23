@@ -9,12 +9,14 @@ const handleErrror = require('../handlers/handleError');
 // Create gear
 router.post('/', middleware, async (req, res) => {
     try {
-        const gear = await GearModel.create({
+        const gear = await new GearModel({
             brand: req.body.brand,
             name: req.body.name,
             type: req.body.type,
             owner: getAuthData(req).data._id
         });
+
+        await gear.save();
 
         handleSuccess(res, gear, 'POST');
     } catch (err) {

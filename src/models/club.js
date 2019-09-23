@@ -19,7 +19,8 @@ const ClubSchema = new Schema(
     managers: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
       }
     ],
     website: {

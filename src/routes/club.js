@@ -2,19 +2,22 @@ const express = require('express');
 const router = express.Router();
 const ClubModel = require('../models/club');
 const middleware = require('../middleware/auth');
+const getAuthData = require('../middleware/getAuthData');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 
 // Create new club
 router.post('/', middleware, async (req, res) => {
     try {
-        const club = await ClubModel.create({
+        const club = await new ClubModel({
             name: req.body.name,
             location: req.body.location,
             description: req.body.description,
-            managers: req.body.managers,
+            managers: [getAuthData(req).data._id],
             website: req.body.website
         });
+
+        await club.save();
 
         handleSuccess(res, club, 'POST');
     } catch (err) {
@@ -25,21 +28,16 @@ router.post('/', middleware, async (req, res) => {
 // List all clubs
 router.get('/', middleware, async (req, res) => {
     try {
-        const clubs = await ClubModel.find({});
+        let clubs;
 
-        handleSuccess(res, clubs, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
-
-// Search for clubs
-router.get('/search', middleware, async (req, res) => {
-    try {
-        const clubs = await ClubModel.find({
-            name: req.body.name,
-            location: req.body.location
-        });
+        if (res.body) {
+            clubs = await ClubModel.find({
+                name: req.body.name,
+                location: req.body.location
+            });
+        } else {
+            clubs = await ClubModel.find({});
+        }
 
         handleSuccess(res, clubs, 'GET');
     } catch (err) {
@@ -65,7 +63,8 @@ router.put('/:id', middleware, async (req, res) => {
     try {
         const club = await ClubModel.findOneAndUpdate({
             _id: req.params.id
-        });
+        }, req.body,
+        {new: true});
 
         handleSuccess(res, club, 'PUT');
     } catch (err) {
