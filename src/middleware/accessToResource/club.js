@@ -2,11 +2,10 @@ const ClubModel = require('../../models/club');
 const errorKeys = require('../../variables/errorKeys');
 
 module.exports = async (req, data) => {
-    if (req.method !== 'POST' || req.params.id || req.params.groupId) {
+    if (req.method !== 'POST' && req.params.id) {
         const club = await ClubModel.findOne({
             _id: req.params.id
         });
-        console.log(club);
     
         if (!club) throw new Error(errorKeys.NOT_FOUND);
         else if (req.method === 'PUT' || req.method === 'DELETE') {

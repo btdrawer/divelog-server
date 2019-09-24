@@ -8,7 +8,7 @@ module.exports = async (req, data) => {
         });
     
         if (!group) throw new Error(errorKeys.NOT_FOUND);
-        else if (!group.participants.includes(data._id.toString())) {
+        else if (!group.participants.contains(data._id.toString())) {
             throw new Error(errorKeys.FORBIDDEN);
         }
     }
