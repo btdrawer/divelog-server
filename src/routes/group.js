@@ -77,7 +77,7 @@ router.get('/:id', middleware, async (req, res) => {
 });
 
 // Add member to group
-router.post('/:groupId/user/:userId', middleware, async (req, res) => {
+router.post('/:id/user/:userId', middleware, async (req, res) => {
     try {
         const group = await GroupModel.findOne({
             _id: req.params.groupId
