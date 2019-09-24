@@ -80,7 +80,7 @@ router.get('/:id', middleware, async (req, res) => {
 router.post('/:id/user/:userId', middleware, async (req, res) => {
     try {
         const group = await GroupModel.findOne({
-            _id: req.params.groupId
+            _id: req.params.id
         });
 
         await group.addUser(req.params.userId);
