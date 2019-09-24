@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const errorKeys = require('../variables/errorKeys');
-const handleError = require('../handlers/handleError');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt');
+const jwt = require('../helpers/jwt');
 
 const UserSchema = new Schema(
   {
@@ -23,12 +22,17 @@ const UserSchema = new Schema(
     },
     token: String,
     friends: [{
-      user:
-      {
+      user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
       },
       accepted: Boolean
+    }],
+    friend_requests: [{
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
     }]
   }
 );
@@ -43,6 +47,8 @@ UserSchema.pre('save', async function (next) {
   
     if (user) throw new Error(errorKeys.USERNAME_EXISTS);
   }
+
+  this.token = jwt(this._id);
 
   next();
 });
@@ -63,18 +69,6 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
   next();
 })
 
-UserSchema.methods.generateAuthToken = async function () {
-  const token = jwt.sign({
-      _id: this._id
-  }, process.env.JWT_KEY);
-
-  this.token = token;
-  
-  await this.save();
-
-  return token;
-};
-
 UserSchema.statics.authenticate = async (username, password) => {
   const user = await UserModel.findOne({
     username: username
@@ -84,6 +78,9 @@ UserSchema.statics.authenticate = async (username, password) => {
 
   if (!user) throw new Error(errorMessage);
   else if (!bcrypt.compareSync(password, user.password)) throw new Error(errorMessage);
+
+  user.token = jwt(user._id);
+  user.save();
 
   return user;
 }

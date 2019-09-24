@@ -15,11 +15,9 @@ router.post('/', async (req, res) => {
             password: req.body.password,
         });
 
-        const token = await user.generateAuthToken();
+        await user.save();
 
-        res.status(200).send({
-            user, token
-        });
+        handleSuccess(res, user, 'POST');
     } catch (err) {
         handleError(res, err);
     }
@@ -33,11 +31,39 @@ router.post('/login', async (req, res) => {
             req.body.password
         );
 
-        const token = await user.generateAuthToken();
+        handleSuccess(res, user, 'POST');
+    } catch (err) {
+        handleError(res, err);
+    }
+});
 
-        res.status(200).send({
-            user, token
-        });
+// Add friend
+router.post('/friend/:id', async (req, res) => {
+    try {
+        let myId = await getAuthData(req).data._id;
+
+        const user = await UserModel.findOneAndUpdate({
+            _id: myId
+        }, {
+            '$push': {
+                friends: {
+                    user: req.params.id,
+                    accepted: false
+                }
+            }
+        }, {new: true});
+
+        await UserModel.findOneAndUpdate({
+            _id: req.params.id
+        }, {
+            '$push': {
+                friend_requests: {
+                    user: myId
+                }
+            }
+        })
+
+        handleSuccess(res, user, 'POST');
     } catch (err) {
         handleError(res, err);
     }
