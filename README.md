@@ -32,3 +32,7 @@ Then, you can run the program by typing:
 You can also run the unit tests by typing:
 ```npm test```
 (But, as noted above, they currently need to be updated.)
+
+## Acknowledgements
+
+I got a lot of help from [this](https://medium.com/swlh/jwt-authentication-authorization-in-nodejs-express-mongodb-rest-apis-2019-ad14ec818122) tutorial about how to generate and store JSON Web Tokens, as well as how to create router functions that call a Mongoose database and successfully handle the output from that. It really helped me get going with this project, so thank you.
