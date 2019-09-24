@@ -15,6 +15,10 @@ module.exports = {
         code: 409,
         message: 'A user with that username already exists.'
     },
+    USER_ALREADY_IN_GROUP: {
+        code: 409,
+        message: 'That user is already present in the group.'
+    },
     INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT: {
         code: 422,
         message: 'Time in cannot be later than time out.'
