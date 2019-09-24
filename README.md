@@ -1,7 +1,8 @@
 # divelog-server
 An Express.js/MongoDB server for a hypothetical website for logging scuba dives.
+
 It is essentially like the existing ScubaEarth.
-I had an idea to build a newer version of it because, although I haven't used it for years now, I always found ScubaEarth to be buggy/unreliable, and so I thought it would be a fun project to try and make a newer version of it.
+I had an idea to build a newer version of it because, although I haven't used it for years now, I always found ScubaEarth to be buggy/unreliable, and so I thought it would be a fun project to try and make a newer version of it - albeit a rather basic one; this is just a personal project after all.
 My plan is to eventually build the frontend as well.
 
 ## Requirements
