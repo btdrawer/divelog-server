@@ -2,8 +2,14 @@
 An Express.js/MongoDB server for a hypothetical website for logging scuba dives.
 
 It is essentially like the existing ScubaEarth.
-I had an idea to build a newer version of it because, although I haven't used it for years now, I always found ScubaEarth to be buggy/unreliable, and so I thought it would be a fun project to try and make a newer version of it - albeit a rather basic one; this is just a personal project after all.
+I had an idea to build a newer version of it because, although I haven't used it for years now (maybe it's improved), I always found ScubaEarth to be buggy/unreliable, and so I thought it would be a fun project to try and make a newer version of it - albeit a rather basic one; this is just a personal project after all.
 My plan is to eventually build the frontend as well.
+
+## Work in progress
+
+Not all routes have been completed yet, although most have.
+
+I also need to update the included unit tests - currently they have been imported straight over from an older version of this project where I was using a MySQL database. Since restarting with Mongoose, I've made changes to how outputs are handled, so changes to unit tests need to be made which I haven't done yet (so far, I have been testing by making requests via Postman).
 
 ## Requirements
 
@@ -22,3 +28,7 @@ Add a `.env` file to the root folder, with the following variables:
 
 Then, you can run the program by typing:
 ```npm start```
+
+You can also run the unit tests by typing:
+```npm test```
+(But, as noted above, they currently need to be updated.)
