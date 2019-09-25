@@ -64,7 +64,7 @@ router.post('/friend/:id', async (req, res) => {
 
 // List all users
 router.get('/', middleware, (req, res) =>
-    routeBuilder.getAll(UserModel, res, 
+    routeBuilder.getAll(UserModel, res, {},
         ['name', 'username']
     )
 );

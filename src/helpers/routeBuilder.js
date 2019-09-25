@@ -12,16 +12,20 @@ exports.post = async (model, res, payload) => {
     }
 };
 
-exports.getAll = async (model, res, fieldsToReturn) => {
+exports.getAll = async (model, res, query, fieldsToReturn) => {
     try {
-        fieldsToReturn = fieldsToReturn.reduce((fields, field) => {
-            fields[field] = 1;
-            return fields;
-        }, {});
+        let obj;
 
-        const obj = fieldsToReturn 
-            ? await model.find({}, fieldsToReturn) 
-            : await model.find({});
+        if (fieldsToReturn) {
+            fieldsToReturn = fieldsToReturn.reduce((fields, field) => {
+                fields[field] = 1;
+                return fields;
+            }, {});
+    
+            obj = await model.find(query || {}, fieldsToReturn);
+        } else {
+            obj = await model.find(query || {});
+        }
 
         handleSuccess(res, obj, 'GET');
     } catch (err) {

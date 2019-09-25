@@ -3,78 +3,52 @@ const router = express.Router();
 const GroupModel = require('../models/group');
 const middleware = require('../middleware/auth');
 const getAuthData = require('../middleware/getAuthData');
+const routeBuilder = require('../helpers/routeBuilder');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 
 // Create new group and post first message
 router.post('/', middleware, async (req, res) => {
-    try {
-        const myId = getAuthData(req).data._id;
-        req.body.participants.push(myId);
+    const myId = getAuthData(req).data._id;
+    req.body.participants.push(myId);
 
-        const group = await new GroupModel({
-            name: req.body.group_name,
-            participants: req.body.participants,
-            messages: [{
+    await routeBuilder.post(GroupModel, res, {
+        name: req.body.group_name,
+        participants: req.body.participants,
+        messages: [{
+            text: req.body.text,
+            sender: myId
+        }]
+    });
+});
+
+router.post('/:id/message', middleware, (req, res) =>
+    routeBuilder.put(GroupModel, res, {
+        _id: req.params.id
+    }, {
+        '$push': {
+            messages: {
                 text: req.body.text,
-                sender: myId
-            }]
-        });
-
-        await group.save();
-    
-        handleSuccess(res, group, 'POST');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
-
-// Post new message
-router.post('/:id/message', middleware, async (req, res) => {
-    try {
-        const group = await GroupModel.findOneAndUpdate({
-            _id: req.params.id
-        }, {
-            '$push': {
-                messages: {
-                    text: req.body.text,
-                    sender: getAuthData(req).data._id,
-                    sent: new Date().getMilliseconds()
-                }
+                sender: getAuthData(req).data._id,
+                sent: new Date().getMilliseconds()
             }
-        }, {new: true});
-
-        handleSuccess(res, group, 'POST');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+        }
+    })
+);
 
 // List groups the user participates in
-router.get('/', middleware, async (req, res) => {
-    try {
-        const groups = await GroupModel.find({
-            participants: getAuthData(req).data._id
-        });
-
-        handleSuccess(res, groups, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.get('/', middleware, (req, res) => 
+    routeBuilder.getAll(GroupModel, res, {
+        participants: getAuthData(req).data._id
+    })
+);
 
 // Get group
-router.get('/:id', middleware, async (req, res) => {
-    try {
-        const group = await GroupModel.find({
-            _id: req.params.id
-        });
-
-        handleSuccess(res, group, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.get('/:id', middleware, (req, res) => 
+    routeBuilder.getOne(GroupModel, res, {
+        _id: req.params.id
+    })
+);
 
 // Add member to group
 router.post('/:id/user/:userId', middleware, async (req, res) => {
@@ -92,22 +66,14 @@ router.post('/:id/user/:userId', middleware, async (req, res) => {
 });
 
 // Leave gronp
-router.delete('/:id/leave', middleware, async (req, res) => {
-    try {
-        const group = await GroupModel.findOneAndUpdate({
-            _id: req.params.id
-        }, {
-            '$pull': {
-                participants: getAuthData(req).data._id
-            }
-        }, {new: true});
-
-        await group.save();
-
-        handleSuccess(res, group, 'DELETE');
-    } catch (err) {
-        handleError(res, err);
-    }
-})
+router.delete('/:id/leave', middleware, (req, res) => 
+    routeBuilder.put(GroupModel, res, {
+        _id: req.params.id
+    }, {
+        '$pull': {
+            participants: getAuthData(req).data._id
+        }
+    })
+);
 
 module.exports = router;
