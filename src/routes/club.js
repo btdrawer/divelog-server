@@ -5,32 +5,25 @@ const middleware = require('../middleware/auth');
 const getAuthData = require('../middleware/getAuthData');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
+const routeBuilder = require('../helpers/routeBuilder');
 
 // Create new club
-router.post('/', middleware, async (req, res) => {
-    try {
-        const club = await new ClubModel({
-            name: req.body.name,
-            location: req.body.location,
-            description: req.body.description,
-            managers: [getAuthData(req).data._id],
-            website: req.body.website
-        });
-
-        await club.save();
-
-        handleSuccess(res, club, 'POST');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.post('/', middleware, (req, res) => 
+    routeBuilder.post(ClubModel, res, {
+        name: req.body.name,
+        location: req.body.location,
+        description: req.body.description,
+        managers: [getAuthData(req).data._id],
+        website: req.body.website
+    })
+);
 
 // List all clubs
 router.get('/', middleware, async (req, res) => {
     try {
         let clubs;
 
-        if (res.body) {
+        if (req.body) {
             clubs = await ClubModel.find({
                 name: req.body.name,
                 location: req.body.location
@@ -46,43 +39,24 @@ router.get('/', middleware, async (req, res) => {
 });
 
 // Get club by ID
-router.get('/:id', middleware, async (req, res) => {
-    try {
-        const club = await ClubModel.findOne({
-            _id: req.params.id
-        });
-
-        handleSuccess(res, club, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.get('/:id', middleware, (req, res) => 
+    routeBuilder.getOne(ClubModel, res, {
+        _id: req.params.id
+    })
+);
 
 // Update club
-router.put('/:id', middleware, async (req, res) => {
-    try {
-        const club = await ClubModel.findOneAndUpdate({
-            _id: req.params.id
-        }, req.body,
-        {new: true});
-
-        handleSuccess(res, club, 'PUT');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.put('/:id', middleware, (req, res) => 
+    routeBuilder.put(ClubModel, res, {
+        _id: req.params.id
+    }, req.body)
+);
 
 // Delete club
-router.delete('/:id', middleware, async (req, res) => {
-    try {
-        const club = await ClubModel.findOneAndDelete({
-            _id: req.params.id,
-        });
-
-        handleSuccess(res, club, 'DELETE');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.delete('/:id', middleware, (req, res) => 
+    routeBuilder.delete(UserModel, res, {
+        _id: req.params.id
+    })
+);
 
 module.exports = router;

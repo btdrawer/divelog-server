@@ -5,23 +5,16 @@ const middleware = require('../middleware/auth');
 const getAuthData = require('../middleware/getAuthData');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
+const routeBuilder = require('../helpers/routeBuilder');
 
 // Create new user
-router.post('/', async (req, res) => {
-    try {
-        const user = await new UserModel({
-            name: req.body.name,
-            username: req.body.username,
-            password: req.body.password,
-        });
-
-        await user.save();
-
-        handleSuccess(res, user, 'POST');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.post('/', (req, res) => 
+    routeBuilder.post(UserModel, res, {
+        name: req.body.name,
+        username: req.body.username,
+        password: req.body.password
+    })
+);
 
 // Login
 router.post('/login', async (req, res) => {
@@ -70,60 +63,31 @@ router.post('/friend/:id', async (req, res) => {
 });
 
 // List all users
-router.get('/', middleware, async (req, res) => {
-    try {
-        const users = await UserModel.find({}, {
-            name: 1,
-            username: 1
-        });
-
-        handleSuccess(res, users, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.get('/', middleware, (req, res) =>
+    routeBuilder.getAll(UserModel, res, 
+        ['name', 'username']
+    )
+);
 
 // Get user by ID
-router.get('/:id', middleware, async (req, res) => {
-    try {
-        const user = await UserModel.findOne({
-            _id: req.params.id
-        }, {
-            name: 1,
-            username: 1
-        });
-
-        handleSuccess(res, user, 'GET');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.get('/:id', middleware, (req, res) =>
+    routeBuilder.getOne(UserModel, res, {
+        _id: req.params.id
+    }, ['name', 'username'])
+);
 
 // Update user details
-router.put('/', middleware, async (req, res) => {
-    try {
-        const user = await UserModel.findOneAndUpdate({
-            _id: getAuthData(req).data._id
-        }, req.body.new_properties,
-        {new: true});
-
-        handleSuccess(res, user, 'PUT');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.put('/', middleware, (req, res) =>
+    routeBuilder.put(UserModel, res, {
+        _id: getAuthData(req).data._id
+    }, req.body.new_properties)
+);
 
 // Delete user
-router.delete('/', middleware, async (req, res) => {
-    try {
-        const user = await UserModel.findOneAndDelete({
-            _id: getAuthData(req).data._id
-        });
-
-        handleSuccess(res, user, 'DELETE');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.delete('/', middleware, (req, res) =>
+    routeBuilder.delete(UserModel, res, {
+        _id: getAuthData(req).data._id
+    })
+);
 
 module.exports = router;
