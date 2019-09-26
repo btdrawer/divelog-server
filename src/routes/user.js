@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const UserModel = require('../models/User');
-const middleware = require('../middleware/auth');
-const getAuthData = require('../middleware/getAuthData');
+const middleware = require('../middleware/middleware');
+const getUserID = require('../helpers/getUserID');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 const routeBuilder = require('../helpers/routeBuilder');
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
 // Add friend
 router.post('/friend/:id', async (req, res) => {
     try {
-        let myId = await getAuthData(req).data._id;
+        let myId = await getUserID(req);
 
         const user = await UserModel.findOneAndUpdate({
             _id: myId
@@ -79,14 +79,14 @@ router.get('/:id', middleware, (req, res) =>
 // Update user details
 router.put('/', middleware, (req, res) =>
     routeBuilder.put(UserModel, res, {
-        _id: getAuthData(req).data._id
-    }, req.body.new_properties)
+        _id: getUserID(req)
+    }, req.body)
 );
 
 // Delete user
 router.delete('/', middleware, (req, res) =>
     routeBuilder.delete(UserModel, res, {
-        _id: getAuthData(req).data._id
+        _id: getUserID(req)
     })
 );
 

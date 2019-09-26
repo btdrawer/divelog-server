@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const ClubModel = require('../models/club');
-const middleware = require('../middleware/auth');
-const getAuthData = require('../middleware/getAuthData');
+const middleware = require('../middleware/middleware');
+const getUserID = require('../helpers/getUserID');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 const routeBuilder = require('../helpers/routeBuilder');
@@ -13,7 +13,7 @@ router.post('/', middleware, (req, res) =>
         name: req.body.name,
         location: req.body.location,
         description: req.body.description,
-        managers: [getAuthData(req).data._id],
+        managers: [getUserID(req)],
         website: req.body.website
     })
 );

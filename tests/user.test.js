@@ -2,47 +2,83 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const should = chai.should();
 const app = require('../app');
-const users = require('./user_details');
+const users = require('./testData/user');
+const userData = require('./testData/user');
 
 chai.use(chaiHttp);
 
-var user0 = users.user0,
-user1 = users.user1,
-user2 = users.user2;
+let {user0, user1, user2} = userData;
+
+let userIds = {
+    user0: '',
+    user1: '',
+    user2: ''
+};
+
+let tokens = {
+    user0: '',
+    user1: '',
+    user2: ''
+};
 
 describe('User', () => {
     describe('Create user', () => {
         it('should create a new user', (done) =>{
             chai.request(app)
-                .post('/users')
+                .post('/user')
                 .send(user0)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
 
+                    userIds.user0 = res.body._id;
+                    tokens.user0 = res.body.token;
+
                     done();
                 });
         });
 
         it('should create a new user', (done) =>{
             chai.request(app)
-                .post('/users')
+                .post('/user')
                 .send(user1)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
 
+                    userIds.user1 = res.body._id;
+                    tokens.user1 = res.body.token;
+
                     done();
                 });
         });
 
         it('should create a new user', (done) =>{
             chai.request(app)
-                .post('/users')
+                .post('/user')
                 .send(user2)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
+
+                    userIds.user2 = res.body._id;
+                    tokens.user2 = res.body.token;
+
+                    done();
+                });
+        });
+    });
+
+    describe('Login', () => {
+        it('should login', (done) =>{
+            chai.request(app)
+                .post('/user/login')
+                .send(user0)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+
+                    tokens.user1 = res.body.token;
 
                     done();
                 });
@@ -52,20 +88,25 @@ describe('User', () => {
     describe('Get user by username', () => {
         it('should get a user by username', (done) =>{
             chai.request(app)
-                .get('/users/username/' + user0.username)
-                .send(user0)
+                .get('/user')
+                .send({
+                    username: user1.username
+                })
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
 
-                    res.body.should.be.a('object');
+                    res.body.should.be.a('array');
+                    res.body.should.have.length(1);
 
-                    res.body.should.have.property('id');
-                    res.body.should.have.property('username');
-                    res.body.should.have.property('password');
+                    let user = res.body[0];
 
-                    res.body.username.should.equal(user0.username);
+                    user.should.have.property('_id');
+                    user.should.have.property('username');
+                    user.should.not.have.property('password');
 
-                    user0['id'] = res.body.id;
+                    user._id.should.equal(userIds.user1);
+                    user.username.should.equal(user1.username);
 
                     done();
                 });
@@ -73,8 +114,11 @@ describe('User', () => {
 
         it('should fail to get a user if username does not exist', (done) =>{
             chai.request(app)
-                .get('/users/username/aaasdfjjbojj')
-                .send(user0)
+                .get('/user')
+                .send({
+                    username: 'agjhgdjhasg'
+                })
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(404);
 
@@ -86,18 +130,19 @@ describe('User', () => {
     describe('Get user by ID', () => {
         it('should get a user by ID', (done) =>{
             chai.request(app)
-                .get('/users/id/' + user0.id)
-                .send(user0)
+                .get(`/user/${user1.id}`)
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
 
                     res.body.should.be.a('object');
 
-                    res.body.should.have.property('id');
+                    res.body.should.have.property('_id');
                     res.body.should.have.property('username');
-                    res.body.should.have.property('password');
+                    res.body.should.not.have.property('password');
 
-                    res.body.username.should.equal(user0.username);
+                    res.body._id.should.equal(userIds.user1);
+                    res.body.username.should.equal(user1.username);
 
                     done();
                 });
@@ -105,8 +150,8 @@ describe('User', () => {
 
         it('should fail to get a user if ID does not exist', (done) =>{
             chai.request(app)
-                .get('/users/id/-1')
-                .send(user0)
+                .get('/user/-1')
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(404);
 
@@ -115,16 +160,14 @@ describe('User', () => {
         });
     });
 
-    describe('Get all users', () => {
-        it('should get all users', (done) =>{
+    describe('List users', () => {
+        it('should list all users', (done) =>{
             chai.request(app)
-                .get('/users')
-                .send(user0)
+                .get('/user')
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
-
                     res.body.should.be.a('array');
-                    res.body.should.have.length(3);
 
                     done();
                 });
@@ -132,20 +175,23 @@ describe('User', () => {
     });
 
     describe('Update user', () => {
-        let user0a = {
+        let user0Update = {
             username: 'user0a',
             password: 'passw0rd'
         };
 
         it('should update username and password', (done) => {
             chai.request(app)
-                .put('/users/' + user0.id)
-                .send({
-                    new_properties: user0a
-                })
-                .send(user0)
+                .put('/user')
+                .send(user0Update)
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
+
+                    res.body.should.be.a('object');
+                    res.body.username.should.equal(user0Update.username);
+
+                    tokens.user0 = res.body.token;
 
                     done();
                 });
@@ -153,15 +199,16 @@ describe('User', () => {
 
         it('should update username', (done) => {
             chai.request(app)
-                .put('/users/' + user0.id)
+                .put('/user')
                 .send({
-                    new_properties: {
-                        username: user0.username
-                    }
+                    username: user0.username
                 })
-                .send(user0a)
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
+
+                    res.body.should.be.a('object');
+                    res.body.username.should.equal(user0.username);
 
                     done();
                 });
@@ -169,16 +216,26 @@ describe('User', () => {
 
         it('should update password', (done) => {
             chai.request(app)
-                .put('/users/' + user0.id)
+                .put('/user')
                 .send({
-                    new_properties: {
-                        password: user0.password
-                    }
+                    password: user0.password
                 })
-                .send({
-                    username: user0.username,
-                    password: user0a.password
-                })
+                .send(tokens.user0)
+                .end((err, res) => {
+                    res.should.have.status(200);
+
+                    tokens.user0 = res.body.token;
+
+                    done();
+                });
+        });
+    });
+
+    describe('Delete user', () => {
+        it('should delete user', (done) => {
+            chai.request(app)
+                .delete('/user')
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
 
@@ -186,54 +243,23 @@ describe('User', () => {
                 });
         });
 
-        it('should return 404 if user does not exist', (done) => {
+        it('should delete user', (done) => {
             chai.request(app)
-                .put('/users/-1')
-                .send({
-                    new_properties: {
-                        password: 'passw0rd'
-                    }
-                })
-                .send(user0)
+                .delete('/user')
+                .send(tokens.user1)
                 .end((err, res) => {
-                    res.should.have.status(404);
+                    res.should.have.status(200);
 
                     done();
                 });
         });
 
-        it('should return 401 if password is incorrect', (done) => {
+        it('should delete user', (done) => {
             chai.request(app)
-                .put('/users/' + user0.id)
-                .send({
-                    new_properties: {
-                        password: 'passw0rd'
-                    }
-                })
-                .send({
-                    username: user0.username,
-                    password: 'sabhjfsajbfds'
-                })
+                .delete('/user')
+                .send(tokens.user2)
                 .end((err, res) => {
-                    res.should.have.status(401);
-
-                    done();
-                });
-        });
-
-        it('should return 400 if password is missing', (done) => {
-            chai.request(app)
-                .put('/users/' + user0.id)
-                .send({
-                    new_properties: {
-                        username: 'user0b'
-                    }
-                })
-                .send({
-                    username: user0.username
-                })
-                .end((err, res) => {
-                    res.should.have.status(400);
+                    res.should.have.status(200);
 
                     done();
                 });

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const GearModel = require('../models/gear');
-const middleware = require('../middleware/auth');
-const getAuthData = require('../middleware/getAuthData');
+const middleware = require('../middleware/middleware');
+const getUserID = require('../helpers/getUserID');
 const routeBuilder = require('../helpers/routeBuilder');
 
 // Create gear
@@ -11,14 +11,14 @@ router.post('/', middleware, (req, res) =>
         brand: req.body.brand,
         name: req.body.name,
         type: req.body.type,
-        owner: getAuthData(req).data._id
+        owner: getUserID(req)
     })
 );
 
 // List all gear for signed-in user
 router.get('/', middleware, (req, res) => 
     routeBuilder.getAll(GearModel, res, {
-        owner: getAuthData(req).data._id
+        owner: getUserID(req)
     })
 );
 

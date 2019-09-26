@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const GroupModel = require('../models/group');
-const middleware = require('../middleware/auth');
-const getAuthData = require('../middleware/getAuthData');
+const middleware = require('../middleware/middleware');
+const getUserID = require('../helpers/getUserID');
 const routeBuilder = require('../helpers/routeBuilder');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 
 // Create new group and post first message
 router.post('/', middleware, async (req, res) => {
-    const myId = getAuthData(req).data._id;
+    const myId = getUserID(req);
     req.body.participants.push(myId);
 
     await routeBuilder.post(GroupModel, res, {
@@ -29,7 +29,7 @@ router.post('/:id/message', middleware, (req, res) =>
         '$push': {
             messages: {
                 text: req.body.text,
-                sender: getAuthData(req).data._id,
+                sender: getUserID(req),
                 sent: new Date().getMilliseconds()
             }
         }
@@ -39,7 +39,7 @@ router.post('/:id/message', middleware, (req, res) =>
 // List groups the user participates in
 router.get('/', middleware, (req, res) => 
     routeBuilder.getAll(GroupModel, res, {
-        participants: getAuthData(req).data._id
+        participants: getUserID(req)
     })
 );
 
@@ -71,7 +71,7 @@ router.delete('/:id/leave', middleware, (req, res) =>
         _id: req.params.id
     }, {
         '$pull': {
-            participants: getAuthData(req).data._id
+            participants: getUserID(req)
         }
     })
 );
