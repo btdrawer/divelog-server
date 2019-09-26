@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const errorKeys = require('../variables/errorKeys');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
-const jwt = require('../helpers/jwt');
+const jwt = require('../authentication/helpers/jwt');
 
 const UserSchema = new Schema(
   {
