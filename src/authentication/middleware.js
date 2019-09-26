@@ -1,5 +1,5 @@
 const UserModel = require('../models/User');
-const getAuthData = require('./authentication/helpers/getAuthData');
+const getAuthData = require('./helpers/getAuthData');
 const routerUrls = require('../variables/routerUrls');
 const errorKeys = require('../variables/errorKeys');
 const handleError = require('../handlers/handleError');
