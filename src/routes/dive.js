@@ -8,18 +8,18 @@ const routeBuilder = require('../helpers/routeBuilder');
 // Create new dive
 router.post('/', middleware, (req, res) => 
     routeBuilder.post(DiveModel, res, {
-        time_in: res.body.time_in,
-        time_out: res.body.time_out,
-        bottom_time: res.body.bottom_time,
-        safety_stop_time: res.body.safety_stop_time,
-        max_depth: res.body.max_depth,
-        location: res.body.location,
-        description: res.body.description,
-        club: res.body.club_id,
+        time_in: req.body.time_in,
+        time_out: req.body.time_out,
+        bottom_time: req.body.bottom_time,
+        safety_stop_time: req.body.safety_stop_time,
+        max_depth: req.body.max_depth,
+        location: req.body.location,
+        description: req.body.description,
+        club: req.body.club_id,
         user: getUserID(req),
-        buddies: res.body.buddies,
-        gear: res.body.gear,
-        public: res.body.is_public
+        buddies: req.body.buddies,
+        gear: req.body.gear,
+        public: req.body.is_public
     })
 );
 

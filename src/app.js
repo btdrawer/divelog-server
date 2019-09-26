@@ -4,6 +4,14 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const routerUrls = require('./variables/routerUrls');
 
+const userRouter = require('./routes/user');
+const diveRouter = require('./routes/dive');
+const clubRouter = require('./routes/club');
+const gearRouter = require('./routes/gear');
+const groupRouter = require('./routes/group');
+
+require('./db/db');
+
 const port = process.env.PORT;
 
 const app = express();
@@ -13,14 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-require('./db/db');
-
-const userRouter = require('./routes/user');
-const clubRouter = require('./routes/club');
-const gearRouter = require('./routes/gear');
-const groupRouter = require('./routes/group');
-
 app.use(routerUrls.USER, userRouter);
+app.use(routerUrls.DIVE, diveRouter);
 app.use(routerUrls.CLUB, clubRouter);
 app.use(routerUrls.GEAR, gearRouter);
 app.use(routerUrls.GROUP, groupRouter);

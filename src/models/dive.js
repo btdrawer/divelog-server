@@ -29,12 +29,15 @@ const DiveSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Gear'
     }],
-    public: Boolean
+    public: {
+      type: Boolean,
+      default: false
+    }
   }
 );
 
 DiveSchema.pre('save', function (next) {
-  this.dive_time = (this.time_out - this.time_in) * 60;
+  this.dive_time = (this.time_out - this.time_in) / 60000;
 
   if (this.dive_time < 0) throw new Error(errorKeys.INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT);
   
