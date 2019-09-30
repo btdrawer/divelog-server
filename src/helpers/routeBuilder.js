@@ -1,6 +1,16 @@
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 
+exports.generic = async (model, func, res, method, ...args) => {
+    try {
+        const obj = await model[func](...args);
+
+        handleSuccess(res, obj, method);
+    } catch (err) {
+        handleError(res, err);
+    }
+}
+
 exports.post = async (model, res, payload) => {
     try {
         const obj = new model(payload);

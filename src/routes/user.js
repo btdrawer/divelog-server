@@ -17,21 +17,17 @@ router.post('/', (req, res) =>
 );
 
 // Login
-router.post('/login', async (req, res) => {
-    try {
-        const user = await UserModel.authenticate(
-            req.body.username, 
-            req.body.password
-        );
-
-        handleSuccess(res, user, 'POST');
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.post('/login', async (req, res) => 
+    routeBuilder.generic(
+        UserModel, 
+        'authenticate', 
+        res, 'POST', 
+        req.body.username, req.body.password
+    )
+);
 
 // Add friend
-router.post('/friend/:id', async (req, res) => {
+router.post('/friend/:id', middleware, async (req, res) => {
     try {
         let myId = await getUserID(req);
 
@@ -70,11 +66,21 @@ router.get('/', middleware, (req, res) =>
 );
 
 // Get user by ID
-router.get('/:id', middleware, (req, res) =>
-    routeBuilder.getOne(UserModel, res, {
-        _id: req.params.id
-    }, ['name', 'username'])
-);
+router.get('/:id', middleware, (req, res) => {
+    if (req.params.id === 'me') {
+        routeBuilder.getOne(UserModel, res, {
+            _id: getUserID(req) 
+        }, [
+            'name', 'username', 'friend_requests'
+        ])
+    } else {
+        routeBuilder.getOne(UserModel, res, {
+            _id: req.params.id
+        }, [
+            'name', 'username'
+        ])
+    }
+});
 
 // Update user details
 router.put('/', middleware, (req, res) =>
