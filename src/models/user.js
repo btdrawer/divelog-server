@@ -21,19 +21,26 @@ const UserSchema = new Schema(
       required: true
     },
     token: String,
-    friends: [{
-      user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-      },
-      accepted: Boolean
-    }],
-    friend_requests: [{
-      user: {
+    friends: [
+      {
         type: Schema.Types.ObjectId,
         ref: 'User'
       }
-    }]
+    ],
+    friend_requests: {
+      inbox: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'User'
+        }
+      ],
+      sent: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'User'
+        }
+      ]
+    }
   }
 );
 
@@ -81,6 +88,72 @@ UserSchema.statics.authenticate = async (username, password) => {
 
   user.token = jwt(user._id);
   user.save();
+
+  return user;
+}
+
+UserSchema.statics.add = async (myId, friendId) => {
+  const user = await UserModel.findOneAndUpdate({
+      _id: myId
+  }, {
+      '$push': {
+        'friend_requests.sent': friendId
+      }
+  }, {new: true});
+
+  await UserModel.findOneAndUpdate({
+      _id: friendId
+  }, {
+      '$push': {
+        'friend_requests.inbox': myId
+      }
+  });
+
+  return user;
+}
+
+UserSchema.statics.accept = async (myId, friendId) => {
+  const user = await UserModel.findOneAndUpdate({
+    _id: myId
+  }, {
+    '$push': {
+      friends: friendId
+    },
+    '$pull': {
+      'friend_requests.inbox': friendId
+    }
+  }, {new: true});
+
+  await UserModel.findOneAndUpdate({
+    _id: friendId
+  }, {
+    '$push': {
+      friends: myId
+    },
+    '$pull': {
+      'friend_requests.sent': myId
+    }
+  });
+
+  return user;
+}
+
+UserSchema.statics.unfriend = async (myId, friendId) => {
+  const user = await UserModel.findOneAndUpdate({
+    _id: myId
+  }, {
+    '$pull': {
+      friends: friendId
+    }
+  }, {new: true});
+
+  await UserModel.findOneAndUpdate({
+    _id: friendId
+  }, {
+    '$pull': {
+      friends: myId
+    }
+  });
 
   return user;
 }

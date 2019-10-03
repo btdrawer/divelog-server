@@ -3,6 +3,7 @@ const router = express.Router();
 const UserModel = require('../models/User');
 const middleware = require('../authentication/middleware');
 const getUserID = require('../authentication/helpers/getUserID');
+const errorKeys = require('../variables/errorKeys');
 const handleSuccess = require('../handlers/handleSuccess');
 const handleError = require('../handlers/handleError');
 const routeBuilder = require('../helpers/routeBuilder');
@@ -26,37 +27,49 @@ router.post('/login', async (req, res) =>
     )
 );
 
-// Add friend
+// Send or accept friend request
 router.post('/friend/:id', middleware, async (req, res) => {
     try {
         let myId = await getUserID(req);
+        let friendId = req.params.id;
 
-        const user = await UserModel.findOneAndUpdate({
+        if (myId === friendId) {
+            throw new Error(errorKeys.CANNOT_ADD_YOURSELF);
+        }
+
+        const checkInbox = await UserModel.findOne({
             _id: myId
-        }, {
-            '$push': {
-                friends: {
-                    user: req.params.id,
-                    accepted: false
-                }
-            }
-        }, {new: true});
+        }, ['friend_requests', 'friends']);
 
-        await UserModel.findOneAndUpdate({
-            _id: req.params.id
-        }, {
-            '$push': {
-                friend_requests: {
-                    user: myId
-                }
-            }
-        })
+        let user;
+
+        if (checkInbox.friend_requests.sent.includes(friendId)) {
+            throw new Error(errorKeys.FRIEND_REQUEST_ALREADY_SENT);
+        } else if (checkInbox.friends.includes(friendId)) {
+            throw new Error(errorKeys.ALREADY_FRIENDS);
+        } else if (checkInbox.friend_requests.inbox.includes(friendId)) {
+            // Accept request
+            user = await UserModel.accept(myId, friendId);
+        } else {
+            // Send request
+            user = await UserModel.add(myId, friendId);
+        }
 
         handleSuccess(res, user, 'POST');
     } catch (err) {
         handleError(res, err);
     }
 });
+
+// Unfriend
+router.delete('/friend/:id', middleware, (req, res) =>
+    routeBuilder.generic(
+        UserModel,
+        'unfriend',
+        res, 'DELETE',
+        getUserID(req), req.params.id
+    )
+);
 
 // List all users
 router.get('/', middleware, (req, res) =>
@@ -66,20 +79,25 @@ router.get('/', middleware, (req, res) =>
 );
 
 // Get user by ID
-router.get('/:id', middleware, (req, res) => {
+router.get('/:id', middleware, async (req, res) => {
+    let id, fieldsToReturn;
+
     if (req.params.id === 'me') {
-        routeBuilder.getOne(UserModel, res, {
-            _id: getUserID(req) 
-        }, [
-            'name', 'username', 'friend_requests'
-        ])
+        id = getUserID(req);
+        fieldsToReturn = [
+            'name', 
+            'username', 
+            'friends', 
+            'friend_requests',
+        ];
     } else {
-        routeBuilder.getOne(UserModel, res, {
-            _id: req.params.id
-        }, [
-            'name', 'username'
-        ])
+        id = req.params.id;
+        fieldsToReturn = ['name', 'username'];
     }
+
+    await routeBuilder.getOne(UserModel, res, {
+        _id: id
+    }, fieldsToReturn);
 });
 
 // Update user details

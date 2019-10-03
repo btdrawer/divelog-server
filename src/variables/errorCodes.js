@@ -1,4 +1,16 @@
 module.exports = {
+    CANNOT_ADD_YOURSELF: {
+        code: 400,
+        message: 'You cannot send a friend request to yourself.'
+    },
+    FRIEND_REQUEST_ALREADY_SENT: {
+        code: 400,
+        message: 'You have already sent a friend request to this person.'
+    },
+    ALREADY_FRIENDS: {
+        code: 400,
+        message: 'You are already friends with this person.'
+    },
     INVALID_AUTH: {
         code: 401,
         message: 'Your username and/or password were incorrect.',
