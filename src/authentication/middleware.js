@@ -2,7 +2,7 @@ const UserModel = require('../models/User');
 const getAuthData = require('./helpers/getAuthData');
 const routerUrls = require('../variables/routerUrls');
 const errorKeys = require('../variables/errorKeys');
-const handleError = require('../handlers/handleError');
+const {INVALID_AUTH} = require('../handlers/handleError');
 
 module.exports = async (req, res, next) => {
     const {token, data} = getAuthData(req);
@@ -13,7 +13,7 @@ module.exports = async (req, res, next) => {
             token: token
         });
 
-        if (!user) throw new Error(errorKeys.INVALID_AUTH);
+        if (!user) throw new Error(INVALID_AUTH);
 
         switch(req.baseUrl) {
             case routerUrls.DIVE:

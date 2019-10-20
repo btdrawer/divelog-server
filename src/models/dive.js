@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const errorKeys = require('../variables/errorKeys');
+const {
+  INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT,
+  INVALID_ARGUMENT_DIVE_TIME_EXCEEDED
+} = require('../variables/errorKeys');
 
 const DiveSchema = new Schema(
   {
@@ -39,13 +42,13 @@ const DiveSchema = new Schema(
 DiveSchema.pre('save', function (next) {
   this.dive_time = (this.time_out - this.time_in) / 60000;
 
-  if (this.dive_time < 0) throw new Error(errorKeys.INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT);
+  if (this.dive_time < 0) throw new Error(INVALID_ARGUMENT_TIME_IN_LATER_THAN_OUT);
   
   if (
     this.dive_time < 
     (this.bottom_time + this.safety_stop_time)
   ) {
-    throw new Error(errorKeys.INVALID_ARGUMENT_DIVE_TIME_EXCEEDED);
+    throw new Error(INVALID_ARGUMENT_DIVE_TIME_EXCEEDED);
   }
 
   next();
