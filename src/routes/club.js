@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const ClubModel = require('../models/club');
-const middleware = require('../authentication/middleware');
+const middleware = require('../middleware');
 const getUserID = require('../authentication/helpers/getUserID');
-const handleSuccess = require('../handlers/handleSuccess');
-const handleError = require('../handlers/handleError');
 const routeBuilder = require('../helpers/routeBuilder');
 
 // Create new club
@@ -20,21 +18,13 @@ router.post('/', middleware, (req, res) =>
 
 // List all clubs
 router.get('/', middleware, async (req, res) => {
-    try {
-        let clubs;
-
-        if (req.body) {
-            clubs = await ClubModel.find({
-                name: req.body.name,
-                location: req.body.location
-            });
-        } else {
-            clubs = await ClubModel.find({});
-        }
-
-        handleSuccess(res, clubs, 'GET');
-    } catch (err) {
-        handleError(res, err);
+    if (req.body) {
+        routeBuilder.getAll(ClubModel, res, {
+            name: req.body.name,
+            location: req.body.location
+        });
+    } else {
+        routeBuilder.getAll(ClubModel, res, {});
     }
 });
 

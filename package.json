@@ -4,18 +4,16 @@
   "private": true,
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
-    "test": "node ./node_modules/mocha/bin/mocha ./tests"
+    "test": "env-cmd -f ./.env node ./node_modules/mocha/bin/mocha ./tests"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",
     "cookie-parser": "^1.4.4",
-    "debug": "~2.6.9",
     "env-cmd": "^10.0.1",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.7.1",
-    "morgan": "^1.9.1"
+    "mongoose": "^5.7.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",

@@ -1,7 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
 const routerUrls = require('./variables/routerUrls');
 
 const userRouter = require('./routes/user');
@@ -10,13 +9,12 @@ const clubRouter = require('./routes/club');
 const gearRouter = require('./routes/gear');
 const groupRouter = require('./routes/group');
 
-require('./db/db');
+require('./db');
 
 const port = process.env.PORT;
 
 const app = express();
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

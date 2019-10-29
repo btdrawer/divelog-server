@@ -1,9 +1,8 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const should = chai.should();
-const app = require('../app');
+const app = require('../src/app');
 const clubData = require('./testData/club');
-const {userIds, tokens} = require('./before/before');
 
 chai.use(chaiHttp);
 
@@ -15,6 +14,8 @@ let clubIds = {
 };
 
 describe('/club', () => {
+    const {userIds, tokens} = require('./before/before');
+
     describe('New club', () => {
         it('should add a new club', (done) => {
             chai.request(app)
@@ -116,90 +117,13 @@ describe('/club', () => {
         });
     });
 
-    describe('Add club manager', () => {
-        it('should return 500 if manager does not exist', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0 + '/-1')
-                .send({existingManagerId: user0.id, existingManagerPassword: user0.password})
-                .end((err, res) => {
-                    res.should.have.status(500);
-
-                    done();
-                });
-        });
-
-        it('should return 404 if manager not supplied', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0)
-                .send({existingManagerId: user0.id, existingManagerPassword: user0.password})
-                .end((err, res) => {
-                    res.should.have.status(404);
-
-                    done();
-                });
-        });
-
-        it('should return 500 if existing manager password incorrect', (done) => {
-            chai.request(app)
-            .post('/club/newClubManager/' + clubId0 + '/' + user1.id)
-                .send({existingManagerId: user0.id, existingManagerPassword: 'aaaaaa'})
-                .end((err, res) => {
-                    res.should.have.status(500);
-
-                    done();
-                });
-        });
-
-        it('should return 500 if existing manager does not exist', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0 + '/' + user1.id)
-                .send({existingManagerId: '-1', existingManagerPassword: user0.password})
-                .end((err, res) => {
-                    res.should.have.status(500);
-
-                    done();
-                });
-        });
-
-        it('should return 500 if existing manager id missing', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0 + '/' + user1.id)
-                .send({existingManagerPassword: user0.password})
-                .end((err, res) => {
-                    res.should.have.status(500);
-
-                    done();
-                });
-        });
-
-        it('should return 500 if existing manager password missing', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0 + '/' + user1.id)
-                .send({existingManagerId: user0.id})
-                .end((err, res) => {
-                    res.should.have.status(500);
-
-                    done();
-                });
-        });
-
-        it('should add a new club manager', (done) => {
-            chai.request(app)
-                .post('/club/newClubManager/' + clubId0 + '/' + user1.id)
-                .send({existingManagerId: user0.id, existingManagerPassword: user0.password})
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.should.be.a('object');
-
-                    done();
-                });
-        });
-    });
-
-    describe('/club/searchClubsByName', () => {
+    describe('List clubs by name', () => {
         it('should get a list of all clubs whose names include "a"', (done) => {
             chai.request(app)
-                .get('/club/searchClubsByName/a')
+                .get('/club')
+                .send({
+                    name: 'a'
+                })
                 .end((err, res) => {
                     res.should.have.status(200);
                     
@@ -218,28 +142,12 @@ describe('/club', () => {
                 });
         });
 
-        it('should get a list of all clubs whose names include "b"', (done) => {
-            chai.request(app)
-                .get('/club/searchClubsByName/b')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    
-                    res.body.should.be.a('array');
-                    res.body.should.have.length(1);
-
-                    res.body[0].should.have.property('id');
-                    res.body[0].should.have.property('name');
-                    res.body[0].should.have.property('location');
-
-                    res.body[0].name.should.equal('b');
-
-                    done();
-                });
-        });
-
         it('should return 404 if no clubs found', (done) => {
             chai.request(app)
-                .get('/club/searchClubsByName/c')
+                .get('/club')
+                .send({
+                    name: 'c'
+                })
                 .end((err, res) => {
                     res.should.have.status(404);
                     
@@ -251,10 +159,13 @@ describe('/club', () => {
         });
     });
 
-    describe('/club/searchClubsByLocation', () => {
+    describe('List clubs by location', () => {
         it('should get a list of all clubs whose locations resemble "Plymouth"', (done) => {
             chai.request(app)
-                .get('/club/searchClubsByLocation/Plymouth')
+                .get('/club')
+                .send({
+                    location: 'Plymouth'
+                })
                 .end((err, res) => {
                     res.should.have.status(200);
                     
@@ -273,28 +184,12 @@ describe('/club', () => {
                 });
         });
 
-        it('should get a list of all clubs whose locations resemble "Portland, Hampshire"', (done) => {
-            chai.request(app)
-                .get('/club/searchClubsByLocation/Portland, Hampshire')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    
-                    res.body.should.be.a('array');
-                    res.body.should.have.length(1);
-
-                    res.body[0].should.have.property('id');
-                    res.body[0].should.have.property('name');
-                    res.body[0].should.have.property('location');
-
-                    res.body[0].location.should.equal('Portland, Hampshire');
-
-                    done();
-                });
-        });
-
         it('should return 404 if no clubs found', (done) => {
             chai.request(app)
-                .get('/club/searchClubsByLocation/c')
+                .get('/club')
+                .send({
+                    location: 'c'
+                })
                 .end((err, res) => {
                     res.should.have.status(404);
                     
@@ -306,10 +201,10 @@ describe('/club', () => {
         });
     });
 
-    describe('/club/getClub', () => {
+    describe('Get club', () => {
         it('should get a club', (done) => {
             chai.request(app)
-                .get('/club/getClub/' + clubId0)
+                .get(`/club/${clubIds.club0}`)
                 .end((err, res) => {
                     res.should.have.status(200);
                     
@@ -327,29 +222,9 @@ describe('/club', () => {
                 });
         });
 
-        it('should get a club', (done) => {
-            chai.request(app)
-                .get('/club/getClub/' + clubId1)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    
-                    res.body.should.be.a('array');
-                    res.body.should.have.length(1);
-
-                    res.body[0].should.have.property('id');
-                    res.body[0].should.have.property('name');
-                    res.body[0].should.have.property('location');
-
-                    res.body[0].name.should.equal('b');
-                    res.body[0].location.should.equal('Portland, Hampshire');
-
-                    done();
-                });
-        });
-
         it('should return 404 if club not found', (done) => {
             chai.request(app)
-                .get('/club/getClub/-1')
+                .get('/club/-1')
                 .end((err, res) => {
                     res.should.have.status(404);
                     
@@ -361,59 +236,15 @@ describe('/club', () => {
         });
     });
 
-    describe('/club/getClubAndManagers', () => {
-        it('should get a club and its managers', (done) => {
-            chai.request(app)
-                .get('/club/getClubAndManagers/' + clubId0)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    
-                    res.body.should.be.a('array');
-                    res.body.should.have.length(2);
-
-                    res.body.map((c) => {
-                        c.should.have.property('id');
-                        c.should.have.property('name');
-                        c.should.have.property('location');
-                        c.should.have.property('user');
-
-                        c.name.should.equal('a');
-                        c.location.should.equal('Plymouth');
-                    });
-
-                    res.body[0].user.should.equal(user0.id);
-                    res.body[1].user.should.equal(user1.id);
-
-                    done();
-                });
-        });
-
-        it('should return 404 if club not found', (done) => {
-            chai.request(app)
-                .get('/club/getClub/-1')
-                .end((err, res) => {
-                    res.should.have.status(404);
-                    
-                    res.body.should.be.a('array');
-                    res.body.should.have.length(0);
-
-                    done();
-                });
-        });
-    });
-
-    describe('/club/updateClub', () => {
+    describe('Update club', () => {
         it('should update club', (done) => {
             chai.request(app)
-                .post('/club/updateClub/' + clubId0)
+                .put(`/club/${clubIds.club0}`)
                 .send({
-                    userId: user0.id,
-                    password: user0.password,
-                    newDetails: {
-                        name: 'a1',
-                        location: 'Plymouth, UK'
-                    }
+                    name: 'a1',
+                    location: 'Plymouth, UK'
                 })
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -422,67 +253,25 @@ describe('/club', () => {
                 });
         });
 
-        it('should update club if only one new detail added', (done) => {
+        it('should return 401 if manager details are incorrect', (done) => {
             chai.request(app)
-                .post('/club/updateClub/' + clubId0)
+                .put(`/club/${clubIds.club0}`)
                 .send({
-                    userId: user0.id,
-                    password: user0.password,
-                    newDetails: {
-                        name: 'a2'
-                    }
+                    name: 'a3'
                 })
+                .send(tokens.user1)
                 .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
+                    res.should.have.status(401);
 
                     done();
                 });
         });
 
-        it('should return 500 if manager details are incorrect', (done) => {
+        it('should return 401 if manager token is missing', (done) => {
             chai.request(app)
-                .post('/club/updateClub/' + clubId0)
+                .put(`/club/${clubIds.club0}`)
                 .send({
-                    userId: user0.id,
-                    password: 'aaaaaa',
-                    newDetails: {
-                        name: 'a3'
-                    }
-                })
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('array');
-
-                    done();
-                });
-        });
-
-        it('should return 500 if manager id is missing', (done) => {
-            chai.request(app)
-                .post('/club/updateClub/' + clubId0)
-                .send({
-                    password: user0.password,
-                    newDetails: {
-                        name: 'a3'
-                    }
-                })
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('array');
-
-                    done();
-                });
-        });
-
-        it('should return 500 if manager password is missing', (done) => {
-            chai.request(app)
-                .post('/club/updateClub/' + clubId0)
-                .send({
-                    userId: user0.password,
-                    newDetails: {
-                        name: 'a3'
-                    }
+                    name: 'a3'
                 })
                 .end((err, res) => {
                     res.should.have.status(500);
@@ -493,14 +282,11 @@ describe('/club', () => {
         });
     });
 
-    describe('/club/deleteClub', () => {
+    describe('Delete club', () => {
         it('should delete club', (done) => {
             chai.request(app)
-                .delete('/club/deleteClub/' + clubId0)
-                .send({
-                    userId: user0.id,
-                    password: user0.password
-                })
+                .delete(`/club/${clubIds.club0}`)
+                .send(tokens.user0)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -509,43 +295,23 @@ describe('/club', () => {
                 });
         });
 
-        it('should return 500 if manager details are incorrect', (done) => {
+        it('should return 401 if manager token is incorrect', (done) => {
             chai.request(app)
-                .delete('/club/deleteClub/' + clubId1)
-                .send({
-                    userId: user0.id,
-                    password: 'aaaaaa'
-                })
+                .delete(`/club/${clubIds.club1}`)
+                .send(tokens.user0)
                 .end((err, res) => {
-                    res.should.have.status(500);
+                    res.should.have.status(401);
                     res.body.should.be.a('object');
 
                     done();
                 });
         });
 
-        it('should return 500 if manager id is missing', (done) => {
+        it('should return 401 if manager token is missing', (done) => {
             chai.request(app)
-                .delete('/club/deleteClub/' + clubId1)
-                .send({
-                    password: user0.password
-                })
+                .delete(`/club/${clubIds.club1}`)
                 .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('object');
-
-                    done();
-                });
-        });
-
-        it('should return 500 if manager password is missing', (done) => {
-            chai.request(app)
-                .delete('/club/deleteClub/' + clubId1)
-                .send({
-                    userId: user0.id
-                })
-                .end((err, res) => {
-                    res.should.have.status(500);
+                    res.should.have.status(401);
                     res.body.should.be.a('object');
 
                     done();
@@ -554,11 +320,8 @@ describe('/club', () => {
 
         it('should delete club', (done) => {
             chai.request(app)
-                .delete('/club/deleteClub/' + clubId1)
-                .send({
-                    userId: user1.id,
-                    password: user1.password
-                })
+                .delete(`/club/${clubIds.club1}`)
+                .send(tokens.club1)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -569,11 +332,8 @@ describe('/club', () => {
 
         it('should delete club', (done) => {
             chai.request(app)
-                .delete('/club/deleteClub/' + clubId2)
-                .send({
-                    userId: user0.id,
-                    password: user0.password
-                })
+                .delete(`/club/${clubIds.club2}`)
+                .send(tokens.club2)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');

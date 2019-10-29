@@ -11,6 +11,10 @@ module.exports = {
         code: 400,
         message: 'You are already friends with this person.'
     },
+    CLUB_DETAILS_MISSING: {
+        code: 400,
+        message: 'A new club must have both a name and a location.'
+    },
     INVALID_AUTH: {
         code: 401,
         message: 'Your username and/or password were incorrect.',

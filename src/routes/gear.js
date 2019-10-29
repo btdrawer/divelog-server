@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const GearModel = require('../models/gear');
-const middleware = require('../authentication/middleware');
+const middleware = require('../middleware');
 const getUserID = require('../authentication/helpers/getUserID');
 const routeBuilder = require('../helpers/routeBuilder');
 
