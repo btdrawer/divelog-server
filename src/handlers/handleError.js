@@ -1,12 +1,12 @@
-const errorCodes = require('../variables/errorCodes');
+const errorCodes = require("../variables/errorCodes");
 
 module.exports = (res, err) => {
-    console.log(err);
-    
-    const {code, message} = errorCodes[err.message];
+  console.log(err);
 
-    console.log('Error code:', code || 500);
-    console.log('Error message:', message);
-    
-    res.status(code || 500).send(message);
+  const { code, message } = errorCodes[err.message];
+
+  console.log("Error code:", code || 500);
+  console.log("Error message:", message);
+
+  res.status(code || 500).send(message);
 };
