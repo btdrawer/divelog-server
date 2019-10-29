@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const errorKeys = require('../variables/errorKeys');
+const {USER_ALREADY_IN_GROUP, NOT_FOUND} = require('../variables/errorKeys');
 
 const GroupSchema = new Schema(
   {
@@ -30,7 +30,7 @@ GroupSchema.methods.addUser = async function (user_id) {
     this.participants.push(user_id);
     await this.save();
   }
-  else throw new Error(errorKeys.USER_ALREADY_IN_GROUP);
+  else throw new Error(USER_ALREADY_IN_GROUP);
 }
 
 GroupSchema.methods.leave = async function (user_id) {
@@ -40,7 +40,7 @@ GroupSchema.methods.leave = async function (user_id) {
     if (this.participants[i].toString() === user_id) index = i;
   }
 
-  if (index === undefined) throw new Error(errorKeys.NOT_FOUND);
+  if (!index) throw new Error(NOT_FOUND);
 
   this.participants[index] = undefined;
   await this.save();

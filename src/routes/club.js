@@ -17,14 +17,14 @@ router.post('/', middleware, (req, res) =>
 );
 
 // List all clubs
-router.get('/', middleware, async (req, res) => {
+router.get('/', middleware, (req, res) => {
     if (req.body) {
         routeBuilder.getAll(ClubModel, res, {
             name: req.body.name,
             location: req.body.location
-        });
+        })
     } else {
-        routeBuilder.getAll(ClubModel, res, {});
+        routeBuilder.getAll(ClubModel, re, {});
     }
 });
 

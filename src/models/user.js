@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const errorKeys = require('../variables/errorKeys');
+const {USERNAME_EXISTS, INVALID_AUTH} = require('../variables/errorKeys');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const jwt = require('../authentication/helpers/jwt');
@@ -52,7 +52,7 @@ UserSchema.pre('save', async function (next) {
       username: this.username
     });
   
-    if (user) throw new Error(errorKeys.USERNAME_EXISTS);
+    if (user) throw new Error(USERNAME_EXISTS);
   }
 
   this.token = jwt(this._id);
@@ -70,7 +70,7 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
       username: this._update.username
     });
 
-    if (user) throw new Error(errorKeys.USERNAME_EXISTS);
+    if (user) throw new Error(USERNAME_EXISTS);
   }
 
   next();
@@ -81,7 +81,7 @@ UserSchema.statics.authenticate = async (username, password) => {
     username: username
   });
 
-  const errorMessage = errorKeys.INVALID_AUTH;
+  const errorMessage = INVALID_AUTH;
 
   if (!user) throw new Error(errorMessage);
   else if (!bcrypt.compareSync(password, user.password)) throw new Error(errorMessage);
