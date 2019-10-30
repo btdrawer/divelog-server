@@ -1,4 +1,3 @@
-const createError = require("http-errors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const routerUrls = require("./variables/routerUrls");
@@ -24,18 +23,6 @@ app.use(routerUrls.DIVE, diveRouter);
 app.use(routerUrls.CLUB, clubRouter);
 app.use(routerUrls.GEAR, gearRouter);
 app.use(routerUrls.GROUP, groupRouter);
-
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-app.use(function(err, req, res) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  res.status(err.status || 500);
-  res.render("error");
-});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
