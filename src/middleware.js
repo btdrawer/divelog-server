@@ -20,7 +20,6 @@ module.exports = async (req, res, next) => {
         await require("./authentication/accessToResource/dive")(req, data);
         break;
       case routerUrls.CLUB:
-        await require("./validation/club")(req);
         await require("./authentication/accessToResource/club")(req, data);
         break;
       case routerUrls.GEAR:
