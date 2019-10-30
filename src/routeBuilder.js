@@ -1,5 +1,5 @@
-const handleSuccess = require("../handlers/handleSuccess");
-const handleError = require("../handlers/handleError");
+const handleSuccess = require("./handlers/handleSuccess");
+const handleError = require("./handlers/handleError");
 
 exports.generic = async (model, func, res, method, ...args) => {
   try {

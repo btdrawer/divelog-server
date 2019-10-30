@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { USERNAME_EXISTS, INVALID_AUTH } = require("../variables/errorKeys");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const jwt = require("../authentication/helpers/jwt");
+const jwt = require("../authentication/jwt");
 
 const UserSchema = new Schema({
   name: {

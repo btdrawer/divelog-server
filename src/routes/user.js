@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const UserModel = require("../models/User");
 const middleware = require("../middleware");
-const getUserID = require("../authentication/helpers/getUserID");
+const getUserID = require("../authentication/getUserID");
 const errorKeys = require("../variables/errorKeys");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
-const routeBuilder = require("../helpers/routeBuilder");
+const routeBuilder = require("../routeBuilder");
 
 // Create new user
 router.post("/", (req, res) =>

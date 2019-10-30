@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const ClubModel = require("../models/club");
 const middleware = require("../middleware");
-const getUserID = require("../authentication/helpers/getUserID");
-const routeBuilder = require("../helpers/routeBuilder");
+const getUserID = require("../authentication/getUserID");
+const routeBuilder = require("../routeBuilder");
 
 // Create new club
 router.post("/", middleware, (req, res) =>
@@ -24,7 +24,7 @@ router.get("/", middleware, (req, res) => {
       location: req.body.location
     });
   } else {
-    routeBuilder.getAll(ClubModel, re, {});
+    routeBuilder.getAll(ClubModel, res, {});
   }
 });
 
@@ -49,7 +49,7 @@ router.put("/:id", middleware, (req, res) =>
 
 // Delete club
 router.delete("/:id", middleware, (req, res) =>
-  routeBuilder.delete(UserModel, res, {
+  routeBuilder.delete(ClubModel, res, {
     _id: req.params.id
   })
 );
