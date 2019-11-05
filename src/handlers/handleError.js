@@ -8,14 +8,10 @@ module.exports = (res, err) => {
     console.log("Error message:", message);
 
     res.status(code || 500).send(message);
-  } else {
+  } else if (err.name === "ValidationError") {
     // Validation errors from MongoDB
-    if (err.name === "ValidationError") {
-      res
-        .status(400)
-        .send(`Missing required fields: ${Object.keys(err.errors).join(", ")}`);
-    }
-
-    res.status(500).send(err["_message"]);
+    res
+      .status(400)
+      .send(`Missing required fields: ${Object.keys(err.errors).join(", ")}`);
   }
 };
