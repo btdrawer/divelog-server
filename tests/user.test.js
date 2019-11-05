@@ -32,6 +32,16 @@ describe("User", () => {
         .then(res => {
           expect(res.status).equal(400);
         }));
+
+    it("should fail if password is not supplied", () =>
+      request(app)
+        .post("/user")
+        .send({
+          password: "thisWillFail"
+        })
+        .then(res => {
+          expect(res.status).equal(400);
+        }));
   });
 
   describe("Login", () => {
@@ -43,6 +53,17 @@ describe("User", () => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
           tokens.push(res.body.token);
+        }));
+
+    it("should fail if incorrect login details provided", () =>
+      request(app)
+        .post("/user")
+        .send({
+          username: users[0].username,
+          password: "notTheCorrectPassword"
+        })
+        .then(res => {
+          expect(res.status).equal(400);
         }));
   });
 
