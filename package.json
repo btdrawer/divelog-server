@@ -5,8 +5,8 @@
   "scripts": {
     "start": "env-cmd -f ./.env nodemon src/app.js",
     "lint": "eslint --fix .",
-    "test": "env-cmd -f ./.env node ./node_modules/mocha/bin/mocha ./tests",
-    "watch": "env-cmd -f ./.env node ./node_modules/mocha/bin/mocha --watch ./tests"
+    "test": "env-cmd -f ./.env node ./node_modules/mocha/bin/mocha ./tests/index",
+    "watch": "env-cmd -f ./.env node ./node_modules/mocha/bin/mocha --watch ./tests/index"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",

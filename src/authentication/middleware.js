@@ -57,8 +57,9 @@ const diveMiddleware = async (req, data) => {
       _id: req.params.id
     });
 
-    if (!dive) throw new Error(NOT_FOUND);
-    else if (
+    if (!dive) {
+      throw new Error(NOT_FOUND);
+    } else if (
       dive.user.toString() !== data._id.toString() &&
       !(req.method === "GET" && dive.public)
     ) {
@@ -73,8 +74,9 @@ const clubMiddleware = async (req, data) => {
       _id: req.params.id
     });
 
-    if (!club) throw new Error(NOT_FOUND);
-    else if (req.method === "PUT" || req.method === "DELETE") {
+    if (!club) {
+      throw new Error(NOT_FOUND);
+    } else if (req.method === "PUT" || req.method === "DELETE") {
       if (!club.managers.includes(data._id.toString())) {
         throw new Error(FORBIDDEN);
       }
@@ -88,9 +90,11 @@ const gearMiddleware = async (req, data) => {
       _id: req.params.id
     });
 
-    if (!gear) throw new Error(NOT_FOUND);
-    else if (gear.owner.toString() !== data._id.toString())
+    if (!gear) {
+      throw new Error(NOT_FOUND);
+    } else if (gear.owner.toString() !== data._id.toString()) {
       throw new Error(FORBIDDEN);
+    }
   }
 };
 
@@ -100,8 +104,9 @@ const groupMiddleware = async (req, data) => {
       _id: req.params.id
     });
 
-    if (!group) throw new Error(NOT_FOUND);
-    else if (!group.participants.includes(data._id.toString())) {
+    if (!group) {
+      throw new Error(NOT_FOUND);
+    } else if (!group.participants.includes(data._id.toString())) {
       throw new Error(FORBIDDEN);
     }
   }

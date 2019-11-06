@@ -6,7 +6,7 @@ const { request, expect } = chai;
 
 // App and data
 const app = require("../src/app");
-const { users } = require("./data");
+const { users } = require("./testTools").data;
 
 let tokens = [],
   user_ids = [];
