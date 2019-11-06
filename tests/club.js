@@ -7,45 +7,47 @@ const { request, expect } = chai;
 // App and data
 const app = require("../src/app");
 const testTools = require("./testTools");
-const { gear } = testTools.data;
+const { club } = testTools.data;
 
 let tokens = [],
   user_ids = [],
-  gear_ids = [];
+  club_ids = [];
 
-describe("Gear", () => {
+describe("Club", () => {
   describe("Setup", () => {
     it("setup", async () => {
       const beforeTests = await testTools.before();
       user_ids = beforeTests.user_ids;
       tokens = beforeTests.tokens;
-      gear[0].owner = user_ids[0];
+      club[0].managers = [user_ids[0]];
     });
   });
 
-  describe("Create gear", () => {
-    it("should create new gear", () =>
+  describe("Create club", () => {
+    it("should create new club", () =>
       request(app)
-        .post("/gear")
+        .post("/club")
         .set({ Authorization: `Bearer ${tokens[0]}` })
-        .send(gear[0])
+        .send(club[0])
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
 
-          expect(res.body.brand).equal(gear[0].brand);
-          expect(res.body.name).equal(gear[0].name);
-          expect(res.body.type).equal(gear[0].type);
-          expect(res.body.owner).equal(gear[0].owner);
+          expect(res.body.name).equal(club[0].name);
+          expect(res.body.location).equal(club[0].location);
+          expect(res.body.description).equal(club[0].description);
+          expect(res.body.managers).have.length(1);
+          expect(res.body.managers[0]).equal(user_ids[0]);
+          expect(res.body.website).equal(club[0].website);
 
-          gear_ids.push(res.body._id);
+          club_ids.push(res.body._id);
         }));
   });
 
-  describe("List gear", () => {
-    it("should list gear", () =>
+  describe("List clubs", () => {
+    it("should list clubs", () =>
       request(app)
-        .get("/gear")
+        .get("/club")
         .set({ Authorization: `Bearer ${tokens[0]}` })
         .then(res => {
           expect(res.status).equal(200);
@@ -54,26 +56,28 @@ describe("Gear", () => {
         }));
   });
 
-  describe("Get gear", () => {
-    it("should get gear", () =>
+  describe("Get club", () => {
+    it("should get club", () =>
       request(app)
-        .get(`/gear/${gear_ids[0]}`)
+        .get(`/club/${club_ids[0]}`)
         .set({ Authorization: `Bearer ${tokens[0]}` })
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
 
-          expect(res.body.brand).equal(gear[0].brand);
-          expect(res.body.name).equal(gear[0].name);
-          expect(res.body.type).equal(gear[0].type);
-          expect(res.body.owner).equal(gear[0].owner);
+          expect(res.body.name).equal(club[0].name);
+          expect(res.body.location).equal(club[0].location);
+          expect(res.body.description).equal(club[0].description);
+          expect(res.body.managers).have.length(1);
+          expect(res.body.managers[0]).equal(user_ids[0]);
+          expect(res.body.website).equal(club[0].website);
         }));
   });
 
-  describe("Update gear", () => {
-    it("should update gear", () =>
+  describe("Update club", () => {
+    it("should update club", () =>
       request(app)
-        .put(`/gear/${gear_ids[0]}`)
+        .put(`/club/${club_ids[0]}`)
         .send({
           name: "New name"
         })
@@ -86,19 +90,19 @@ describe("Gear", () => {
         }));
   });
 
-  describe("Delete gear", () => {
-    it("should delete gear", () =>
+  describe("Delete club", () => {
+    it("should delete club", () =>
       request(app)
-        .delete(`/gear/${gear_ids[0]}`)
+        .delete(`/club/${club_ids[0]}`)
         .set({ Authorization: `Bearer ${tokens[0]}` })
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
         }));
 
-    it("gear should be deleted", () =>
+    it("club should be deleted", () =>
       request(app)
-        .get(`/gear/${gear_ids[0]}`)
+        .get(`/club/${club_ids[0]}`)
         .set({ Authorization: `Bearer ${tokens[0]}` })
         .then(res => {
           expect(res.status).equal(404);

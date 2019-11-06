@@ -17,6 +17,14 @@ exports.data = {
       name: "A1",
       type: "Wetsuit"
     }
+  ],
+  club: [
+    {
+      name: "A",
+      location: "A1",
+      description: "Club",
+      website: "example.com"
+    }
   ]
 };
 
