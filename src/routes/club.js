@@ -18,7 +18,7 @@ router.post("/", middleware, (req, res) =>
 
 // List all clubs
 router.get("/", middleware, (req, res) => {
-  if (req.body) {
+  if (Object.keys(req.body).length > 0) {
     routeBuilder.getAll(ClubModel, res, {
       name: req.body.name,
       location: req.body.location

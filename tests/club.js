@@ -52,7 +52,6 @@ describe("Club", () => {
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("array");
-          expect(res.body).have.length(1);
         }));
   });
 
