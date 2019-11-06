@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const GroupModel = require("../models/group");
-const middleware = require("../middleware");
-const getUserID = require("../authentication/getUserID");
+const middleware = require("../authentication/middleware");
+const { getUserID } = require("../authentication/authTools");
 const routeBuilder = require("../routeBuilder");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const GearModel = require("../models/gear");
-const middleware = require("../middleware");
-const getUserID = require("../authentication/getUserID");
+const middleware = require("../authentication/middleware");
+const { getUserID } = require("../authentication/authTools");
 const routeBuilder = require("../routeBuilder");
 
 // Create gear

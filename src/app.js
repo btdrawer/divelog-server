@@ -1,6 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const routerUrls = require("./variables/routerUrls");
+const { USER, DIVE, CLUB, GEAR, GROUP } = require("./variables/routerUrls");
 
 const userRouter = require("./routes/user");
 const diveRouter = require("./routes/dive");
@@ -18,11 +18,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(routerUrls.USER, userRouter);
-app.use(routerUrls.DIVE, diveRouter);
-app.use(routerUrls.CLUB, clubRouter);
-app.use(routerUrls.GEAR, gearRouter);
-app.use(routerUrls.GROUP, groupRouter);
+app.use(USER, userRouter);
+app.use(DIVE, diveRouter);
+app.use(CLUB, clubRouter);
+app.use(GEAR, gearRouter);
+app.use(GROUP, groupRouter);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
