@@ -19,7 +19,7 @@ describe("Gear", () => {
       const beforeTests = await testTools.before();
       user_ids = beforeTests.user_ids;
       tokens = beforeTests.tokens;
-      gear[0] = user_ids[0];
+      gear[0].owner = user_ids[0];
     });
   });
 
@@ -28,10 +28,69 @@ describe("Gear", () => {
       request(app)
         .post("/gear")
         .set({ Authorization: `Bearer ${tokens[0]}` })
+        .send(gear[0])
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
+
+          expect(res.body.brand).equal(gear[0].brand);
+          expect(res.body.name).equal(gear[0].name);
+          expect(res.body.type).equal(gear[0].type);
+          expect(res.body.owner).equal(gear[0].owner);
+
           gear_ids.push(res.body._id);
+        }));
+  });
+
+  describe("List gear", () => {
+    it("should list gear", () =>
+      request(app)
+        .get("/gear")
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body).be.an("array");
+          expect(res.body).have.length(1);
+        }));
+  });
+
+  describe("Get gear", () => {
+    it("should get gear", () =>
+      request(app)
+        .get(`/gear/${gear_ids[0]}`)
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body).be.an("object");
+
+          expect(res.body.brand).equal(gear[0].brand);
+          expect(res.body.name).equal(gear[0].name);
+          expect(res.body.type).equal(gear[0].type);
+          expect(res.body.owner).equal(gear[0].owner);
+        }));
+  });
+
+  describe("Delete gear", () => {
+    it("should delete gear", () =>
+      request(app)
+        .delete(`/gear/${gear_ids[0]}`)
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body).be.an("object");
+
+          expect(res.body.brand).equal(gear[0].brand);
+          expect(res.body.name).equal(gear[0].name);
+          expect(res.body.type).equal(gear[0].type);
+          expect(res.body.owner).equal(gear[0].owner);
+        }));
+
+    it("gear should be deleted", () =>
+      request(app)
+        .get(`/gear/${gear_ids[0]}`)
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .then(res => {
+          expect(res.status).equal(404);
         }));
   });
 
