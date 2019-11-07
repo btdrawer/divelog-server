@@ -4,14 +4,28 @@ module.exports = (res, err) => {
   if (errorCodes[err.message]) {
     const { code, message } = errorCodes[err.message];
 
-    console.log("Error code:", code);
-    console.log("Error message:", message);
+    console.log({
+      error: {
+        code,
+        message
+      }
+    });
 
     res.status(code || 500).send(message);
   } else if (err.name === "ValidationError") {
     // Validation errors from MongoDB
-    res
-      .status(400)
-      .send(`Missing required fields: ${Object.keys(err.errors).join(", ")}`);
+    let code = 400;
+    let message = `Missing required fields: ${Object.keys(err.errors).join(
+      ", "
+    )}`;
+
+    console.log({
+      error: {
+        code,
+        message
+      }
+    });
+
+    res.status(code).send(message);
   }
 };

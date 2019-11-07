@@ -7,7 +7,12 @@ exports.data = {
     },
     {
       name: "user",
-      username: "user1",
+      username: "anotherUser",
+      password: "password"
+    },
+    {
+      name: "user",
+      username: "thirdUser",
       password: "password"
     }
   ],
@@ -24,6 +29,17 @@ exports.data = {
       location: "A1",
       description: "Club",
       website: "example.com"
+    }
+  ],
+  group: [
+    {
+      group_name: "Group",
+      text: "Content"
+    }
+  ],
+  message: [
+    {
+      text: "Another message"
     }
   ]
 };
@@ -52,8 +68,44 @@ exports.before = async () => {
     });
 
   await request(app)
+    .post("/user")
+    .send(users[1])
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+      user_ids.push(res.body._id);
+    });
+
+  await request(app)
+    .post("/user")
+    .send(users[2])
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+      user_ids.push(res.body._id);
+    });
+
+  await request(app)
     .post("/user/login")
     .send(users[0])
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+      tokens.push(res.body.token);
+    });
+
+  await request(app)
+    .post("/user/login")
+    .send(users[1])
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+      tokens.push(res.body.token);
+    });
+
+  await request(app)
+    .post("/user/login")
+    .send(users[2])
     .then(res => {
       expect(res.status).equal(200);
       expect(res).be.an("object");
@@ -73,13 +125,27 @@ exports.after = async tokens => {
   // App
   const app = require("../src/app");
 
-  tokens.forEach(token =>
-    request(app)
-      .delete("/user")
-      .set({ Authorization: `Bearer ${token}` })
-      .then(res => {
-        expect(res.status).equal(200);
-        expect(res).be.an("object");
-      })
-  );
+  await request(app)
+    .delete("/user")
+    .set({ Authorization: `Bearer ${tokens[0]}` })
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+    });
+
+  await request(app)
+    .delete("/user")
+    .set({ Authorization: `Bearer ${tokens[1]}` })
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+    });
+
+  await request(app)
+    .delete("/user")
+    .set({ Authorization: `Bearer ${tokens[2]}` })
+    .then(res => {
+      expect(res.status).equal(200);
+      expect(res).be.an("object");
+    });
 };
