@@ -41,6 +41,17 @@ exports.data = {
     {
       text: "Another message"
     }
+  ],
+  dive: [
+    {
+      time_in: 1533114000000,
+      time_out: 1533115500000,
+      safety_stop_time: 3,
+      bottom_time: 21,
+      max_depth: 17.5,
+      description: "Fun times",
+      is_public: true
+    }
   ]
 };
 

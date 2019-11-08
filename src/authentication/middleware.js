@@ -17,9 +17,9 @@ const {
 } = require("../variables/errorKeys");
 
 module.exports = async (req, res, next) => {
-  const { token, data } = getAuthData(req);
-
   try {
+    const { token, data } = getAuthData(req);
+
     const user = await UserModel.findOne({
       _id: data._id,
       token: token

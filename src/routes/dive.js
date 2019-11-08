@@ -45,7 +45,19 @@ router.put("/:id", middleware, (req, res) =>
     {
       _id: req.params.id
     },
-    req.body
+    {
+      time_in: req.body.time_in,
+      time_out: req.body.time_out,
+      bottom_time: req.body.bottom_time,
+      safety_stop_time: req.body.safety_stop_time,
+      max_depth: req.body.max_depth,
+      location: req.body.location,
+      description: req.body.description,
+      club: req.body.club,
+      buddies: req.body.buddies,
+      gear: req.body.gear,
+      public: req.body.public
+    }
   )
 );
 
