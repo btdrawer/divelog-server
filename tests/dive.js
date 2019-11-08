@@ -53,6 +53,34 @@ describe("Dive", () => {
 
           dive_ids.push(res.body._id);
         }));
+
+    it("should not add different user_id", () =>
+      request(app)
+        .post("/dive")
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .send({ ...dive[0], user_id: user_ids[1] })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body).be.an("object");
+
+          expect(res.body.user).equal(user_ids[0]);
+
+          dive_ids.push(res.body._id);
+        }));
+
+    it("should not add dive_time", () =>
+      request(app)
+        .post("/dive")
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .send({ ...dive[0], dive_time: 32 })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body).be.an("object");
+
+          expect(res.body.dive_time).not.equal(32);
+
+          dive_ids.push(res.body._id);
+        }));
   });
 
   describe("List dives", () => {
@@ -64,9 +92,12 @@ describe("Dive", () => {
           expect(res.status).equal(200);
           expect(res.body).be.an("array");
 
-          expect(res.body).have.length(2);
+          expect(res.body).have.length(4);
+
           expect(res.body[0]._id).equal(dive_ids[0]);
           expect(res.body[1]._id).equal(dive_ids[1]);
+          expect(res.body[2]._id).equal(dive_ids[2]);
+          expect(res.body[3]._id).equal(dive_ids[3]);
         }));
   });
 
@@ -113,6 +144,18 @@ describe("Dive", () => {
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body.user).equal(user_ids[0]);
+        }));
+
+    it("should not update dive_time", () =>
+      request(app)
+        .put(`/dive/${dive_ids[0]}`)
+        .set({ Authorization: `Bearer ${tokens[0]}` })
+        .send({
+          dive_time: 32
+        })
+        .then(res => {
+          expect(res.status).equal(200);
+          expect(res.body.dive_time).not.equal(32);
         }));
   });
 

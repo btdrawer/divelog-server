@@ -15,7 +15,7 @@ module.exports = (res, err) => {
     message = `Missing required fields: ${Object.keys(err.errors).join(", ")}`;
   } else if (err.name === "CastError") {
     code = 400;
-    message = `Cannot write property: ${err.path}`;
+    message = `The following parameter is in an incorrect format: ${err.path}`;
   } else {
     console.log(err);
   }
