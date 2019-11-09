@@ -19,10 +19,11 @@ router.post("/", middleware, (req, res) =>
 // List all clubs
 router.get("/", middleware, (req, res) => {
   if (Object.keys(req.body).length > 0) {
-    routeBuilder.getAll(ClubModel, res, {
-      name: req.body.name,
-      location: req.body.location
-    });
+    let query = {};
+    if (req.body.name) query.name = req.body.name;
+    if (req.body.location) query.location = req.body.location;
+
+    routeBuilder.getAll(ClubModel, res, query);
   } else {
     routeBuilder.getAll(ClubModel, res, {});
   }
@@ -43,7 +44,44 @@ router.put("/:id", middleware, (req, res) =>
     {
       _id: req.params.id
     },
-    req.body
+    {
+      name: req.body.name,
+      location: req.body.location,
+      description: req.body.description,
+      website: req.body.website
+    }
+  )
+);
+
+// Add manager
+router.post("/:id/manager/:managerId", middleware, (req, res) =>
+  routeBuilder.put(
+    ClubModel,
+    res,
+    {
+      _id: req.params.id
+    },
+    {
+      $push: {
+        managers: req.params.managerId
+      }
+    }
+  )
+);
+
+// Add manager
+router.delete("/:id/manager/:managerId", middleware, (req, res) =>
+  routeBuilder.put(
+    ClubModel,
+    res,
+    {
+      _id: req.params.id
+    },
+    {
+      $pull: {
+        managers: req.params.managerId
+      }
+    }
   )
 );
 

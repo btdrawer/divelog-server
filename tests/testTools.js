@@ -29,6 +29,12 @@ exports.data = {
       location: "A1",
       description: "Club",
       website: "example.com"
+    },
+    {
+      name: "B",
+      location: "A1",
+      description: "Another club",
+      website: "example2.com"
     }
   ],
   group: [
