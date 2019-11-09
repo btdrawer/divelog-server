@@ -68,6 +68,12 @@ describe("Gear", () => {
           expect(res.body.type).equal(gear[0].type);
           expect(res.body.owner).equal(gear[0].owner);
         }));
+
+    it("should fail if not the owner", () =>
+      request(app)
+        .get(`/gear/${gear_ids[0]}`)
+        .set({ Authorization: `Bearer ${tokens[1]}` })
+        .then(res => expect(res.status).equal(403)));
   });
 
   describe("Update gear", () => {

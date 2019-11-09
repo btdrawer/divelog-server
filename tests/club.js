@@ -138,6 +138,15 @@ describe("Club", () => {
           expect(res.body.managers[0]).equal(user_ids[0]);
           expect(res.body.website).equal(club[0].website);
         }));
+
+    it("should fail if not a manager", () =>
+      request(app)
+        .put(`/club/${club_ids[0]}`)
+        .send({
+          name: "New name 2"
+        })
+        .set({ Authorization: `Bearer ${tokens[1]}` })
+        .then(res => expect(res.status).equal(403)));
   });
 
   describe("Add manager to club", () => {

@@ -1,5 +1,7 @@
-exports.USER = "/user";
-exports.CLUB = "/club";
-exports.DIVE = "/dive";
-exports.GEAR = "/gear";
-exports.GROUP = "/group";
+module.exports = {
+  USER: "/user",
+  CLUB: "/club",
+  DIVE: "/dive",
+  GEAR: "/gear",
+  GROUP: "/group"
+};

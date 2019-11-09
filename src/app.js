@@ -1,29 +1,20 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const { USER, DIVE, CLUB, GEAR, GROUP } = require("./variables/routerUrls");
-
-const userRouter = require("./routes/user");
-const diveRouter = require("./routes/dive");
-const clubRouter = require("./routes/club");
-const gearRouter = require("./routes/gear");
-const groupRouter = require("./routes/group");
-
-require("./db");
-
-const port = process.env.PORT;
+const routerUrls = require("./variables/routerUrls");
 
 const app = express();
 
+require("./db");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(USER, userRouter);
-app.use(DIVE, diveRouter);
-app.use(CLUB, clubRouter);
-app.use(GEAR, gearRouter);
-app.use(GROUP, groupRouter);
+for (let route in routerUrls) {
+  const uri = routerUrls[route];
+  app.use(uri, require(`./routes${uri}`));
+}
 
+const port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 module.exports = app;

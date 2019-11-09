@@ -56,6 +56,10 @@ exports.getOne = async (model, res, query, fieldsToReturn) => {
 };
 
 exports.put = async (model, res, query, payload) => {
+  for (let prop in payload) {
+    if (!payload[prop]) delete payload[prop];
+  }
+
   try {
     const obj = await model.findOneAndUpdate(query, payload, { new: true });
 
