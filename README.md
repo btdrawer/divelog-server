@@ -28,4 +28,4 @@ You can also run the unit tests by typing:
 
 ## Acknowledgements
 
-I got a lot of help from [this](https://medium.com/swlh/jwt-authentication-authorization-in-nodejs-express-mongodb-rest-apis-2019-ad14ec818122) tutorial. I was already familiar with how to build an Express.js API, but this tutorial was useful in showing how to integrate such an API with MongoDB and implementing authentication.
+I got a lot of help from [this](https://medium.com/swlh/jwt-authentication-authorization-in-nodejs-express-mongodb-rest-apis-2019-ad14ec818122) tutorial. I was already familiar with how to build an Express.js API, but this tutorial was useful in showing how to integrate such an API with MongoDB and how to implement authentication.
