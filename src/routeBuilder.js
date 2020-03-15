@@ -30,7 +30,7 @@ exports.generic = async (model, func, res, method, ...args) => {
   }
 };
 
-exports.post = async (model, res, payload) => {
+exports.post = async ({ model, res, payload }) => {
   try {
     const obj = new model(payload);
     await obj.save();
@@ -71,13 +71,13 @@ exports.getOne = async ({ model, req, res, filter, allowedFields }) => {
   }
 };
 
-exports.put = async (model, res, query, payload) => {
+exports.put = async ({ model, res, filter, payload }) => {
   for (let prop in payload) {
     if (!payload[prop]) delete payload[prop];
   }
 
   try {
-    const obj = await model.findOneAndUpdate(query, payload, { new: true });
+    const obj = await model.findOneAndUpdate(filter, payload, { new: true });
 
     handleSuccess(res, obj, "PUT");
   } catch (err) {
@@ -85,9 +85,9 @@ exports.put = async (model, res, query, payload) => {
   }
 };
 
-exports.delete = async (model, res, query) => {
+exports.delete = async ({ model, res, filter }) => {
   try {
-    const obj = await model.findOneAndDelete(query);
+    const obj = await model.findOneAndDelete(filter);
 
     handleSuccess(res, obj, "DELETE");
   } catch (err) {

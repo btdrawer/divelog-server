@@ -10,10 +10,14 @@ const routeBuilder = require("../routeBuilder");
 
 // Create new user
 router.post("/", (req, res) =>
-  routeBuilder.post(UserModel, res, {
-    name: req.body.name,
-    username: req.body.username,
-    password: req.body.password
+  routeBuilder.post({
+    model: UserModel,
+    res,
+    payload: {
+      name: req.body.name,
+      username: req.body.username,
+      password: req.body.password
+    }
   })
 );
 
@@ -109,20 +113,24 @@ router.get("/:id", middleware, (req, res) => {
 
 // Update user details
 router.put("/", middleware, (req, res) =>
-  routeBuilder.put(
-    UserModel,
+  routeBuilder.put({
+    model: UserModel,
     res,
-    {
+    filter: {
       _id: getUserID(req)
     },
-    req.body
-  )
+    payload: req.body
+  })
 );
 
 // Delete user
 router.delete("/", middleware, (req, res) =>
-  routeBuilder.delete(UserModel, res, {
-    _id: getUserID(req)
+  routeBuilder.delete({
+    model: UserModel,
+    res,
+    filter: {
+      _id: getUserID(req)
+    }
   })
 );
 

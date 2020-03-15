@@ -12,26 +12,30 @@ router.post("/", middleware, async (req, res) => {
   const myId = getUserID(req);
   req.body.participants.push(myId);
 
-  await routeBuilder.post(GroupModel, res, {
-    name: req.body.group_name,
-    participants: req.body.participants,
-    messages: [
-      {
-        text: req.body.text,
-        sender: myId
-      }
-    ]
+  await routeBuilder.post({
+    model: GroupModel,
+    res,
+    payload: {
+      name: req.body.group_name,
+      participants: req.body.participants,
+      messages: [
+        {
+          text: req.body.text,
+          sender: myId
+        }
+      ]
+    }
   });
 });
 
 router.post("/:id/message", middleware, (req, res) =>
-  routeBuilder.put(
-    GroupModel,
+  routeBuilder.put({
+    model: GroupModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    {
+    payload: {
       $push: {
         messages: {
           text: req.body.text,
@@ -40,7 +44,7 @@ router.post("/:id/message", middleware, (req, res) =>
         }
       }
     }
-  )
+  })
 );
 
 // List groups the user participates in
@@ -84,18 +88,18 @@ router.post("/:id/user/:userId", middleware, async (req, res) => {
 
 // Leave gronp
 router.delete("/:id/leave", middleware, (req, res) =>
-  routeBuilder.put(
-    GroupModel,
+  routeBuilder.put({
+    model: GroupModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    {
+    payload: {
       $pull: {
         participants: getUserID(req)
       }
     }
-  )
+  })
 );
 
 module.exports = router;
