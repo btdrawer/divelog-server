@@ -12,7 +12,10 @@ const getAuthData = req => {
 
 const getUserID = req => getAuthData(req).data._id;
 
-const signJwt = id => jwt.sign({ _id: id }, process.env.JWT_KEY);
+const signJwt = id =>
+  jwt.sign({ _id: id }, process.env.JWT_KEY, {
+    expiresIn: "3h"
+  });
 
 module.exports = {
   getAuthData,
