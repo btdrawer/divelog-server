@@ -76,9 +76,8 @@ describe("Club", () => {
 
     it("should list clubs with a particular name", () =>
       request(app)
-        .get("/club")
+        .get("/club?name=B")
         .set({ Authorization: `Bearer ${tokens[0]}` })
-        .send({ name: "B" })
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("array");
@@ -88,9 +87,8 @@ describe("Club", () => {
 
     it("should list clubs with a particular location", () =>
       request(app)
-        .get("/club")
+        .get("/club?location=A1")
         .set({ Authorization: `Bearer ${tokens[0]}` })
-        .send({ location: "A1" })
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("array");

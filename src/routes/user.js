@@ -80,7 +80,12 @@ router.delete("/friend/:id", middleware, (req, res) =>
 
 // List all users
 router.get("/", middleware, (req, res) =>
-  routeBuilder.getAll(UserModel, res, {}, ["name", "username"])
+  routeBuilder.getAll({
+    model: UserModel,
+    req,
+    res,
+    visibleFields: ["name", "username"]
+  })
 );
 
 // Get user by ID
