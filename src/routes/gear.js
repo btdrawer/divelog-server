@@ -7,11 +7,15 @@ const routeBuilder = require("../routeBuilder");
 
 // Create gear
 router.post("/", middleware, (req, res) =>
-  routeBuilder.post(GearModel, res, {
-    brand: req.body.brand,
-    name: req.body.name,
-    type: req.body.type,
-    owner: getUserID(req)
+  routeBuilder.post({
+    model: GearModel,
+    res,
+    payload: {
+      brand: req.body.brand,
+      name: req.body.name,
+      type: req.body.type,
+      owner: getUserID(req)
+    }
   })
 );
 
@@ -41,20 +45,24 @@ router.get("/:id", middleware, async (req, res) =>
 
 // Update gear
 router.put("/:id", middleware, (req, res) =>
-  routeBuilder.put(
-    GearModel,
+  routeBuilder.put({
+    model: GearModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    req.body
-  )
+    payload: req.body
+  })
 );
 
 // Delete gear
 router.delete("/:id", middleware, (req, res) =>
-  routeBuilder.delete(GearModel, res, {
-    _id: req.params.id
+  routeBuilder.delete({
+    model: GearModel,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 

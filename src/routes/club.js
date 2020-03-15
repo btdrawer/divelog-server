@@ -7,12 +7,16 @@ const routeBuilder = require("../routeBuilder");
 
 // Create new club
 router.post("/", middleware, (req, res) =>
-  routeBuilder.post(ClubModel, res, {
-    name: req.body.name,
-    location: req.body.location,
-    description: req.body.description,
-    managers: [getUserID(req)],
-    website: req.body.website
+  routeBuilder.post({
+    model: ClubModel,
+    res,
+    payload: {
+      name: req.body.name,
+      location: req.body.location,
+      description: req.body.description,
+      managers: [getUserID(req)],
+      website: req.body.website
+    }
   })
 );
 
@@ -45,57 +49,61 @@ router.get("/:id", middleware, (req, res) =>
 
 // Update club
 router.put("/:id", middleware, (req, res) =>
-  routeBuilder.put(
-    ClubModel,
+  routeBuilder.put({
+    model: ClubModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    {
+    payload: {
       name: req.body.name,
       location: req.body.location,
       description: req.body.description,
       website: req.body.website
     }
-  )
+  })
 );
 
 // Add manager
 router.post("/:id/manager/:managerId", middleware, (req, res) =>
-  routeBuilder.put(
-    ClubModel,
+  routeBuilder.put({
+    model: ClubModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    {
+    payload: {
       $push: {
         managers: req.params.managerId
       }
     }
-  )
+  })
 );
 
-// Add manager
+// Delete manager
 router.delete("/:id/manager/:managerId", middleware, (req, res) =>
-  routeBuilder.put(
-    ClubModel,
+  routeBuilder.put({
+    model: ClubModel,
     res,
-    {
+    filter: {
       _id: req.params.id
     },
-    {
+    payload: {
       $pull: {
         managers: req.params.managerId
       }
     }
-  )
+  })
 );
 
 // Delete club
 router.delete("/:id", middleware, (req, res) =>
-  routeBuilder.delete(ClubModel, res, {
-    _id: req.params.id
+  routeBuilder.delete({
+    model: ClubModel,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 
