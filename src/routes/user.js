@@ -84,30 +84,27 @@ router.get("/", middleware, (req, res) =>
     model: UserModel,
     req,
     res,
-    visibleFields: ["name", "username"]
+    allowedFields: ["name", "username"]
   })
 );
 
 // Get user by ID
-router.get("/:id", middleware, async (req, res) => {
-  let id, fieldsToReturn;
+router.get("/:id", middleware, (req, res) => {
+  const isMe = req.params.id === "me";
+  const id = isMe ? getUserID(req) : req.params.id;
+  const allowedFields = isMe
+    ? ["name", "username", "friends", "friend_requests"]
+    : ["name", "username"];
 
-  if (req.params.id === "me") {
-    id = getUserID(req);
-    fieldsToReturn = ["name", "username", "friends", "friend_requests"];
-  } else {
-    id = req.params.id;
-    fieldsToReturn = ["name", "username"];
-  }
-
-  await routeBuilder.getOne(
-    UserModel,
+  routeBuilder.getOne({
+    model: UserModel,
+    req,
     res,
-    {
+    query: {
       _id: id
     },
-    fieldsToReturn
-  );
+    allowedFields
+  });
 });
 
 // Update user details

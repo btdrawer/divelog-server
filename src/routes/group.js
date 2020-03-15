@@ -56,9 +56,14 @@ router.get("/", middleware, async (req, res) =>
 );
 
 // Get group
-router.get("/:id", middleware, (req, res) =>
-  routeBuilder.getOne(GroupModel, res, {
-    _id: req.params.id
+router.get("/:id", middleware, async (req, res) =>
+  routeBuilder.getOne({
+    model: GroupModel,
+    req,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 

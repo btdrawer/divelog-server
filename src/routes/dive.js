@@ -23,22 +23,32 @@ router.post("/", middleware, (req, res) =>
   })
 );
 
-// List all a user's dives
-router.get("/", middleware, async (req, res) =>
+// List the authenticated user's dives
+router.get("/", middleware, (req, res) => {
+  const filter = {
+    user: req.query.user || getUserID(req)
+  };
+  if (req.query.user) {
+    filter.public = true;
+  }
+
   routeBuilder.getAll({
     model: DiveModel,
     req,
     res,
-    filter: {
-      user: getUserID(req)
-    }
-  })
-);
+    filter
+  });
+});
 
 // Get dive by ID
 router.get("/:id", middleware, (req, res) =>
-  routeBuilder.getOne(DiveModel, res, {
-    _id: req.params.id
+  routeBuilder.getOne({
+    model: DiveModel,
+    req,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 
