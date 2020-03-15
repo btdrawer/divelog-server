@@ -28,9 +28,14 @@ router.get("/", middleware, async (req, res) =>
 );
 
 // Get gear by ID
-router.get("/:id", middleware, (req, res) =>
-  routeBuilder.getOne(GearModel, res, {
-    _id: req.params.id
+router.get("/:id", middleware, async (req, res) =>
+  routeBuilder.getOne({
+    model: GearModel,
+    req,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 

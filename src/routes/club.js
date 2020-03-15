@@ -33,8 +33,13 @@ router.get("/", middleware, (req, res) => {
 
 // Get club by ID
 router.get("/:id", middleware, (req, res) =>
-  routeBuilder.getOne(ClubModel, res, {
-    _id: req.params.id
+  routeBuilder.getOne({
+    model: ClubModel,
+    req,
+    res,
+    filter: {
+      _id: req.params.id
+    }
   })
 );
 

@@ -1,18 +1,23 @@
 const handleSuccess = require("./handlers/handleSuccess");
 const handleError = require("./handlers/handleError");
 
-const getFieldsToReturn = fields => {
-  if (typeof fields === "object") {
-    return fields.reduce(
-      (acc, field) => ({
-        ...acc,
-        [field]: 1
-      }),
-      {}
-    );
-  }
+const reduceFields = fields =>
+  fields.reduce(
+    (acc, field) => ({
+      ...acc,
+      [field]: 1
+    }),
+    {}
+  );
 
-  return undefined;
+const getFieldsToReturn = (requestedFields, allowedFields) => {
+  if (allowedFields) {
+    return reduceFields(allowedFields);
+  }
+  if (typeof requestedFields === "string") {
+    return reduceFields(requestedFields.split(","));
+  }
+  return null;
 };
 
 exports.generic = async (model, func, res, method, ...args) => {
@@ -36,16 +41,9 @@ exports.post = async (model, res, payload) => {
   }
 };
 
-exports.getAll = async ({ model, req, res, filter, visibleFields }) => {
+exports.getAll = async ({ model, req, res, filter, allowedFields }) => {
   try {
-    let fields;
-    if (visibleFields) {
-      fields = getFieldsToReturn(visibleFields);
-    } else if (req.query.fields) {
-      fields = getFieldsToReturn(req.query.fields.split(","));
-    } else {
-      fields = null;
-    }
+    const fields = getFieldsToReturn(req.query.fields, allowedFields);
 
     const { limit, skip } = req.query;
     const options = {
@@ -61,13 +59,13 @@ exports.getAll = async ({ model, req, res, filter, visibleFields }) => {
   }
 };
 
-exports.getOne = async (model, res, query, fieldsToReturn) => {
+exports.getOne = async ({ model, req, res, filter, allowedFields }) => {
   try {
-    const obj = fieldsToReturn
-      ? await model.findOne(query, fieldsToReturn)
-      : await model.findOne(query);
+    const fields = getFieldsToReturn(req.query.fields, allowedFields);
 
-    handleSuccess(res, obj, "GET");
+    const data = await model.findOne(filter, fields);
+
+    handleSuccess(res, data, "GET");
   } catch (err) {
     handleError(res, err);
   }

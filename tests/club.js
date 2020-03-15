@@ -105,6 +105,7 @@ describe("Club", () => {
         .then(res => {
           expect(res.status).equal(200);
           expect(res.body).be.an("object");
+          console.log(res.body);
 
           expect(res.body.name).equal(club[0].name);
           expect(res.body.location).equal(club[0].location);
