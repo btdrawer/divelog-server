@@ -102,7 +102,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/user",
+							"raw": "http://localhost:8080/user?limit=10&skip=0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -110,6 +110,16 @@
 							"port": "8080",
 							"path": [
 								"user"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "skip",
+									"value": "0"
+								}
 							]
 						}
 					},
@@ -383,7 +393,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/gear",
+							"raw": "http://localhost:8080/gear?fields=brand,type&limit=2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -391,6 +401,21 @@
 							"port": "8080",
 							"path": [
 								"gear"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "brand,type"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "skip",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -419,7 +444,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/gear/{{gear_id}}",
+							"raw": "http://localhost:8080/gear/{{gear_id}}?fields=brand,type",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -428,6 +453,12 @@
 							"path": [
 								"gear",
 								"{{gear_id}}"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "brand,type"
+								}
 							]
 						}
 					},
@@ -590,7 +621,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/club",
+							"raw": "http://localhost:8080/club?fields=name,location,description&limit=3&skip=2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -598,6 +629,30 @@
 							"port": "8080",
 							"path": [
 								"club"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "location",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "fields",
+									"value": "name,location,description"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "skip",
+									"value": "2"
+								}
 							]
 						}
 					},
@@ -626,7 +681,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/club/{{club_id}}",
+							"raw": "http://localhost:8080/club/{{club_id}}?fields=name,location",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -635,6 +690,12 @@
 							"path": [
 								"club",
 								"{{club_id}}"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "name,location"
+								}
 							]
 						}
 					},
@@ -753,7 +814,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"time_in\": 1533114000000,\n\t\"time_out\": 1533115500000,\n\t\"safety_stop_time\": 0,\n\t\"bottom_time\": 0,\n\t\"max_depth\": 0.0,\n\t\"description\": \"\",\n\t\"is_public\": true\n}",
+							"raw": "{\n\t\"time_in\": 1533114000000,\n\t\"time_out\": 1533115500000,\n\t\"safety_stop_time\": 0,\n\t\"bottom_time\": 0,\n\t\"max_depth\": 0.0,\n\t\"description\": \"\",\n\t\"is_public\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -775,7 +836,7 @@
 					"response": []
 				},
 				{
-					"name": "List dives",
+					"name": "List my dives",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -805,6 +866,80 @@
 							"port": "8080",
 							"path": [
 								"dive"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "time_in,time_out",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List user dives",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/dive?user={{user_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"dive"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "time_in,time_out",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "user",
+									"value": "{{user_id}}"
+								}
 							]
 						}
 					},
@@ -833,7 +968,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/dive/{{dive_id}}",
+							"raw": "http://localhost:8080/dive/{{dive_id}}?fields=time_in,time_out",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -842,6 +977,12 @@
 							"path": [
 								"dive",
 								"{{dive_id}}"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "time_in,time_out"
+								}
 							]
 						}
 					},
@@ -871,7 +1012,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"bottom_time\": 0\n}",
+							"raw": "{\n\t\"is_public\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1051,7 +1192,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/group",
+							"raw": "http://localhost:8080/group?fields=messages&limit=2&skip=0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1059,6 +1200,20 @@
 							"port": "8080",
 							"path": [
 								"group"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "messages"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "skip",
+									"value": "0"
+								}
 							]
 						}
 					},
@@ -1099,7 +1254,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/group/{{group_id}}",
+							"raw": "http://localhost:8080/group/{{group_id}}?fields=messages",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1108,6 +1263,12 @@
 							"path": [
 								"group",
 								"{{group_id}}"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "messages"
+								}
 							]
 						}
 					},
