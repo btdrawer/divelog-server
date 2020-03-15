@@ -1,6 +1,20 @@
 const handleSuccess = require("./handlers/handleSuccess");
 const handleError = require("./handlers/handleError");
 
+const getFieldsToReturn = fields => {
+  if (typeof fields === "object") {
+    return fields.reduce(
+      (acc, field) => ({
+        ...acc,
+        [field]: 1
+      }),
+      {}
+    );
+  }
+
+  return undefined;
+};
+
 exports.generic = async (model, func, res, method, ...args) => {
   try {
     const obj = await model[func](...args);
@@ -22,22 +36,26 @@ exports.post = async (model, res, payload) => {
   }
 };
 
-exports.getAll = async (model, res, query, fieldsToReturn) => {
+exports.getAll = async ({ model, req, res, filter, visibleFields }) => {
   try {
-    let obj;
-
-    if (fieldsToReturn) {
-      fieldsToReturn = fieldsToReturn.reduce((fields, field) => {
-        fields[field] = 1;
-        return fields;
-      }, {});
-
-      obj = await model.find(query || {}, fieldsToReturn);
+    let fields;
+    if (visibleFields) {
+      fields = getFieldsToReturn(visibleFields);
+    } else if (req.query.fields) {
+      fields = getFieldsToReturn(req.query.fields.split(","));
     } else {
-      obj = await model.find(query || {});
+      fields = null;
     }
 
-    handleSuccess(res, obj, "GET");
+    const { limit, skip } = req.query;
+    const options = {
+      limit: limit ? parseInt(limit) : undefined,
+      skip: skip ? parseInt(skip) : undefined
+    };
+
+    const data = await model.find(filter, fields, options);
+
+    handleSuccess(res, data, "GET");
   } catch (err) {
     handleError(res, err);
   }

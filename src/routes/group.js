@@ -44,9 +44,14 @@ router.post("/:id/message", middleware, (req, res) =>
 );
 
 // List groups the user participates in
-router.get("/", middleware, (req, res) =>
-  routeBuilder.getAll(GroupModel, res, {
-    participants: getUserID(req)
+router.get("/", middleware, async (req, res) =>
+  routeBuilder.getAll({
+    model: GroupModel,
+    req,
+    res,
+    filter: {
+      participants: getUserID(req)
+    }
   })
 );
 

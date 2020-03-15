@@ -18,15 +18,17 @@ router.post("/", middleware, (req, res) =>
 
 // List all clubs
 router.get("/", middleware, (req, res) => {
-  if (Object.keys(req.body).length > 0) {
-    let query = {};
-    if (req.body.name) query.name = req.body.name;
-    if (req.body.location) query.location = req.body.location;
+  const filter = {};
+  const { name, location } = req.query;
+  if (name) filter.name = name;
+  if (location) filter.location = location;
 
-    routeBuilder.getAll(ClubModel, res, query);
-  } else {
-    routeBuilder.getAll(ClubModel, res, {});
-  }
+  routeBuilder.getAll({
+    model: ClubModel,
+    req,
+    res,
+    filter
+  });
 });
 
 // Get club by ID

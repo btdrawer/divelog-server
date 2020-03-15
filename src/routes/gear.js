@@ -15,10 +15,15 @@ router.post("/", middleware, (req, res) =>
   })
 );
 
-// List all gear for signed-in user
-router.get("/", middleware, (req, res) =>
-  routeBuilder.getAll(GearModel, res, {
-    owner: getUserID(req)
+// List all a user's gear
+router.get("/", middleware, async (req, res) =>
+  routeBuilder.getAll({
+    model: GearModel,
+    req,
+    res,
+    filter: {
+      owner: getUserID(req)
+    }
   })
 );
 

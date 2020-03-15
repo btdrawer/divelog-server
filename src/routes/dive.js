@@ -25,8 +25,13 @@ router.post("/", middleware, (req, res) =>
 
 // List all a user's dives
 router.get("/", middleware, async (req, res) =>
-  routeBuilder.getAll(DiveModel, res, {
-    user: getUserID(req)
+  routeBuilder.getAll({
+    model: DiveModel,
+    req,
+    res,
+    filter: {
+      user: getUserID(req)
+    }
   })
 );
 
