@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { USERNAME_EXISTS, INVALID_AUTH } = require("../variables/errorKeys");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const { signJwt } = require("../authentication/authTools");
+const { hashPassword, signJwt } = require("../authentication/authTools");
 
 const UserSchema = new Schema({
   name: {
@@ -42,36 +42,35 @@ const UserSchema = new Schema({
   }
 });
 
-UserSchema.pre("save", async function(next) {
-  if (this.isModified("password"))
-    this.password = bcrypt.hashSync(this.password, 10);
-
-  if (this.isModified("username")) {
-    const user = await UserModel.findOne({
-      username: this.username
-    });
-
-    if (user) throw new Error(USERNAME_EXISTS);
+const isUsernameTaken = async username => {
+  const user = await UserModel.findOne({
+    username
+  });
+  if (user) {
+    throw new Error(USERNAME_EXISTS);
   }
+  return undefined;
+};
 
+UserSchema.pre("save", async function(next) {
+  if (this.isModified("password")) {
+    this.password = await hashPassword(this.password);
+  }
+  if (this.isModified("username")) {
+    await isUsernameTaken(this.username);
+  }
   this.token = signJwt(this._id);
-
   next();
 });
 
 UserSchema.pre("findOneAndUpdate", async function(next) {
-  if (this._update.password) {
-    this._update.password = bcrypt.hashSync(this._update.password, 10);
+  const { username, password } = this._update;
+  if (password) {
+    this._update.password = await hashPassword(password);
   }
-
-  if (this._update.username) {
-    const user = await UserModel.findOne({
-      username: this._update.username
-    });
-
-    if (user) throw new Error(USERNAME_EXISTS);
+  if (username) {
+    await isUsernameTaken(username);
   }
-
   next();
 });
 
@@ -79,16 +78,13 @@ UserSchema.statics.authenticate = async (username, password) => {
   const user = await UserModel.findOne({
     username: username
   });
-
-  const errorMessage = INVALID_AUTH;
-
-  if (!user) throw new Error(errorMessage);
-  else if (!bcrypt.compareSync(password, user.password))
-    throw new Error(errorMessage);
-
+  if (!user) {
+    throw new Error(INVALID_AUTH);
+  } else if (!bcrypt.compareSync(password, user.password)) {
+    throw new Error(INVALID_AUTH);
+  }
   user.token = signJwt(user._id);
   user.save();
-
   return user;
 };
 

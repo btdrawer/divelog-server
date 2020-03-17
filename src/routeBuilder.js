@@ -1,5 +1,6 @@
 const handleSuccess = require("./handlers/handleSuccess");
 const handleError = require("./handlers/handleError");
+const { INVALID_SORT_VALUE } = require("./variables/errorKeys");
 
 const reduceFields = fields =>
   fields.reduce(
@@ -45,10 +46,20 @@ exports.getAll = async ({ model, req, res, filter, allowedFields }) => {
   try {
     const fields = getFieldsToReturn(req.query.fields, allowedFields);
 
-    const { limit, skip } = req.query;
+    const { limit, skip, sort_by, sort_order } = req.query;
+    if (
+      typeof sort_by === "string" &&
+      allowedFields &&
+      !allowedFields.includes(sort_by)
+    ) {
+      throw new Error(INVALID_SORT_VALUE);
+    }
     const options = {
       limit: limit ? parseInt(limit) : undefined,
-      skip: skip ? parseInt(skip) : undefined
+      skip: skip ? parseInt(skip) : undefined,
+      sort: {
+        [sort_by]: sort_order === "DESC" ? -1 : 1
+      }
     };
 
     const data = await model.find(filter, fields, options);
