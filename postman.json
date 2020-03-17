@@ -102,7 +102,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/user?limit=10&skip=0",
+							"raw": "http://localhost:8080/user?limit=10&skip=0&sort_by=username&sort_order=ASC",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -119,6 +119,14 @@
 								{
 									"key": "skip",
 									"value": "0"
+								},
+								{
+									"key": "sort_by",
+									"value": "username"
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC"
 								}
 							]
 						}
@@ -262,7 +270,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"\",\n\t\"username\": \"\",\n\t\"password\": \"\"\n}",
+							"raw": "{\n\t\"username\": \"user2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -393,7 +401,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/gear?fields=brand,type&limit=2",
+							"raw": "http://localhost:8080/gear?fields=brand,type&limit=10&sort_by=brand&sort_order=ASC",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -409,12 +417,20 @@
 								},
 								{
 									"key": "limit",
-									"value": "2"
+									"value": "10"
 								},
 								{
 									"key": "skip",
 									"value": "1",
 									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "brand"
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC"
 								}
 							]
 						}
@@ -621,7 +637,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/club?fields=name,location,description&limit=3&skip=2",
+							"raw": "http://localhost:8080/club?fields=name,location,description&limit=3&skip=2&sort_by=name&order_by=ASC",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -652,6 +668,14 @@
 								{
 									"key": "skip",
 									"value": "2"
+								},
+								{
+									"key": "sort_by",
+									"value": "name"
+								},
+								{
+									"key": "order_by",
+									"value": "ASC"
 								}
 							]
 						}
@@ -858,7 +882,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/dive",
+							"raw": "http://localhost:8080/dive?sort_by=time_in&sort_order=ASC",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -882,6 +906,14 @@
 									"key": "skip",
 									"value": "1",
 									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "time_in"
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC"
 								}
 							]
 						}
@@ -911,7 +943,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/dive?user={{user_id}}",
+							"raw": "http://localhost:8080/dive?user={{user_id}}&sort_by=time_in&sort_order=ASC",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -921,6 +953,10 @@
 								"dive"
 							],
 							"query": [
+								{
+									"key": "user",
+									"value": "{{user_id}}"
+								},
 								{
 									"key": "fields",
 									"value": "time_in,time_out",
@@ -937,8 +973,12 @@
 									"disabled": true
 								},
 								{
-									"key": "user",
-									"value": "{{user_id}}"
+									"key": "sort_by",
+									"value": "time_in"
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC"
 								}
 							]
 						}
@@ -1213,6 +1253,16 @@
 								{
 									"key": "skip",
 									"value": "0"
+								},
+								{
+									"key": "sort_by",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC",
+									"disabled": true
 								}
 							]
 						}

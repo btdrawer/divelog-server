@@ -3,6 +3,10 @@ module.exports = {
     code: 400,
     message: "You cannot send a friend request to yourself."
   },
+  INVALID_SORT_VALUE: {
+    code: 400,
+    message: "You have entered invalid sort parameters."
+  },
   FRIEND_REQUEST_ALREADY_SENT: {
     code: 400,
     message: "You have already sent a friend request to this person."
@@ -42,7 +46,6 @@ module.exports = {
   INVALID_ARGUMENT_DIVE_TIME_EXCEEDED: {
     code: 422,
     message:
-      "Bottom and safety stop time cannot exceed dive time \
-            (The difference between time in and time out)."
+      "Bottom and safety stop time cannot exceed dive time (The difference between time in and time out)."
   }
 };
