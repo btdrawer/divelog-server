@@ -1,5 +1,5 @@
 {
-  "name": "divelog-server",
+  "name": "divelog-server-rest",
   "version": "0.0.1",
   "private": true,
   "scripts": {
