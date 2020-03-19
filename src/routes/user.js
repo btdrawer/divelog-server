@@ -16,6 +16,7 @@ router.post("/", (req, res) =>
     payload: {
       name: req.body.name,
       username: req.body.username,
+      email: req.body.email,
       password: req.body.password
     }
   })

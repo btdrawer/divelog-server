@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"ben\",\n\t\"username\": \"{{username}}\",\n\t\"password\": \"{{password}}\"\n}",
+							"raw": "{\n\t\"name\": \"ben\",\n\t\"username\": \"{{username}}\",\n\t\"email\": \"{{email}}\",\n\t\"password\": \"{{password}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

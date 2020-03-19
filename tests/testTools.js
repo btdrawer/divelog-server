@@ -3,16 +3,19 @@ exports.data = {
     {
       name: "user",
       username: "user0",
+      email: "email@example.com",
       password: "password"
     },
     {
       name: "user",
       username: "anotherUser",
+      email: "email2@example.com",
       password: "password"
     },
     {
       name: "user",
       username: "thirdUser",
+      email: "email3@example.com",
       password: "password"
     }
   ],

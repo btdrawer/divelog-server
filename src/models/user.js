@@ -15,6 +15,11 @@ const UserSchema = new Schema({
     required: true,
     max: 15
   },
+  email: {
+    type: String,
+    required: true,
+    max: 30
+  },
   password: {
     type: String,
     required: true
