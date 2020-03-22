@@ -10,129 +10,129 @@ const routeBuilder = require("../routeBuilder");
 
 // Create new user
 router.post("/", (req, res) =>
-  routeBuilder.post({
-    model: UserModel,
-    res,
-    payload: {
-      name: req.body.name,
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password
-    }
-  })
+    routeBuilder.post({
+        model: UserModel,
+        res,
+        payload: {
+            name: req.body.name,
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password
+        }
+    })
 );
 
 // Login
 router.post("/login", async (req, res) =>
-  routeBuilder.generic(
-    UserModel,
-    "authenticate",
-    res,
-    "POST",
-    req.body.username,
-    req.body.password
-  )
+    routeBuilder.generic(
+        UserModel,
+        "authenticate",
+        res,
+        "POST",
+        req.body.username,
+        req.body.password
+    )
 );
 
 // Send or accept friend request
 router.post("/friend/:id", middleware, async (req, res) => {
-  try {
-    let myId = await getUserID(req);
-    let friendId = req.params.id;
+    try {
+        let myId = await getUserID(req);
+        let friendId = req.params.id;
 
-    if (myId === friendId) {
-      throw new Error(errorKeys.CANNOT_ADD_YOURSELF);
+        if (myId === friendId) {
+            throw new Error(errorKeys.CANNOT_ADD_YOURSELF);
+        }
+
+        const checkInbox = await UserModel.findOne(
+            {
+                _id: myId
+            },
+            ["friend_requests", "friends"]
+        );
+
+        let user;
+
+        if (checkInbox.friend_requests.sent.includes(friendId)) {
+            throw new Error(errorKeys.FRIEND_REQUEST_ALREADY_SENT);
+        } else if (checkInbox.friends.includes(friendId)) {
+            throw new Error(errorKeys.ALREADY_FRIENDS);
+        } else if (checkInbox.friend_requests.inbox.includes(friendId)) {
+            // Accept request
+            user = await UserModel.accept(myId, friendId);
+        } else {
+            // Send request
+            user = await UserModel.add(myId, friendId);
+        }
+
+        handleSuccess(res, user, "POST");
+    } catch (err) {
+        handleError(res, err);
     }
-
-    const checkInbox = await UserModel.findOne(
-      {
-        _id: myId
-      },
-      ["friend_requests", "friends"]
-    );
-
-    let user;
-
-    if (checkInbox.friend_requests.sent.includes(friendId)) {
-      throw new Error(errorKeys.FRIEND_REQUEST_ALREADY_SENT);
-    } else if (checkInbox.friends.includes(friendId)) {
-      throw new Error(errorKeys.ALREADY_FRIENDS);
-    } else if (checkInbox.friend_requests.inbox.includes(friendId)) {
-      // Accept request
-      user = await UserModel.accept(myId, friendId);
-    } else {
-      // Send request
-      user = await UserModel.add(myId, friendId);
-    }
-
-    handleSuccess(res, user, "POST");
-  } catch (err) {
-    handleError(res, err);
-  }
 });
 
 // Unfriend
 router.delete("/friend/:id", middleware, (req, res) =>
-  routeBuilder.generic(
-    UserModel,
-    "unfriend",
-    res,
-    "DELETE",
-    getUserID(req),
-    req.params.id
-  )
+    routeBuilder.generic(
+        UserModel,
+        "unfriend",
+        res,
+        "DELETE",
+        getUserID(req),
+        req.params.id
+    )
 );
 
 // List all users
 router.get("/", middleware, (req, res) =>
-  routeBuilder.getAll({
-    model: UserModel,
-    req,
-    res,
-    allowedFields: ["name", "username"]
-  })
+    routeBuilder.getAll({
+        model: UserModel,
+        req,
+        res,
+        allowedFields: ["name", "username"]
+    })
 );
 
 // Get user by ID
 router.get("/:id", middleware, (req, res) => {
-  const isMe = req.params.id === "me";
-  const id = isMe ? getUserID(req) : req.params.id;
-  const allowedFields = isMe
-    ? ["name", "username", "friends", "friend_requests"]
-    : ["name", "username"];
+    const isMe = req.params.id === "me";
+    const id = isMe ? getUserID(req) : req.params.id;
+    const allowedFields = isMe
+        ? ["name", "username", "friends", "friend_requests"]
+        : ["name", "username"];
 
-  routeBuilder.getOne({
-    model: UserModel,
-    req,
-    res,
-    query: {
-      _id: id
-    },
-    allowedFields
-  });
+    routeBuilder.getOne({
+        model: UserModel,
+        req,
+        res,
+        query: {
+            _id: id
+        },
+        allowedFields
+    });
 });
 
 // Update user details
 router.put("/", middleware, (req, res) =>
-  routeBuilder.put({
-    model: UserModel,
-    res,
-    filter: {
-      _id: getUserID(req)
-    },
-    payload: req.body
-  })
+    routeBuilder.put({
+        model: UserModel,
+        res,
+        filter: {
+            _id: getUserID(req)
+        },
+        payload: req.body
+    })
 );
 
 // Delete user
 router.delete("/", middleware, (req, res) =>
-  routeBuilder.delete({
-    model: UserModel,
-    res,
-    filter: {
-      _id: getUserID(req)
-    }
-  })
+    routeBuilder.delete({
+        model: UserModel,
+        res,
+        filter: {
+            _id: getUserID(req)
+        }
+    })
 );
 
 module.exports = router;
