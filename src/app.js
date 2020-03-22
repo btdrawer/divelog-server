@@ -10,8 +10,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 for (let route in routerUrls) {
-  const uri = routerUrls[route];
-  app.use(uri, require(`./routes${uri}`));
+    const uri = routerUrls[route];
+    app.use(uri, require(`./routes${uri}`));
 }
 
 const port = process.env.PORT;

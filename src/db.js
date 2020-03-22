@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 mongoose.connect(process.env.MONGODB_URL, {
-  useNewUrlParser: false
+    useNewUrlParser: false
 });
 
 const db = mongoose.connection;
