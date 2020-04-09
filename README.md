@@ -7,24 +7,25 @@ I had an idea to build a newer version of it because, although I haven't used it
 
 ## Requirements
 
-- NodeJS
-- NPM
-- MongoDB
+-   NodeJS
+-   NPM
+-   MongoDB
 
 ## How to run
 
 From the root folder, type `npm i` to install the necessary dependencies.
 
-Add a `.env` file to the root folder, with the following variables:
-- `MONGODB_URL`: The URL of your MongoDB database.
-- `JWT_KEY`: The secret key that your JSON Web Tokens will be signed with.
-- `PORT`: The port that the server should listen on.
+Add a `.env` file to the root folder, with the following constants:
+
+-   `MONGODB_URL`: The URL of your MongoDB database.
+-   `JWT_KEY`: The secret key that your JSON Web Tokens will be signed with.
+-   `PORT`: The port that the server should listen on.
 
 Then, you can run the program by typing:
-```npm start```
+`npm start`
 
 You can also run the unit tests by typing:
-```npm test```
+`npm test`
 
 ## Acknowledgements
 

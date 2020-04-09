@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const UserModel = require("../models/User");
+const UserModel = require("../models/UserModel");
 const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authTools");
-const errorKeys = require("../variables/errorKeys");
+const { getUserID } = require("../authentication/authUtils");
+const errorKeys = require("../constants/errorKeys");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
 const routeBuilder = require("../routeBuilder");
@@ -98,7 +98,15 @@ router.get("/:id", middleware, (req, res) => {
     const isMe = req.params.id === "me";
     const id = isMe ? getUserID(req) : req.params.id;
     const allowedFields = isMe
-        ? ["name", "username", "friends", "friend_requests"]
+        ? [
+              "name",
+              "username",
+              "friends",
+              "friend_requests",
+              "dives",
+              "clubs",
+              "gear"
+          ]
         : ["name", "username"];
 
     routeBuilder.getOne({

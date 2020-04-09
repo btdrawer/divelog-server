@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const { USER_ALREADY_IN_GROUP, NOT_FOUND } = require("../variables/errorKeys");
+const { USER_ALREADY_IN_GROUP, NOT_FOUND } = require("../constants/errorKeys");
+const { USER } = require("../constants/resources");
 
 const GroupSchema = new Schema({
     name: {
@@ -10,7 +11,7 @@ const GroupSchema = new Schema({
     participants: [
         {
             type: Schema.Types.ObjectId,
-            ref: "User"
+            ref: USER
         }
     ],
     messages: [
@@ -21,7 +22,7 @@ const GroupSchema = new Schema({
             },
             sender: {
                 type: Schema.Types.ObjectId,
-                ref: "User"
+                ref: USER
             }
         }
     ]

@@ -53,13 +53,13 @@ exports.data = {
     ],
     dive: [
         {
-            time_in: 1533114000000,
-            time_out: 1533115500000,
-            safety_stop_time: 3,
-            bottom_time: 21,
-            max_depth: 17.5,
+            timeIn: 1533114000000,
+            timeOut: 1533115500000,
+            safetyStopTime: 3,
+            bottomTime: 21,
+            maxDepth: 17.5,
             description: "Fun times",
-            is_public: true
+            isPublic: true
         }
     ]
 };

@@ -1,6 +1,6 @@
-const { getAuthData } = require("./authTools");
-const routerUrls = require("../variables/routerUrls");
-const UserModel = require("../models/User");
+const { getAuthData } = require("./authUtils");
+const routerUrls = require("../constants/routerUrls");
+const UserModel = require("../models/UserModel");
 
 // Middleware files for individual resources
 const diveMiddleware = require("./middleware/diveMiddleware");
@@ -10,7 +10,7 @@ const groupMiddleware = require("./middleware/groupMiddleware");
 
 // Error handling
 const handleError = require("../handlers/handleError");
-const { INVALID_AUTH } = require("../variables/errorKeys");
+const { INVALID_AUTH } = require("../constants/errorKeys");
 
 module.exports = async (req, res, next) => {
     try {

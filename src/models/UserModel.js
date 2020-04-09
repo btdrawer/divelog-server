@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
-const { USERNAME_EXISTS, INVALID_AUTH } = require("../variables/errorKeys");
+const {
+    USERNAME_EXISTS,
+    EMAIL_EXISTS,
+    INVALID_AUTH
+} = require("../constants/errorCodes");
+const { USER, DIVE, CLUB, GEAR } = require("../constants/resources");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const { hashPassword, signJwt } = require("../authentication/authTools");
+const { signJwt } = require("../authentication/authUtils");
 
 const UserSchema = new Schema({
     name: {
@@ -25,57 +30,92 @@ const UserSchema = new Schema({
         required: true
     },
     token: String,
+    dives: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: DIVE
+        }
+    ],
+    clubs: {
+        manager: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: CLUB
+            }
+        ],
+        member: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: CLUB
+            }
+        ]
+    },
+    gear: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: GEAR
+        }
+    ],
     friends: [
         {
             type: Schema.Types.ObjectId,
-            ref: "User"
+            ref: USER
         }
     ],
-    friend_requests: {
+    friendRequests: {
         inbox: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "User"
+                ref: USER
             }
         ],
         sent: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "User"
+                ref: USER
             }
         ]
     }
 });
 
-const isUsernameTaken = async username => {
-    const user = await UserModel.findOne({
-        username
-    });
-    if (user) {
-        throw new Error(USERNAME_EXISTS);
-    }
-    return undefined;
-};
-
 UserSchema.pre("save", async function(next) {
-    if (this.isModified("password")) {
-        this.password = await hashPassword(this.password);
-    }
+    if (this.isModified("password"))
+        this.password = bcrypt.hashSync(this.password, 10);
+
     if (this.isModified("username")) {
-        await isUsernameTaken(this.username);
+        const user = await UserModel.findOne({
+            username: this.username
+        });
+
+        if (user) throw new Error(USERNAME_EXISTS);
     }
+
+    if (this.isModified("email")) {
+        const user = await UserModel.findOne({
+            email: this.email
+        });
+
+        if (user) throw new Error(EMAIL_EXISTS);
+    }
+
     this.token = signJwt(this._id);
+
     next();
 });
 
 UserSchema.pre("findOneAndUpdate", async function(next) {
-    const { username, password } = this._update;
-    if (password) {
-        this._update.password = await hashPassword(password);
+    if (this._update.password) {
+        this._update.password = bcrypt.hashSync(this._update.password, 10);
     }
-    if (username) {
-        await isUsernameTaken(username);
+
+    if (this._update.username) {
+        const user = await UserModel.findOne({
+            username: this._update.username
+        });
+
+        if (user) throw new Error(USERNAME_EXISTS);
     }
+
     next();
 });
 
@@ -83,13 +123,16 @@ UserSchema.statics.authenticate = async (username, password) => {
     const user = await UserModel.findOne({
         username: username
     });
-    if (!user) {
-        throw new Error(INVALID_AUTH);
-    } else if (!bcrypt.compareSync(password, user.password)) {
-        throw new Error(INVALID_AUTH);
-    }
+
+    const errorMessage = INVALID_AUTH;
+
+    if (!user) throw new Error(errorMessage);
+    else if (!bcrypt.compareSync(password, user.password))
+        throw new Error(errorMessage);
+
     user.token = signJwt(user._id);
     user.save();
+
     return user;
 };
 
@@ -100,7 +143,7 @@ UserSchema.statics.add = async (myId, friendId) => {
         },
         {
             $push: {
-                "friend_requests.sent": friendId
+                "friendRequests.sent": friendId
             }
         },
         { new: true }
@@ -112,7 +155,7 @@ UserSchema.statics.add = async (myId, friendId) => {
         },
         {
             $push: {
-                "friend_requests.inbox": myId
+                "friendRequests.inbox": myId
             }
         }
     );
@@ -130,7 +173,7 @@ UserSchema.statics.accept = async (myId, friendId) => {
                 friends: friendId
             },
             $pull: {
-                "friend_requests.inbox": friendId
+                "friendRequests.inbox": friendId
             }
         },
         { new: true }
@@ -145,7 +188,7 @@ UserSchema.statics.accept = async (myId, friendId) => {
                 friends: myId
             },
             $pull: {
-                "friend_requests.sent": myId
+                "friendRequests.sent": myId
             }
         }
     );
@@ -180,6 +223,6 @@ UserSchema.statics.unfriend = async (myId, friendId) => {
     return user;
 };
 
-const UserModel = mongoose.model("User", UserSchema);
+const UserModel = mongoose.model(USER, UserSchema);
 
 module.exports = UserModel;
