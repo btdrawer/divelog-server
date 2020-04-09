@@ -15,7 +15,7 @@ I had an idea to build a newer version of it because, although I haven't used it
 
 From the root folder, type `npm i` to install the necessary dependencies.
 
-Add a `.env` file to the root folder, with the following constants:
+Add a `.env` file to the `config` folder, with the following constants:
 
 -   `MONGODB_URL`: The URL of your MongoDB database.
 -   `JWT_KEY`: The secret key that your JSON Web Tokens will be signed with.
@@ -24,7 +24,7 @@ Add a `.env` file to the root folder, with the following constants:
 Then, you can run the program by typing:
 `npm start`
 
-You can also run the unit tests by typing:
+You can also run the unit tests by adding a `.test.env` file to the `config` folder with the same parameters, and then typing:
 `npm test`
 
 ## Acknowledgements
