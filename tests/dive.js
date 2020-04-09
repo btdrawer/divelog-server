@@ -134,8 +134,8 @@ describe("Dive", () => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
 
-                    expect(res.body.bottom_time).equal(16);
-                    expect(res.body.max_depth).equal(17.1);
+                    expect(res.body.bottomTime).equal(16);
+                    expect(res.body.maxDepth).equal(17.1);
                 }));
 
         it("should not update user", () =>

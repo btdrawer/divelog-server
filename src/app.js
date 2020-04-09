@@ -1,6 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const routerUrls = require("./variables/routerUrls");
+const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 

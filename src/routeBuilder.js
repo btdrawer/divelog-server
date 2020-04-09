@@ -1,6 +1,6 @@
 const handleSuccess = require("./handlers/handleSuccess");
 const handleError = require("./handlers/handleError");
-const { INVALID_SORT_VALUE } = require("./variables/errorKeys");
+const { INVALID_SORT_VALUE } = require("./constants/errorKeys");
 
 const reduceFields = fields =>
     fields.reduce(
@@ -31,10 +31,26 @@ exports.generic = async (model, func, res, method, ...args) => {
     }
 };
 
-exports.post = async ({ model, res, payload }) => {
+exports.post = async ({ model, res, payload, additionalRequests }) => {
     try {
         const obj = new model(payload);
         await obj.save();
+
+        if (additionalRequests) {
+            additionalRequests.forEach(
+                async ({ model, ref, id }) =>
+                    await model.findOneAndUpdate(
+                        {
+                            _id: id
+                        },
+                        {
+                            $push: {
+                                [ref]: obj.id
+                            }
+                        }
+                    )
+            );
+        }
 
         handleSuccess(res, obj, "POST");
     } catch (err) {
@@ -98,9 +114,25 @@ exports.put = async ({ model, res, filter, payload }) => {
     }
 };
 
-exports.delete = async ({ model, res, filter }) => {
+exports.delete = async ({ model, res, filter, additionalRequests }) => {
     try {
         const obj = await model.findOneAndDelete(filter);
+
+        if (additionalRequests) {
+            additionalRequests.forEach(
+                async ({ model, ref, id }) =>
+                    await model.findOneAndUpdate(
+                        {
+                            _id: id
+                        },
+                        {
+                            $pull: {
+                                [ref]: obj.id
+                            }
+                        }
+                    )
+            );
+        }
 
         handleSuccess(res, obj, "DELETE");
     } catch (err) {

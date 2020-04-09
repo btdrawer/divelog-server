@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const DiveModel = require("../models/dive");
+const UserModel = require("../models/UserModel");
+const DiveModel = require("../models/DiveModel");
 const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authTools");
+const { getUserID } = require("../authentication/authUtils");
 const routeBuilder = require("../routeBuilder");
 
 // Create new dive
@@ -11,11 +12,11 @@ router.post("/", middleware, (req, res) =>
         model: DiveModel,
         res,
         payload: {
-            time_in: req.body.time_in,
-            time_out: req.body.time_out,
-            bottom_time: req.body.bottom_time,
-            safety_stop_time: req.body.safety_stop_time,
-            max_depth: req.body.max_depth,
+            timeIn: req.body.time_in,
+            timeOut: req.body.time_out,
+            bottomTime: req.body.bottom_time,
+            safetyStopTime: req.body.safety_stop_time,
+            maxDepth: req.body.max_depth,
             location: req.body.location,
             description: req.body.description,
             club: req.body.club_id,
@@ -23,7 +24,14 @@ router.post("/", middleware, (req, res) =>
             buddies: req.body.buddies,
             gear: req.body.gear,
             public: req.body.is_public
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "dives",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 
@@ -65,11 +73,11 @@ router.put("/:id", middleware, (req, res) =>
             _id: req.params.id
         },
         payload: {
-            time_in: req.body.time_in,
-            time_out: req.body.time_out,
-            bottom_time: req.body.bottom_time,
-            safety_stop_time: req.body.safety_stop_time,
-            max_depth: req.body.max_depth,
+            timeIn: req.body.time_in,
+            timeOut: req.body.time_out,
+            bottomTime: req.body.bottom_time,
+            safetyStopTime: req.body.safety_stop_time,
+            maxDepth: req.body.max_depth,
             location: req.body.location,
             description: req.body.description,
             club: req.body.club,
@@ -87,7 +95,14 @@ router.delete("/:id", middleware, (req, res) =>
         res,
         filter: {
             _id: req.params.id
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "dives",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 

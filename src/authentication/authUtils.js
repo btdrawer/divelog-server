@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { INVALID_AUTH } = require("../variables/errorKeys");
+const { INVALID_AUTH } = require("../constants/errorKeys");
 
 const hashPassword = password => bcrypt.hashSync(password, 10);
 

@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const { USER, GEAR } = require("../constants/resources");
 
 const GearSchema = new Schema({
-    brand: {
+    name: {
         type: String,
         max: 30
     },
-    name: {
+    model: {
+        type: String,
+        max: 30
+    },
+    brand: {
         type: String,
         max: 30
     },
@@ -16,8 +21,8 @@ const GearSchema = new Schema({
     },
     owner: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: USER
     }
 });
 
-module.exports = mongoose.model("Gear", GearSchema);
+module.exports = mongoose.model(GEAR, GearSchema);

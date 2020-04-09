@@ -1,5 +1,5 @@
-const ClubModel = require("../../models/club");
-const { NOT_FOUND, FORBIDDEN } = require("../../variables/errorKeys");
+const ClubModel = require("../../models/ClubModel");
+const { NOT_FOUND, FORBIDDEN } = require("../../constants/errorKeys");
 
 module.exports = async (req, data) => {
     if (req.method !== "POST" && req.params.id) {
@@ -10,7 +10,11 @@ module.exports = async (req, data) => {
         if (!club) {
             throw new Error(NOT_FOUND);
         } else if (req.method === "PUT" || req.method === "DELETE") {
-            if (!club.managers.includes(data._id.toString())) {
+            const userId = data._id.toString();
+            if (
+                !club.managers.includes(userId) &&
+                req.url !== `/${req.params.id}/member`
+            ) {
                 throw new Error(FORBIDDEN);
             }
         }

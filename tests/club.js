@@ -105,7 +105,6 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-                    console.log(res.body);
 
                     expect(res.body.name).equal(club[0].name);
                     expect(res.body.location).equal(club[0].location);
@@ -170,6 +169,55 @@ describe("Club", () => {
                     expect(res.status).equal(200);
 
                     expect(res.body.managers).have.length(1);
+                }));
+    });
+
+    describe("Add member to club", () => {
+        it("should add member to club", () =>
+            request(app)
+                .post(`/club/${club_ids[0]}/member/${user_ids[1]}`)
+                .set({ Authorization: `Bearer ${tokens[0]}` })
+                .then(res => {
+                    expect(res.status).equal(200);
+
+                    expect(res.body.members).have.length(1);
+                    expect(res.body.members[0]).equal(user_ids[1]);
+                }));
+    });
+
+    describe("Remove member from club", () => {
+        it("should remove member from club", () =>
+            request(app)
+                .delete(`/club/${club_ids[0]}/member/${user_ids[1]}`)
+                .set({ Authorization: `Bearer ${tokens[0]}` })
+                .then(res => {
+                    expect(res.status).equal(200);
+
+                    expect(res.body.members).have.length(0);
+                }));
+    });
+
+    describe("Join club", () => {
+        it("should join club", () =>
+            request(app)
+                .post(`/club/${club_ids[0]}/member`)
+                .set({ Authorization: `Bearer ${tokens[1]}` })
+                .then(res => {
+                    expect(res.status).equal(200);
+
+                    expect(res.body.members).have.length(1);
+                }));
+    });
+
+    describe("Leave club", () => {
+        it("should leave club", () =>
+            request(app)
+                .delete(`/club/${club_ids[0]}/member`)
+                .set({ Authorization: `Bearer ${tokens[1]}` })
+                .then(res => {
+                    expect(res.status).equal(200);
+
+                    expect(res.body.members).have.length(0);
                 }));
     });
 

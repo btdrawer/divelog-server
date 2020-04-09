@@ -1,4 +1,4 @@
-const errorCodes = require("../variables/errorCodes");
+const errorCodes = require("../constants/errorCodes");
 
 module.exports = (res, err) => {
     let code = 500,

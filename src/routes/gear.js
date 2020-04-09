@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const GearModel = require("../models/gear");
+const UserModel = require("../models/UserModel");
+const GearModel = require("../models/GearModel");
 const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authTools");
+const { getUserID } = require("../authentication/authUtils");
 const routeBuilder = require("../routeBuilder");
 
 // Create gear
@@ -15,7 +16,14 @@ router.post("/", middleware, (req, res) =>
             name: req.body.name,
             type: req.body.type,
             owner: getUserID(req)
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "gear",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 
@@ -62,7 +70,14 @@ router.delete("/:id", middleware, (req, res) =>
         res,
         filter: {
             _id: req.params.id
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "gear",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 

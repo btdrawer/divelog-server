@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const ClubModel = require("../models/club");
+const UserModel = require("../models/UserModel");
+const ClubModel = require("../models/ClubModel");
 const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authTools");
+const { getUserID } = require("../authentication/authUtils");
 const routeBuilder = require("../routeBuilder");
 
 // Create new club
@@ -15,8 +16,16 @@ router.post("/", middleware, (req, res) =>
             location: req.body.location,
             description: req.body.description,
             managers: [getUserID(req)],
+            members: req.body.members,
             website: req.body.website
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.manager",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 
@@ -76,7 +85,14 @@ router.post("/:id/manager/:managerId", middleware, (req, res) =>
             $push: {
                 managers: req.params.managerId
             }
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.manager",
+                id: req.params.managerId
+            }
+        ]
     })
 );
 
@@ -92,7 +108,106 @@ router.delete("/:id/manager/:managerId", middleware, (req, res) =>
             $pull: {
                 managers: req.params.managerId
             }
-        }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.manager",
+                id: req.params.managerId
+            }
+        ]
+    })
+);
+
+// Add member
+router.post("/:id/member/:memberId", middleware, (req, res) =>
+    routeBuilder.put({
+        model: ClubModel,
+        res,
+        filter: {
+            _id: req.params.id
+        },
+        payload: {
+            $push: {
+                members: req.params.memberId
+            }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.member",
+                id: req.params.memberId
+            }
+        ]
+    })
+);
+
+// Delete member
+router.delete("/:id/member/:memberId", middleware, (req, res) =>
+    routeBuilder.put({
+        model: ClubModel,
+        res,
+        filter: {
+            _id: req.params.id
+        },
+        payload: {
+            $pull: {
+                members: req.params.memberId
+            }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.member",
+                id: req.params.memberId
+            }
+        ]
+    })
+);
+
+// Join group
+router.post("/:id/member", middleware, (req, res) =>
+    routeBuilder.put({
+        model: ClubModel,
+        res,
+        filter: {
+            _id: req.params.id
+        },
+        payload: {
+            $push: {
+                members: getUserID(req)
+            }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.member",
+                id: getUserID(req)
+            }
+        ]
+    })
+);
+
+// Leave group
+router.delete("/:id/member", middleware, (req, res) =>
+    routeBuilder.put({
+        model: ClubModel,
+        res,
+        filter: {
+            _id: req.params.id
+        },
+        payload: {
+            $pull: {
+                members: getUserID(req)
+            }
+        },
+        additionalRequests: [
+            {
+                model: UserModel,
+                ref: "clubs.member",
+                id: getUserID(req)
+            }
+        ]
     })
 );
 
