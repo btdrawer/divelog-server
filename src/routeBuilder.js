@@ -21,6 +21,12 @@ const getFieldsToReturn = (requestedFields, allowedFields) => {
     return null;
 };
 
+const populateFields = async (data, fields) =>
+    fields.reduce(
+        (p, field) => p.then(() => data.populate(field).execPopulate()),
+        Promise.resolve()
+    );
+
 exports.generic = async (model, func, res, method, ...args) => {
     try {
         const obj = await model[func](...args);
@@ -86,12 +92,20 @@ exports.getAll = async ({ model, req, res, filter, allowedFields }) => {
     }
 };
 
-exports.getOne = async ({ model, req, res, filter, allowedFields }) => {
+exports.getOne = async ({
+    model,
+    req,
+    res,
+    filter,
+    allowedFields,
+    fieldsToPopulate
+}) => {
     try {
         const fields = getFieldsToReturn(req.query.fields, allowedFields);
-
         const data = await model.findOne(filter, fields);
-
+        if (fieldsToPopulate) {
+            await populateFields(data, fieldsToPopulate);
+        }
         handleSuccess(res, data, "GET");
     } catch (err) {
         handleError(res, err);
@@ -107,7 +121,6 @@ exports.put = async ({ model, res, filter, payload }) => {
         const obj = await model.findOneAndUpdate(filter, payload, {
             new: true
         });
-
         handleSuccess(res, obj, "PUT");
     } catch (err) {
         handleError(res, err);

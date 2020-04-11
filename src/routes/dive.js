@@ -60,7 +60,8 @@ router.get("/:id", middleware, (req, res) =>
         res,
         filter: {
             _id: req.params.id
-        }
+        },
+        fieldsToPopulate: ["user", "buddies", "club", "gear"]
     })
 );
 
