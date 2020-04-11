@@ -110,7 +110,7 @@ describe("Club", () => {
                     expect(res.body.location).equal(club[0].location);
                     expect(res.body.description).equal(club[0].description);
                     expect(res.body.managers).have.length(1);
-                    expect(res.body.managers[0]).equal(user_ids[0]);
+                    expect(res.body.managers[0]._id).equal(user_ids[0]);
                     expect(res.body.website).equal(club[0].website);
                 }));
     });

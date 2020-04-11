@@ -47,7 +47,8 @@ router.get("/:id", middleware, async (req, res) =>
         res,
         filter: {
             _id: req.params.id
-        }
+        },
+        fieldsToPopulate: ["owner"]
     })
 );
 

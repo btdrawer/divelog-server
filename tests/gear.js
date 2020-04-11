@@ -66,7 +66,7 @@ describe("Gear", () => {
                     expect(res.body.brand).equal(gear[0].brand);
                     expect(res.body.name).equal(gear[0].name);
                     expect(res.body.type).equal(gear[0].type);
-                    expect(res.body.owner).equal(gear[0].owner);
+                    expect(res.body.owner._id).equal(gear[0].owner);
                 }));
 
         it("should fail if not the owner", () =>

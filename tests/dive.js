@@ -112,7 +112,7 @@ describe("Dive", () => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
 
-                    expect(res.body.user).equal(user_ids[0]);
+                    expect(res.body.user._id).equal(user_ids[0]);
                     expect(res.body.safety_stop_time).equal(
                         dive[0].safety_stop_time
                     );

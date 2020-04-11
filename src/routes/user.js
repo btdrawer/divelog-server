@@ -108,6 +108,15 @@ router.get("/:id", middleware, (req, res) => {
               "gear"
           ]
         : ["name", "username"];
+    const fieldsToPopulate = [
+        "dives",
+        "clubs.manager",
+        "clubs.member",
+        "gear",
+        "friends",
+        "friendRequests.inbox",
+        "friendRequests.sent"
+    ];
 
     routeBuilder.getOne({
         model: UserModel,
@@ -116,7 +125,8 @@ router.get("/:id", middleware, (req, res) => {
         query: {
             _id: id
         },
-        allowedFields
+        allowedFields,
+        fieldsToPopulate
     });
 });
 
