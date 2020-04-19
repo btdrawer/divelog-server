@@ -1,36 +1,11 @@
-const handleSuccess = require("./handlers/handleSuccess");
-const handleError = require("./handlers/handleError");
-const { INVALID_SORT_VALUE } = require("./constants/errorKeys");
-
-const reduceFields = fields =>
-    fields.reduce(
-        (acc, field) => ({
-            ...acc,
-            [field]: 1
-        }),
-        {}
-    );
-
-const getFieldsToReturn = (requestedFields, allowedFields) => {
-    if (allowedFields) {
-        return reduceFields(allowedFields);
-    }
-    if (typeof requestedFields === "string") {
-        return reduceFields(requestedFields.split(","));
-    }
-    return null;
-};
-
-const populateFields = async (data, fields) =>
-    fields.reduce(
-        (p, field) => p.then(() => data.populate(field).execPopulate()),
-        Promise.resolve()
-    );
+const handleSuccess = require("../handlers/handleSuccess");
+const handleError = require("../handlers/handleError");
+const runListQuery = require("./runListQuery");
+const { getFieldsToReturn, populateFields } = require("./routeUtils");
 
 exports.generic = async (model, func, res, method, ...args) => {
     try {
         const obj = await model[func](...args);
-
         handleSuccess(res, obj, method);
     } catch (err) {
         handleError(res, err);
@@ -41,7 +16,6 @@ exports.post = async ({ model, res, payload, additionalRequests }) => {
     try {
         const obj = new model(payload);
         await obj.save();
-
         if (additionalRequests) {
             additionalRequests.forEach(
                 async ({ model, ref, id }) =>
@@ -57,7 +31,6 @@ exports.post = async ({ model, res, payload, additionalRequests }) => {
                     )
             );
         }
-
         handleSuccess(res, obj, "POST");
     } catch (err) {
         handleError(res, err);
@@ -66,26 +39,12 @@ exports.post = async ({ model, res, payload, additionalRequests }) => {
 
 exports.getAll = async ({ model, req, res, filter, allowedFields }) => {
     try {
-        const fields = getFieldsToReturn(req.query.fields, allowedFields);
-
-        const { limit, skip, sort_by, sort_order } = req.query;
-        if (
-            typeof sort_by === "string" &&
-            allowedFields &&
-            !allowedFields.includes(sort_by)
-        ) {
-            throw new Error(INVALID_SORT_VALUE);
-        }
-        const options = {
-            limit: limit ? parseInt(limit) : undefined,
-            skip: skip ? parseInt(skip) : undefined,
-            sort: {
-                [sort_by]: sort_order === "DESC" ? -1 : 1
-            }
-        };
-
-        const data = await model.find(filter, fields, options);
-
+        const data = await runListQuery({
+            model,
+            req,
+            filter,
+            allowedFields
+        });
         handleSuccess(res, data, "GET");
     } catch (err) {
         handleError(res, err);

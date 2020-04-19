@@ -4,7 +4,7 @@ const UserModel = require("../models/UserModel");
 const ClubModel = require("../models/ClubModel");
 const middleware = require("../authentication/middleware");
 const { getUserID } = require("../authentication/authUtils");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create new club
 router.post("/", middleware, (req, res) =>

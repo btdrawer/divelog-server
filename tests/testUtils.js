@@ -84,7 +84,7 @@ exports.before = async () => {
         .then(res => {
             expect(res.status).equal(200);
             expect(res).be.an("object");
-            user_ids.push(res.body._id);
+            user_ids.push(res.body.data._id);
         });
 
     await request(app)
@@ -93,7 +93,7 @@ exports.before = async () => {
         .then(res => {
             expect(res.status).equal(200);
             expect(res).be.an("object");
-            user_ids.push(res.body._id);
+            user_ids.push(res.body.data._id);
         });
 
     await request(app)
@@ -102,7 +102,7 @@ exports.before = async () => {
         .then(res => {
             expect(res.status).equal(200);
             expect(res).be.an("object");
-            user_ids.push(res.body._id);
+            user_ids.push(res.body.data._id);
         });
 
     await request(app)

@@ -6,7 +6,7 @@ const { request, expect } = chai;
 
 // App and data
 const app = require("../src/app");
-const { users } = require("./testTools").data;
+const { users } = require("./testUtils").data;
 
 let tokens = [],
     user_ids = [];
@@ -74,7 +74,7 @@ describe("User", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
+                    expect(res.body.data).be.an("array");
                 }));
     });
 

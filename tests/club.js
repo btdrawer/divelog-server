@@ -6,8 +6,8 @@ const { request, expect } = chai;
 
 // App and data
 const app = require("../src/app");
-const testTools = require("./testTools");
-const { club } = testTools.data;
+const testUtils = require("./testUtils");
+const { club } = testUtils.data;
 
 let tokens = [],
     user_ids = [],
@@ -16,7 +16,7 @@ let tokens = [],
 describe("Club", () => {
     describe("Setup", () => {
         it("setup", async () => {
-            const beforeTests = await testTools.before();
+            const beforeTests = await testUtils.before();
             user_ids = beforeTests.user_ids;
             tokens = beforeTests.tokens;
             club[0].managers = [user_ids[0]];
@@ -71,7 +71,7 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
+                    expect(res.body.data).be.an("array");
                 }));
 
         it("should list clubs with a particular name", () =>
@@ -80,9 +80,9 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
+                    expect(res.body.data).be.an("array");
 
-                    res.body.forEach(club => expect(club.name).equal("B"));
+                    res.body.data.forEach(club => expect(club.name).equal("B"));
                 }));
 
         it("should list clubs with a particular location", () =>
@@ -91,9 +91,11 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
+                    expect(res.body.data).be.an("array");
 
-                    res.body.forEach(club => expect(club.location).equal("A1"));
+                    res.body.data.forEach(club =>
+                        expect(club.location).equal("A1")
+                    );
                 }));
     });
 
@@ -251,7 +253,7 @@ describe("Club", () => {
 
     describe("Delete data", () => {
         it("delete data", () => {
-            testTools.after(tokens);
+            testUtils.after(tokens);
         });
     });
 });

@@ -11,7 +11,7 @@ app.use(cookieParser());
 
 for (let route in routerUrls) {
     const uri = routerUrls[route];
-    app.use(uri, require(`./routes${uri}`));
+    app.use(uri, require(`./routes${uri}Routes`));
 }
 
 const port = process.env.PORT;

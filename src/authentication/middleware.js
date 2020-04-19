@@ -14,11 +14,10 @@ const { INVALID_AUTH } = require("../constants/errorKeys");
 
 module.exports = async (req, res, next) => {
     try {
-        const { token, data } = getAuthData(req);
+        const data = getAuthData(req);
 
         const user = await UserModel.findOne({
-            _id: data._id,
-            token: token
+            _id: data._id
         });
 
         if (!user) throw new Error(INVALID_AUTH);

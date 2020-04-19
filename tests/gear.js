@@ -6,8 +6,8 @@ const { request, expect } = chai;
 
 // App and data
 const app = require("../src/app");
-const testTools = require("./testTools");
-const { gear } = testTools.data;
+const testUtils = require("./testUtils");
+const { gear } = testUtils.data;
 
 let tokens = [],
     user_ids = [],
@@ -16,7 +16,7 @@ let tokens = [],
 describe("Gear", () => {
     describe("Setup", () => {
         it("setup", async () => {
-            const beforeTests = await testTools.before();
+            const beforeTests = await testUtils.before();
             user_ids = beforeTests.user_ids;
             tokens = beforeTests.tokens;
             gear[0].owner = user_ids[0];
@@ -49,8 +49,8 @@ describe("Gear", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
-                    expect(res.body).have.length(1);
+                    expect(res.body.data).be.an("array");
+                    expect(res.body.data).have.length(1);
                 }));
     });
 
@@ -113,7 +113,7 @@ describe("Gear", () => {
 
     describe("Delete data", () => {
         it("delete data", () => {
-            testTools.after(tokens);
+            testUtils.after(tokens);
         });
     });
 });

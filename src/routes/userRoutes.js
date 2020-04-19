@@ -2,37 +2,50 @@ const express = require("express");
 const router = express.Router();
 const UserModel = require("../models/UserModel");
 const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authUtils");
+const { getUserID, signJwt } = require("../authentication/authUtils");
 const errorKeys = require("../constants/errorKeys");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create new user
-router.post("/", (req, res) =>
-    routeBuilder.post({
-        model: UserModel,
-        res,
-        payload: {
+router.post("/", async (req, res) => {
+    try {
+        const user = new UserModel({
             name: req.body.name,
             username: req.body.username,
             email: req.body.email,
             password: req.body.password
-        }
-    })
-);
+        });
+        await user.save();
+        const token = signJwt(user._id);
+        const data = {
+            data: user,
+            token
+        };
+        handleSuccess(res, data, "POST");
+    } catch (err) {
+        handleError(res, err);
+    }
+});
 
 // Login
-router.post("/login", async (req, res) =>
-    routeBuilder.generic(
-        UserModel,
-        "authenticate",
-        res,
-        "POST",
-        req.body.username,
-        req.body.password
-    )
-);
+router.post("/login", async (req, res) => {
+    try {
+        const user = await UserModel.authenticate(
+            req.body.username,
+            req.body.password
+        );
+        const token = signJwt(user._id);
+        const data = {
+            data: user,
+            token
+        };
+        handleSuccess(res, data, "POST");
+    } catch (err) {
+        handleError(res, err);
+    }
+});
 
 // Send or accept friend request
 router.post("/friend/:id", middleware, async (req, res) => {

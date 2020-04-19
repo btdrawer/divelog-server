@@ -3,11 +3,10 @@ const {
     USERNAME_EXISTS,
     EMAIL_EXISTS,
     INVALID_AUTH
-} = require("../constants/errorCodes");
+} = require("../constants/errorKeys");
 const { USER, DIVE, CLUB, GEAR } = require("../constants/resources");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const { signJwt } = require("../authentication/authUtils");
 
 const UserSchema = new Schema({
     name: {
@@ -29,7 +28,6 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    token: String,
     dives: [
         {
             type: Schema.Types.ObjectId,
@@ -98,8 +96,6 @@ UserSchema.pre("save", async function(next) {
         if (user) throw new Error(EMAIL_EXISTS);
     }
 
-    this.token = signJwt(this._id);
-
     next();
 });
 
@@ -129,9 +125,6 @@ UserSchema.statics.authenticate = async (username, password) => {
     if (!user) throw new Error(errorMessage);
     else if (!bcrypt.compareSync(password, user.password))
         throw new Error(errorMessage);
-
-    user.token = signJwt(user._id);
-    user.save();
 
     return user;
 };

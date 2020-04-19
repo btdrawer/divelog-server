@@ -10,10 +10,10 @@ const getAuthData = req => {
     const token = req.header("Authorization").replace("Bearer ", "");
     const data = jwt.verify(token, process.env.JWT_KEY);
 
-    return { token, data };
+    return data;
 };
 
-const getUserID = req => getAuthData(req).data._id;
+const getUserID = req => getAuthData(req)._id;
 
 const signJwt = id =>
     jwt.sign({ _id: id }, process.env.JWT_KEY, {

@@ -4,28 +4,30 @@ const UserModel = require("../models/UserModel");
 const GearModel = require("../models/GearModel");
 const middleware = require("../authentication/middleware");
 const { getUserID } = require("../authentication/authUtils");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create gear
-router.post("/", middleware, (req, res) =>
-    routeBuilder.post({
+router.post("/", middleware, async (req, res) => {
+    const ownerId = getUserID(req);
+    console.log("ownerId", ownerId);
+    await routeBuilder.post({
         model: GearModel,
         res,
         payload: {
             brand: req.body.brand,
             name: req.body.name,
             type: req.body.type,
-            owner: getUserID(req)
+            owner: ownerId
         },
         additionalRequests: [
             {
                 model: UserModel,
                 ref: "gear",
-                id: getUserID(req)
+                id: ownerId
             }
         ]
-    })
-);
+    });
+});
 
 // List all a user's gear
 router.get("/", middleware, async (req, res) =>

@@ -6,8 +6,8 @@ const { request, expect } = chai;
 
 // App and data
 const app = require("../src/app");
-const testTools = require("./testTools");
-const { dive } = testTools.data;
+const testUtils = require("./testUtils");
+const { dive } = testUtils.data;
 
 let tokens = [],
     user_ids = [],
@@ -16,7 +16,7 @@ let tokens = [],
 describe("Dive", () => {
     describe("Setup", () => {
         it("setup", async () => {
-            const beforeTests = await testTools.before();
+            const beforeTests = await testUtils.before();
             user_ids = beforeTests.user_ids;
             tokens = beforeTests.tokens;
         });
@@ -92,14 +92,14 @@ describe("Dive", () => {
                 .set({ Authorization: `Bearer ${tokens[0]}` })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body).be.an("array");
+                    expect(res.body.data).be.an("array");
 
-                    expect(res.body).have.length(4);
+                    expect(res.body.data).have.length(4);
 
-                    expect(res.body[0]._id).equal(dive_ids[0]);
-                    expect(res.body[1]._id).equal(dive_ids[1]);
-                    expect(res.body[2]._id).equal(dive_ids[2]);
-                    expect(res.body[3]._id).equal(dive_ids[3]);
+                    expect(res.body.data[0]._id).equal(dive_ids[0]);
+                    expect(res.body.data[1]._id).equal(dive_ids[1]);
+                    expect(res.body.data[2]._id).equal(dive_ids[2]);
+                    expect(res.body.data[3]._id).equal(dive_ids[3]);
                 }));
     });
 
@@ -176,7 +176,7 @@ describe("Dive", () => {
 
     describe("Delete data", () => {
         it("delete data", () => {
-            testTools.after(tokens);
+            testUtils.after(tokens);
         });
     });
 });
