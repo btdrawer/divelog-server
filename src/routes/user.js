@@ -6,7 +6,7 @@ const { getUserID } = require("../authentication/authUtils");
 const errorKeys = require("../constants/errorKeys");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create new user
 router.post("/", (req, res) =>

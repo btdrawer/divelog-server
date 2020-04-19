@@ -4,7 +4,7 @@ const UserModel = require("../models/UserModel");
 const DiveModel = require("../models/DiveModel");
 const middleware = require("../authentication/middleware");
 const { getUserID } = require("../authentication/authUtils");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create new dive
 router.post("/", middleware, (req, res) =>

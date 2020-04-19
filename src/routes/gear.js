@@ -4,7 +4,7 @@ const UserModel = require("../models/UserModel");
 const GearModel = require("../models/GearModel");
 const middleware = require("../authentication/middleware");
 const { getUserID } = require("../authentication/authUtils");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 
 // Create gear
 router.post("/", middleware, (req, res) =>

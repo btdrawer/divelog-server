@@ -3,7 +3,7 @@ const router = express.Router();
 const GroupModel = require("../models/GroupModel");
 const middleware = require("../authentication/middleware");
 const { getUserID } = require("../authentication/authUtils");
-const routeBuilder = require("../routeBuilder");
+const routeBuilder = require("../utils/routeBuilder");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
 
