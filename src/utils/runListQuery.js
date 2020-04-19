@@ -23,32 +23,38 @@ const generateQueryFromCursor = ({ sortBy, sortOrder, value }) => {
     };
 };
 
-const formatWhere = ({ where, requiredArgs }) => {
-    let newWhere = { ...where };
-    for (let prop in newWhere) {
-        if (!newWhere[prop]) delete newWhere[prop];
-    }
-    if (newWhere.id) {
-        newWhere._id = newWhere.id;
-        delete newWhere.id;
-    }
-    newWhere = {
-        ...newWhere,
-        ...requiredArgs
-    };
-    return newWhere;
-};
+const formatLimit = limit => parseInt(limit) + 1;
 
 const formatQueryOptions = ({ sortBy, sortOrder, limit }) => ({
     sort: {
         [sortBy]: sortOrder === "DESC" ? -1 : 1
     },
-    limit: limit + 1
+    limit: formatLimit(limit)
 });
 
-module.exports = async ({ model, req, vfilter, allowedFields }) => {
+const reduceFields = fields =>
+    fields.reduce(
+        (acc, field) => ({
+            ...acc,
+            [field]: 1
+        }),
+        {}
+    );
+
+const getFieldsToReturn = (requestedFields, allowedFields) => {
+    if (allowedFields) {
+        return reduceFields(allowedFields);
+    }
+    if (typeof requestedFields === "string") {
+        return reduceFields(requestedFields.split(","));
+    }
+    return null;
+};
+
+module.exports = async ({ model, req, filter, allowedFields }) => {
     const { query } = req;
     const { limit = 10, cursor } = query;
+    const fields = getFieldsToReturn(req.query.fields, allowedFields);
     let { sortBy = "_id", sortOrder = "ASC" } = query;
     let result;
     if (cursor) {
@@ -56,16 +62,16 @@ module.exports = async ({ model, req, vfilter, allowedFields }) => {
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
         result = await model.find(
-            { ...generateQueryFromCursor(parsedCursor), ...requiredArgs },
-            null,
+            generateQueryFromCursor(parsedCursor),
+            fields,
             {
-                limit: limit + 1
+                limit: formatLimit(limit)
             }
         );
     } else {
         result = await model.find(
-            formatWhere({ filter, requiredArgs }),
-            null,
+            filter,
+            fields,
             formatQueryOptions({ sortBy, sortOrder, limit })
         );
     }
