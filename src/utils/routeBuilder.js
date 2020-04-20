@@ -37,13 +37,21 @@ exports.post = async ({ model, res, payload, additionalRequests }) => {
     }
 };
 
-exports.getAll = async ({ model, req, res, filter, allowedFields }) => {
+exports.getAll = async ({
+    model,
+    req,
+    res,
+    filter,
+    allowedFields,
+    useCache
+}) => {
     try {
         const data = await runListQuery({
             model,
             req,
             filter,
-            allowedFields
+            allowedFields,
+            useCache
         });
         handleSuccess(res, data, "GET");
     } catch (err) {

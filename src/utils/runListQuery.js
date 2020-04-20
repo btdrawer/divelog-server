@@ -2,6 +2,7 @@ const {
     convertStringToBase64,
     convertBase64ToString
 } = require("./base64Utils");
+const { getUserId } = require("./authUtils");
 
 const generateCursor = ({ sortBy, sortOrder, value }) =>
     convertStringToBase64(
@@ -51,32 +52,62 @@ const getFieldsToReturn = (requestedFields, allowedFields) => {
     return null;
 };
 
-module.exports = async ({ model, req, filter, allowedFields }) => {
+const queryWithCache = async ({
+    useCache,
+    userId,
+    queryProps: { model, filter, fields, options }
+}) => {
+    const result = useCache
+        ? await model.find(filter, fields, options).cache({
+              hashKey: userId
+          })
+        : await model.find(filter, fields, options);
+    return result;
+};
+
+module.exports = async ({
+    model,
+    req,
+    filter,
+    allowedFields,
+    useCache = false
+}) => {
     const { query } = req;
     const { limit = 10, cursor } = query;
     const fields = getFieldsToReturn(req.query.fields, allowedFields);
+    const userId = getUserId(req);
     let { sortBy = "_id", sortOrder = "ASC" } = query;
     let result;
     if (cursor) {
         const parsedCursor = parseCursor(cursor);
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
-        result = await model.find(
-            generateQueryFromCursor(parsedCursor),
-            fields,
-            {
-                limit: formatLimit(limit)
+        result = await queryWithCache({
+            useCache,
+            userId,
+            queryProps: {
+                model,
+                filter: generateQueryFromCursor(parsedCursor),
+                fields,
+                options: {
+                    limit: formatLimit(limit)
+                }
             }
-        );
+        });
     } else {
-        result = await model.find(
-            filter,
-            fields,
-            formatQueryOptions({ sortBy, sortOrder, limit })
-        );
+        result = await queryWithCache({
+            useCache,
+            userId,
+            queryProps: {
+                model,
+                filter,
+                fields,
+                options: formatQueryOptions({ sortBy, sortOrder, limit })
+            }
+        });
     }
     const hasNextPage = result.length > limit;
-    result = hasNextPage ? result.slice(0, -1) : result;
+    result = hasNextPage ? result.slice(0, limit) : result;
     return {
         data: result,
         pageInfo: {

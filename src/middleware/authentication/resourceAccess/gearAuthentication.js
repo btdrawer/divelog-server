@@ -1,5 +1,5 @@
-const GearModel = require("../../models/GearModel");
-const { NOT_FOUND, FORBIDDEN } = require("../../constants/errorKeys");
+const GearModel = require("../../../models/GearModel");
+const { NOT_FOUND, FORBIDDEN } = require("../../../constants/errorKeys");
 
 module.exports = async (req, data) => {
     if (req.method !== "POST" && req.params.id) {

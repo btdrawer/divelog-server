@@ -13,7 +13,7 @@ const getAuthData = req => {
     return data;
 };
 
-const getUserID = req => getAuthData(req)._id;
+const getUserId = req => getAuthData(req)._id;
 
 const signJwt = id =>
     jwt.sign({ _id: id }, process.env.JWT_KEY, {
@@ -23,6 +23,6 @@ const signJwt = id =>
 module.exports = {
     hashPassword,
     getAuthData,
-    getUserID,
+    getUserId,
     signJwt
 };

@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
+
 const GroupModel = require("../models/GroupModel");
-const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authUtils");
+
+const authentication = require("../middleware/authentication");
+
+const { getUserId } = require("../utils/authUtils");
 const routeBuilder = require("../utils/routeBuilder");
+
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
 
 // Create new group and post first message
-router.post("/", middleware, async (req, res) => {
-    const myId = getUserID(req);
+router.post("/", authentication, async (req, res) => {
+    const myId = getUserId(req);
     req.body.participants.push(myId);
 
     await routeBuilder.post({
@@ -28,7 +32,7 @@ router.post("/", middleware, async (req, res) => {
     });
 });
 
-router.post("/:id/message", middleware, (req, res) =>
+router.post("/:id/message", authentication, (req, res) =>
     routeBuilder.put({
         model: GroupModel,
         res,
@@ -39,7 +43,7 @@ router.post("/:id/message", middleware, (req, res) =>
             $push: {
                 messages: {
                     text: req.body.text,
-                    sender: getUserID(req),
+                    sender: getUserId(req),
                     sent: new Date().getMilliseconds()
                 }
             }
@@ -48,19 +52,19 @@ router.post("/:id/message", middleware, (req, res) =>
 );
 
 // List groups the user participates in
-router.get("/", middleware, async (req, res) =>
+router.get("/", authentication, async (req, res) =>
     routeBuilder.getAll({
         model: GroupModel,
         req,
         res,
         filter: {
-            participants: getUserID(req)
+            participants: getUserId(req)
         }
     })
 );
 
 // Get group
-router.get("/:id", middleware, async (req, res) =>
+router.get("/:id", authentication, async (req, res) =>
     routeBuilder.getOne({
         model: GroupModel,
         req,
@@ -72,7 +76,7 @@ router.get("/:id", middleware, async (req, res) =>
 );
 
 // Add member to group
-router.post("/:id/user/:userId", middleware, async (req, res) => {
+router.post("/:id/user/:userId", authentication, async (req, res) => {
     try {
         const group = await GroupModel.findOne({
             _id: req.params.id
@@ -87,7 +91,7 @@ router.post("/:id/user/:userId", middleware, async (req, res) => {
 });
 
 // Leave gronp
-router.delete("/:id/leave", middleware, (req, res) =>
+router.delete("/:id/leave", authentication, (req, res) =>
     routeBuilder.put({
         model: GroupModel,
         res,
@@ -96,7 +100,7 @@ router.delete("/:id/leave", middleware, (req, res) =>
         },
         payload: {
             $pull: {
-                participants: getUserID(req)
+                participants: getUserId(req)
             }
         }
     })

@@ -1,13 +1,17 @@
 const express = require("express");
 const router = express.Router();
+
 const UserModel = require("../models/UserModel");
 const DiveModel = require("../models/DiveModel");
-const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authUtils");
+
+const authentication = require("../middleware/authentication");
+const clearCache = require("../middleware/cache/clearCache");
+
+const { getUserId } = require("../utils/authUtils");
 const routeBuilder = require("../utils/routeBuilder");
 
 // Create new dive
-router.post("/", middleware, (req, res) =>
+router.post("/", authentication, clearCache, (req, res) =>
     routeBuilder.post({
         model: DiveModel,
         res,
@@ -20,7 +24,7 @@ router.post("/", middleware, (req, res) =>
             location: req.body.location,
             description: req.body.description,
             club: req.body.club_id,
-            user: getUserID(req),
+            user: getUserId(req),
             buddies: req.body.buddies,
             gear: req.body.gear,
             public: req.body.is_public
@@ -29,16 +33,16 @@ router.post("/", middleware, (req, res) =>
             {
                 model: UserModel,
                 ref: "dives",
-                id: getUserID(req)
+                id: getUserId(req)
             }
         ]
     })
 );
 
 // List the authenticated user's dives
-router.get("/", middleware, (req, res) => {
+router.get("/", authentication, (req, res) => {
     const filter = {
-        user: req.query.user || getUserID(req)
+        user: req.query.user || getUserId(req)
     };
     if (req.query.user) {
         filter.public = true;
@@ -48,12 +52,13 @@ router.get("/", middleware, (req, res) => {
         model: DiveModel,
         req,
         res,
-        filter
+        filter,
+        useCache: true
     });
 });
 
 // Get dive by ID
-router.get("/:id", middleware, (req, res) =>
+router.get("/:id", authentication, (req, res) =>
     routeBuilder.getOne({
         model: DiveModel,
         req,
@@ -66,7 +71,7 @@ router.get("/:id", middleware, (req, res) =>
 );
 
 // Update dive
-router.put("/:id", middleware, (req, res) =>
+router.put("/:id", authentication, clearCache, (req, res) =>
     routeBuilder.put({
         model: DiveModel,
         res,
@@ -90,7 +95,7 @@ router.put("/:id", middleware, (req, res) =>
 );
 
 // Delete dive
-router.delete("/:id", middleware, (req, res) =>
+router.delete("/:id", authentication, clearCache, (req, res) =>
     routeBuilder.delete({
         model: DiveModel,
         res,
@@ -101,7 +106,7 @@ router.delete("/:id", middleware, (req, res) =>
             {
                 model: UserModel,
                 ref: "dives",
-                id: getUserID(req)
+                id: getUserId(req)
             }
         ]
     })
