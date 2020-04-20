@@ -10,6 +10,7 @@ I had an idea to build a newer version of it because, although I haven't used it
 -   NodeJS
 -   NPM
 -   MongoDB
+-   Redis
 
 ## How to run
 
@@ -19,7 +20,9 @@ Add a `.env` file to the `config` folder, with the following constants:
 
 -   `MONGODB_URL`: The URL of your MongoDB database.
 -   `JWT_KEY`: The secret key that your JSON Web Tokens will be signed with.
--   `PORT`: The port that the server should listen on.
+-   `SERVER_PORT`: The port that the server should listen on.
+-   `REDIS_HOST`: The host of your Redis server.
+-   `REDIS_PORT`: The port that your Redis server is listening on.
 
 Then, you can run the program by typing:
 `npm start`
