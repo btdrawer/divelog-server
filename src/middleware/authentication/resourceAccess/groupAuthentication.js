@@ -1,5 +1,5 @@
-const GroupModel = require("../../models/GroupModel");
-const { NOT_FOUND, FORBIDDEN } = require("../../constants/errorKeys");
+const GroupModel = require("../../../models/GroupModel");
+const { NOT_FOUND, FORBIDDEN } = require("../../../constants/errorKeys");
 
 module.exports = async (req, data) => {
     if (req.params.id) {

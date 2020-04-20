@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
+
 const UserModel = require("../models/UserModel");
 const ClubModel = require("../models/ClubModel");
-const middleware = require("../authentication/middleware");
-const { getUserID } = require("../authentication/authUtils");
+
+const middleware = require("../middleware/authentication");
+
+const { getUserId } = require("../utils/authUtils");
 const routeBuilder = require("../utils/routeBuilder");
 
 // Create new club
@@ -15,7 +18,7 @@ router.post("/", middleware, (req, res) =>
             name: req.body.name,
             location: req.body.location,
             description: req.body.description,
-            managers: [getUserID(req)],
+            managers: [getUserId(req)],
             members: req.body.members,
             website: req.body.website
         },
@@ -23,7 +26,7 @@ router.post("/", middleware, (req, res) =>
             {
                 model: UserModel,
                 ref: "clubs.manager",
-                id: getUserID(req)
+                id: getUserId(req)
             }
         ]
     })
@@ -176,14 +179,14 @@ router.post("/:id/member", middleware, (req, res) =>
         },
         payload: {
             $push: {
-                members: getUserID(req)
+                members: getUserId(req)
             }
         },
         additionalRequests: [
             {
                 model: UserModel,
                 ref: "clubs.member",
-                id: getUserID(req)
+                id: getUserId(req)
             }
         ]
     })
@@ -199,14 +202,14 @@ router.delete("/:id/member", middleware, (req, res) =>
         },
         payload: {
             $pull: {
-                members: getUserID(req)
+                members: getUserId(req)
             }
         },
         additionalRequests: [
             {
                 model: UserModel,
                 ref: "clubs.member",
-                id: getUserID(req)
+                id: getUserId(req)
             }
         ]
     })

@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
+
 const UserModel = require("../models/UserModel");
-const middleware = require("../authentication/middleware");
-const { getUserID, signJwt } = require("../authentication/authUtils");
+
+const authentication = require("../middleware/authentication");
+
+const { getUserId, signJwt } = require("../utils/authUtils");
+const routeBuilder = require("../utils/routeBuilder");
+
 const errorKeys = require("../constants/errorKeys");
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
-const routeBuilder = require("../utils/routeBuilder");
 
 // Create new user
 router.post("/", async (req, res) => {
@@ -48,9 +52,9 @@ router.post("/login", async (req, res) => {
 });
 
 // Send or accept friend request
-router.post("/friend/:id", middleware, async (req, res) => {
+router.post("/friend/:id", authentication, async (req, res) => {
     try {
-        let myId = await getUserID(req);
+        let myId = await getUserId(req);
         let friendId = req.params.id;
 
         if (myId === friendId) {
@@ -85,19 +89,19 @@ router.post("/friend/:id", middleware, async (req, res) => {
 });
 
 // Unfriend
-router.delete("/friend/:id", middleware, (req, res) =>
+router.delete("/friend/:id", authentication, (req, res) =>
     routeBuilder.generic(
         UserModel,
         "unfriend",
         res,
         "DELETE",
-        getUserID(req),
+        getUserId(req),
         req.params.id
     )
 );
 
 // List all users
-router.get("/", middleware, (req, res) =>
+router.get("/", authentication, (req, res) =>
     routeBuilder.getAll({
         model: UserModel,
         req,
@@ -107,9 +111,9 @@ router.get("/", middleware, (req, res) =>
 );
 
 // Get user by ID
-router.get("/:id", middleware, (req, res) => {
+router.get("/:id", authentication, (req, res) => {
     const isMe = req.params.id === "me";
-    const id = isMe ? getUserID(req) : req.params.id;
+    const id = isMe ? getUserId(req) : req.params.id;
     const allowedFields = isMe
         ? [
               "name",
@@ -144,24 +148,24 @@ router.get("/:id", middleware, (req, res) => {
 });
 
 // Update user details
-router.put("/", middleware, (req, res) =>
+router.put("/", authentication, (req, res) =>
     routeBuilder.put({
         model: UserModel,
         res,
         filter: {
-            _id: getUserID(req)
+            _id: getUserId(req)
         },
         payload: req.body
     })
 );
 
 // Delete user
-router.delete("/", middleware, (req, res) =>
+router.delete("/", authentication, (req, res) =>
     routeBuilder.delete({
         model: UserModel,
         res,
         filter: {
-            _id: getUserID(req)
+            _id: getUserId(req)
         }
     })
 );

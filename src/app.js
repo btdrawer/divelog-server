@@ -4,7 +4,9 @@ const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 
-require("./db");
+require("./services/db");
+require("./services/cache");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -14,7 +16,7 @@ for (let route in routerUrls) {
     app.use(uri, require(`./routes${uri}Routes`));
 }
 
-const port = process.env.PORT;
+const port = process.env.SERVER_PORT;
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 module.exports = app;

@@ -1,5 +1,5 @@
-const ClubModel = require("../../models/ClubModel");
-const { NOT_FOUND, FORBIDDEN } = require("../../constants/errorKeys");
+const ClubModel = require("../../../models/ClubModel");
+const { NOT_FOUND, FORBIDDEN } = require("../../../constants/errorKeys");
 
 module.exports = async (req, data) => {
     if (req.method !== "POST" && req.params.id) {
