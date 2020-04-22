@@ -1,26 +1,33 @@
-// Chai setup
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 const { request, expect } = chai;
 
-// App and data
 const app = require("../src/app");
-const { users } = require("./testUtils").data;
-
-let tokens = [],
-    user_ids = [];
+const { seedDatabase, users } = require("./utils/seedDatabase");
 
 describe("User", () => {
+    beforeEach(async () => {
+        await seedDatabase({
+            resources: {
+                groups: true
+            }
+        });
+    });
+
     describe("Create user", () => {
         it("should create a new user", () =>
             request(app)
                 .post("/user")
-                .send(users[0])
+                .send({
+                    username: "user",
+                    name: "Ben",
+                    email: "user@example.com",
+                    password: "super password"
+                })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res).be.an("object");
-                    user_ids.push(res.body._id);
                 }));
 
         it("should fail if username is not supplied", () =>
@@ -48,11 +55,13 @@ describe("User", () => {
         it("should successfully login", () =>
             request(app)
                 .post("/user/login")
-                .send(users[0])
+                .send({
+                    username: users[0].input.username,
+                    password: users[0].input.password
+                })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-                    tokens.push(res.body.token);
                 }));
 
         it("should fail if incorrect login details provided", () =>
@@ -71,18 +80,31 @@ describe("User", () => {
         it("should list all users", () =>
             request(app)
                 .get("/user")
-                .set({ Authorization: `Bearer ${tokens[0]}` })
+                .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
+                    expect(res.body.data).have.length(3);
+                }));
+
+        it("should limit results", () =>
+            request(app)
+                .get("/user")
+                .query({ limit: 1 })
+                .set({ Authorization: `Bearer ${users[0].token}` })
+                .then(res => {
+                    expect(res.status).equal(200);
+                    expect(res.body.data).be.an("array");
+                    expect(res.body.data).have.length(1);
+                    expect(res.body.pageInfo.hasNextPage).equal(true);
                 }));
     });
 
     describe("Get user", () => {
         it("should get user", () =>
             request(app)
-                .get(`/user/${user_ids[0]}`)
-                .set({ Authorization: `Bearer ${tokens[0]}` })
+                .get(`/user/${users[0].output.id}`)
+                .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
@@ -93,7 +115,7 @@ describe("User", () => {
         it("should delete user", () =>
             request(app)
                 .delete("/user")
-                .set({ Authorization: `Bearer ${tokens[0]}` })
+                .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
