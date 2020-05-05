@@ -81,7 +81,9 @@ exports.getOne = async ({
 
 exports.put = async ({ model, res, filter, payload }) => {
     for (let prop in payload) {
-        if (!payload[prop]) delete payload[prop];
+        if (payload[prop] === null || payload[prop] === undefined) {
+            delete payload[prop];
+        }
     }
 
     try {

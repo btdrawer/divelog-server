@@ -1,16 +1,16 @@
-const { getAuthData } = require("../../utils/authUtils");
+const { UserModel } = require("@btdrawer/divelog-server-utils").models;
 const routerUrls = require("../../constants/routerUrls");
-const UserModel = require("../../models/UserModel");
+const { getAuthData } = require("../../utils/authUtils");
+
+// Error handling
+const handleError = require("../../handlers/handleError");
+const { INVALID_AUTH } = require("../../constants/errorKeys");
 
 // Authentication files for individual resources
 const diveAuthentication = require("./resourceAccess/diveAuthentication");
 const clubAuthentication = require("./resourceAccess/clubAuthentication");
 const gearAuthentication = require("./resourceAccess/gearAuthentication");
 const groupAuthentication = require("./resourceAccess/groupAuthentication");
-
-// Error handling
-const handleError = require("../../handlers/handleError");
-const { INVALID_AUTH } = require("../../constants/errorKeys");
 
 module.exports = async (req, res, next) => {
     try {

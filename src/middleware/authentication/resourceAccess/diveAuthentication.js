@@ -1,4 +1,4 @@
-const DiveModel = require("../../../models/DiveModel");
+const { DiveModel } = require("@btdrawer/divelog-server-utils").models;
 const { NOT_FOUND, FORBIDDEN } = require("../../../constants/errorKeys");
 
 module.exports = async (req, data) => {

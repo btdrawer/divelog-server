@@ -9,14 +9,11 @@
         "watch": "env-cmd -f ./.test.env node ./node_modules/mocha/bin/mocha --watch ./tests"
     },
     "dependencies": {
-        "bcrypt": "^3.0.6",
+        "@btdrawer/divelog-server-utils": "^0.2.4",
         "cookie-parser": "^1.4.4",
         "env-cmd": "^10.0.1",
         "express": "~4.16.0",
-        "jsonwebtoken": "^8.5.1",
-        "moment": "^2.24.0",
-        "mongoose": "^5.7.5",
-        "redis": "^3.0.2"
+        "jsonwebtoken": "^8.5.1"
     },
     "devDependencies": {
         "acorn": "^7.1.1",

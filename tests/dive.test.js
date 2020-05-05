@@ -147,6 +147,21 @@ describe("Dive", () => {
                     expect(res.body.maxDepth).equal(17.1);
                 }));
 
+        it("should calculate dive time if timeIn and timeOut are supplied", () =>
+            request(app)
+                .put(`/dive/${dives[0].output.id}`)
+                .set({ Authorization: `Bearer ${users[0].token}` })
+                .send({
+                    time_in: 1577873897000,
+                    time_out: 1577875937000
+                })
+                .then(res => {
+                    expect(res.status).equal(200);
+                    expect(res.body).be.an("object");
+
+                    expect(res.body.diveTime).equal(34);
+                }));
+
         it("should not update user", () =>
             request(app)
                 .put(`/dive/${dives[0].output.id}`)
