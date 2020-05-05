@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
-const UserModel = require("../models/UserModel");
-const GearModel = require("../models/GearModel");
-
+const {
+    UserModel,
+    GearModel
+} = require("@btdrawer/divelog-server-utils").models;
+const { getUserId } = require("../utils/authUtils");
 const authentication = require("../middleware/authentication");
 const clearCache = require("../middleware/cache/clearCache");
-
-const { getUserId } = require("../utils/authUtils");
 const routeBuilder = require("../utils/routeBuilder");
 
 // Create gear

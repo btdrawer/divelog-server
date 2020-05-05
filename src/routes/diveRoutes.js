@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
-const UserModel = require("../models/UserModel");
-const DiveModel = require("../models/DiveModel");
-
+const { getUserId } = require("../utils/authUtils");
+const {
+    UserModel,
+    DiveModel
+} = require("@btdrawer/divelog-server-utils").models;
 const authentication = require("../middleware/authentication");
 const clearCache = require("../middleware/cache/clearCache");
-
-const { getUserId } = require("../utils/authUtils");
 const routeBuilder = require("../utils/routeBuilder");
 
 // Create new dive

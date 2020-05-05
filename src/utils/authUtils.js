@@ -1,8 +1,5 @@
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { INVALID_AUTH } = require("../constants/errorKeys");
-
-const hashPassword = password => bcrypt.hashSync(password, 10);
 
 const getAuthData = req => {
     if (!req.header("Authorization")) throw new Error(INVALID_AUTH);
@@ -21,7 +18,6 @@ const signJwt = id =>
     });
 
 module.exports = {
-    hashPassword,
     getAuthData,
     getUserId,
     signJwt

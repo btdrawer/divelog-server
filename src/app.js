@@ -1,11 +1,12 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const { db, cache } = require("@btdrawer/divelog-server-utils");
 const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 
-require("./services/db");
-require("./services/cache");
+db();
+cache();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

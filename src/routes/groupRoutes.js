@@ -1,13 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
-const GroupModel = require("../models/GroupModel");
-
-const authentication = require("../middleware/authentication");
-
+const { GroupModel } = require("@btdrawer/divelog-server-utils").models;
 const { getUserId } = require("../utils/authUtils");
+const authentication = require("../middleware/authentication");
 const routeBuilder = require("../utils/routeBuilder");
-
 const handleSuccess = require("../handlers/handleSuccess");
 const handleError = require("../handlers/handleError");
 
