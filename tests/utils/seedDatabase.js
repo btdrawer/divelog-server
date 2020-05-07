@@ -1,10 +1,10 @@
 /* eslint-disable require-atomic-updates */
-const { db, redisClient, models } = require("@btdrawer/divelog-server-utils");
+const { connect, models } = require("@btdrawer/divelog-server-utils");
 const { UserModel, DiveModel, ClubModel, GearModel, GroupModel } = models;
 const { CLUB } = require("../../src/constants/resources");
 const { signJwt } = require("../../src/utils/authUtils");
 
-db();
+const { redisClient } = connect();
 
 const users = [
     {

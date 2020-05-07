@@ -1,12 +1,12 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const { db, cache } = require("@btdrawer/divelog-server-utils");
+const { connect } = require("@btdrawer/divelog-server-utils");
 const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 
-db();
-cache();
+const { redisClient } = connect();
+global.redisClient = redisClient;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
