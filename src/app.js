@@ -5,7 +5,7 @@ const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 
-const { db, redisClient } = connect();
+const { redisClient } = connect();
 global.redisClient = redisClient;
 
 app.use(express.json());
@@ -19,12 +19,5 @@ for (let route in routerUrls) {
 
 const port = process.env.SERVER_PORT;
 app.listen(port, () => console.log(`Listening on port ${port}`));
-
-const closeDatabase = async () => {
-    await db.close();
-};
-
-process.on("SIGTERM", closeDatabase);
-process.on("SIGINT", closeDatabase);
 
 module.exports = app;
