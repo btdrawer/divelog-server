@@ -24,10 +24,10 @@ const port = process.env.SERVER_PORT;
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 
 const closeServer = async () => {
+    await global.db.close();
     await server.close(() => {
         console.log("Server closed.");
     });
-    await global.db.close();
 };
 
 process.on("SIGTERM", closeServer);
