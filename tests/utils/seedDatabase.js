@@ -1,10 +1,8 @@
 /* eslint-disable require-atomic-updates */
-const { connect, models } = require("@btdrawer/divelog-server-utils");
+const { models } = require("@btdrawer/divelog-server-utils");
 const { UserModel, DiveModel, ClubModel, GearModel, GroupModel } = models;
 const { CLUB } = require("../../src/constants/resources");
 const { signJwt } = require("../../src/utils/authUtils");
-
-const { redisClient } = connect();
 
 const users = [
     {
@@ -211,7 +209,7 @@ const seedDatabase = async ({ resources = {} } = {}) => {
 
     // Because the `club` key is always the same, cached data will cause
     // problems for tests run sequentially with newly-seeded data
-    redisClient.del(CLUB);
+    global.redisClient.del(CLUB);
 
     // Example users
     await saveUser(0);

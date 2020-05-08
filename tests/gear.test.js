@@ -2,9 +2,11 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 const { request, expect } = chai;
-
 const app = require("../src/app");
+const { globalSetup, globalTeardown } = require("./utils/setup");
 const { seedDatabase, users, gear } = require("./utils/seedDatabase");
+
+before(async () => await globalSetup());
 
 describe("Gear", () => {
     beforeEach(async () => {
@@ -111,3 +113,5 @@ describe("Gear", () => {
                 }));
     });
 });
+
+after(async () => await globalTeardown());
