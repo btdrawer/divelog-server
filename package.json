@@ -6,7 +6,8 @@
         "start": "env-cmd -f ./config/.env nodemon src/app.js",
         "lint": "eslint --fix .",
         "test": "env-cmd -f ./config/.test.env node ./node_modules/mocha/bin/mocha ./tests",
-        "watch": "env-cmd -f ./.test.env node ./node_modules/mocha/bin/mocha --watch ./tests"
+        "test:watch": "env-cmd -f ./.test.env node ./node_modules/mocha/bin/mocha --watch ./tests",
+        "test:ci": "node ./node_modules/mocha/bin/mocha ./tests"
     },
     "dependencies": {
         "@btdrawer/divelog-server-utils": "^0.4.1",
