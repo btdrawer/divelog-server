@@ -80,14 +80,18 @@ exports.getOne = async ({
 };
 
 exports.put = async ({ model, res, filter, payload }) => {
-    for (let prop in payload) {
-        if (payload[prop] === null || payload[prop] === undefined) {
-            delete payload[prop];
-        }
-    }
-
     try {
-        const obj = await model.findOneAndUpdate(filter, payload, {
+        const filteredPayload = Object.keys(payload).reduce((acc, key) => {
+            const value = payload[key];
+            if (value !== null && value !== undefined) {
+                return {
+                    ...acc,
+                    [key]: value
+                };
+            }
+            return acc;
+        }, {});
+        const obj = await model.findOneAndUpdate(filter, filteredPayload, {
             new: true
         });
         handleSuccess(res, obj, "PUT");

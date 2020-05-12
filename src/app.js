@@ -15,10 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-for (let route in routerUrls) {
+Object.keys(routerUrls).forEach(route => {
     const uri = routerUrls[route];
     app.use(uri, require(`./routes${uri}Routes`));
-}
+});
 
 const port = process.env.SERVER_PORT;
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
