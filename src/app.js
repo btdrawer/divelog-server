@@ -5,12 +5,6 @@ const routerUrls = require("./constants/routerUrls");
 
 const app = express();
 
-(async () => {
-    const { db, redisClient } = await connect();
-    global.db = db;
-    global.redisClient = redisClient;
-})();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -19,6 +13,12 @@ Object.keys(routerUrls).forEach(route => {
     const uri = routerUrls[route];
     app.use(uri, require(`./routes${uri}Routes`));
 });
+
+(async () => {
+    const { db, redisClient } = await connect();
+    global.db = db;
+    global.redisClient = redisClient;
+})();
 
 const port = process.env.SERVER_PORT;
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
