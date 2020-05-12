@@ -1,6 +1,6 @@
 {
     "name": "divelog-server-rest",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "private": true,
     "scripts": {
         "start": "env-cmd -f ./config/.env nodemon src/app.js",
