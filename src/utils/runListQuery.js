@@ -65,13 +65,12 @@ const queryWithCache = async ({
     return result;
 };
 
-module.exports = async ({
+module.exports = ({
     model,
-    req,
     filter,
     allowedFields,
     useCache = false
-}) => {
+}) => async req => {
     const { query } = req;
     const { limit = 10, cursor } = query;
     const fields = getFieldsToReturn(req.query.fields, allowedFields);

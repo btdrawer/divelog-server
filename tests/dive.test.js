@@ -82,7 +82,7 @@ describe("Dive", () => {
     });
 
     describe("List dives", () => {
-        it("should list user's dives", () =>
+        it("should list the authenticated user's dives", () =>
             request(app)
                 .get("/dive")
                 .set({ Authorization: `Bearer ${users[0].token}` })
@@ -107,6 +107,19 @@ describe("Dive", () => {
                     expect(res.body.data).be.an("array");
                     expect(res.body.data).have.length(1);
                     expect(res.body.pageInfo.hasNextPage).equal(true);
+                }));
+
+        it("should list another user's public dives", () =>
+            request(app)
+                .get("/dive")
+                .set({ Authorization: `Bearer ${users[1].token}` })
+                .query({
+                    user: users[0].output.id
+                })
+                .then(res => {
+                    expect(res.status).equal(200);
+                    expect(res.body.data).be.an("array");
+                    expect(res.body.data).have.length(2);
                 }));
     });
 
