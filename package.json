@@ -10,13 +10,13 @@
         "test:ci": "node ./node_modules/mocha/bin/mocha ./tests --exit"
     },
     "dependencies": {
-        "@btdrawer/divelog-server-utils": "^0.4.3",
         "cookie-parser": "^1.4.4",
         "env-cmd": "^10.0.1",
         "express": "~4.16.0",
         "jsonwebtoken": "^8.5.1"
     },
     "devDependencies": {
+        "@btdrawer/divelog-server-utils": "^0.5.0",
         "acorn": "^7.1.1",
         "acorn-jsx": "^5.1.0",
         "chai": "^4.2.0",

@@ -1,14 +1,15 @@
 const { connect } = require("@btdrawer/divelog-server-utils");
 
 exports.globalSetup = async () => {
-    const { db, redisClient } = await connect();
+    const { mongoose, queryWithCache, clearCache } = await connect();
 
-    global.db = db;
-    global.redisClient = redisClient;
+    global.mongoose = mongoose;
+    global.queryWithCache = queryWithCache;
+    global.clearCache = clearCache;
 
     return undefined;
 };
 
 exports.globalTeardown = async () => {
-    await global.db.close();
+    await global.mongoose.close();
 };

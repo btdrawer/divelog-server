@@ -15,16 +15,17 @@ Object.keys(routerUrls).forEach(route => {
 });
 
 (async () => {
-    const { db, redisClient } = await connect();
-    global.db = db;
-    global.redisClient = redisClient;
+    const { mongoose, queryWithCache, clearCache } = await connect();
+    global.mongoose = mongoose;
+    global.queryWithCache = queryWithCache;
+    global.clearCache = clearCache;
 })();
 
 const port = process.env.SERVER_PORT;
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 
 const closeServer = async () => {
-    await global.db.close();
+    await global.mongoose.close();
     await server.close(() => {
         console.log("Server closed.");
     });
