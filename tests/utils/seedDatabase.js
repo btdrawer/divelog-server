@@ -209,7 +209,7 @@ const seedDatabase = async ({ resources = {} } = {}) => {
 
     // Because the `club` key is always the same, cached data will cause
     // problems for tests run sequentially with newly-seeded data
-    global.redisClient.del(CLUB);
+    global.clearCache(CLUB);
 
     // Example users
     await saveUser(0);
