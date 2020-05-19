@@ -1,3 +1,6 @@
+const handleSuccess = require("../handlers/handleSuccess");
+const handleError = require("../handlers/handleError");
+
 const reduceFields = fields =>
     fields.reduce(
         (acc, field) => ({
@@ -17,13 +20,39 @@ const getFieldsToReturn = (requestedFields, allowedFields) => {
     return null;
 };
 
-const populateFields = async (data, fields) =>
-    fields.reduce(
+const filterPayload = payload =>
+    Object.keys(payload).reduce((acc, key) => {
+        const value = payload[key];
+        if (value !== null && value !== undefined) {
+            return {
+                ...acc,
+                [key]: value
+            };
+        }
+        return acc;
+    }, {});
+
+const populateFields = async (func, fields) => {
+    const data = await func.apply();
+    await fields.reduce(
         (p, field) => p.then(() => data.populate(field).execPopulate()),
         Promise.resolve()
     );
+    return data;
+};
+
+const useHandlers = func => async (req, res) => {
+    try {
+        const result = await func(req, res);
+        handleSuccess(res, result, req.method);
+    } catch (err) {
+        handleError(res, err);
+    }
+};
 
 module.exports = {
     getFieldsToReturn,
-    populateFields
+    filterPayload,
+    populateFields,
+    useHandlers
 };

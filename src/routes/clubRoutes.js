@@ -6,223 +6,221 @@ const {
 } = require("@btdrawer/divelog-server-utils").models;
 const { getUserId } = require("../utils/authUtils");
 const middleware = require("../middleware/authentication");
-const routeBuilder = require("../utils/routeBuilder");
+const {
+    filterPayload,
+    populateFields,
+    useHandlers
+} = require("../utils/routeUtils");
+const runListQuery = require("../utils/runListQuery");
+
+const ARR_PUSH = "$push";
+const ARR_PULL = "$pull";
+
+const updateArrayTemplate = async ({ club, user, arrayAction }) => {
+    const result = await ClubModel.findByIdAndUpdate(
+        club.id,
+        {
+            [arrayAction]: {
+                [club.arr]: user.id
+            }
+        },
+        { new: true }
+    );
+    await UserModel.findByIdAndUpdate(user.id, {
+        [arrayAction]: {
+            [user.arr]: club.id
+        }
+    });
+    return result;
+};
 
 // Create new club
-router.post("/", middleware, (req, res) =>
-    routeBuilder.post({
-        model: ClubModel,
-        res,
-        payload: {
+router.post(
+    "/",
+    middleware,
+    useHandlers(async req => {
+        const club = new ClubModel({
             name: req.body.name,
             location: req.body.location,
             description: req.body.description,
             managers: [getUserId(req)],
             members: req.body.members,
             website: req.body.website
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.manager",
-                id: getUserId(req)
+        }).save();
+        await UserModel.findByIdAndUpdate(getUserId(req), {
+            $push: {
+                "clubs.manager": club.id
             }
-        ]
+        });
+        return club;
     })
 );
 
 // List all clubs
-router.get("/", middleware, (req, res) => {
-    const filter = {};
-    const { name, location } = req.query;
-    if (name) filter.name = name;
-    if (location) filter.location = location;
-
-    routeBuilder.getAll({
-        model: ClubModel,
-        req,
-        res,
-        filter
-    });
-});
+router.get(
+    "/",
+    middleware,
+    useHandlers(req =>
+        runListQuery({
+            model: ClubModel,
+            filter: filterPayload({
+                name: req.query.name,
+                location: req.query.location
+            }),
+            useCache: true
+        })(req)
+    )
+);
 
 // Get club by ID
-router.get("/:id", middleware, (req, res) =>
-    routeBuilder.getOne({
-        model: ClubModel,
-        req,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        fieldsToPopulate: ["managers", "members"]
-    })
+router.get(
+    "/:id",
+    middleware,
+    useHandlers(req =>
+        populateFields(
+            () => ClubModel.findById(req.params.id, req.query.fields),
+            ["managers", "members"]
+        )
+    )
 );
 
 // Update club
-router.put("/:id", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            name: req.body.name,
-            location: req.body.location,
-            description: req.body.description,
-            website: req.body.website
-        }
-    })
+router.put(
+    "/:id",
+    middleware,
+    useHandlers(req =>
+        ClubModel.findByIdAndUpdate(
+            req.params.id,
+            filterPayload({
+                name: req.body.name,
+                location: req.body.location,
+                description: req.body.description,
+                website: req.body.website
+            }),
+            { new: true }
+        )
+    )
 );
 
 // Add manager
-router.post("/:id/manager/:managerId", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $push: {
-                managers: req.params.managerId
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.manager",
-                id: req.params.managerId
-            }
-        ]
-    })
+router.post(
+    "/:id/manager/:managerId",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "managers"
+            },
+            user: {
+                id: req.params.managerId,
+                arr: "clubs.manager"
+            },
+            arrayAction: ARR_PUSH
+        })
+    )
 );
 
 // Delete manager
-router.delete("/:id/manager/:managerId", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $pull: {
-                managers: req.params.managerId
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.manager",
-                id: req.params.managerId
-            }
-        ]
-    })
+router.delete(
+    "/:id/manager/:managerId",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "managers"
+            },
+            user: {
+                id: req.params.managerId,
+                arr: "clubs.manager"
+            },
+            arrayAction: ARR_PULL
+        })
+    )
 );
 
 // Add member
-router.post("/:id/member/:memberId", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $push: {
-                members: req.params.memberId
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.member",
-                id: req.params.memberId
-            }
-        ]
-    })
+router.post(
+    "/:id/member/:memberId",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "members"
+            },
+            user: {
+                id: req.params.memberId,
+                arr: "clubs.member"
+            },
+            arrayAction: ARR_PUSH
+        })
+    )
 );
 
 // Delete member
-router.delete("/:id/member/:memberId", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $pull: {
-                members: req.params.memberId
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.member",
-                id: req.params.memberId
-            }
-        ]
-    })
+router.delete(
+    "/:id/member/:memberId",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "members"
+            },
+            user: {
+                id: req.params.memberId,
+                arr: "clubs.member"
+            },
+            arrayAction: ARR_PULL
+        })
+    )
 );
 
 // Join group
-router.post("/:id/member", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $push: {
-                members: getUserId(req)
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.member",
-                id: getUserId(req)
-            }
-        ]
-    })
+router.post(
+    "/:id/member",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "members"
+            },
+            user: {
+                id: getUserId(req),
+                arr: "clubs.member"
+            },
+            arrayAction: ARR_PUSH
+        })
+    )
 );
 
 // Leave group
-router.delete("/:id/member", middleware, (req, res) =>
-    routeBuilder.put({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $pull: {
-                members: getUserId(req)
-            }
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "clubs.member",
-                id: getUserId(req)
-            }
-        ]
-    })
+router.delete(
+    "/:id/member",
+    middleware,
+    useHandlers(req =>
+        updateArrayTemplate({
+            club: {
+                id: req.params.id,
+                arr: "members"
+            },
+            user: {
+                id: getUserId(req),
+                arr: "clubs.member"
+            },
+            arrayAction: ARR_PULL
+        })
+    )
 );
 
 // Delete club
-router.delete("/:id", middleware, (req, res) =>
-    routeBuilder.delete({
-        model: ClubModel,
-        res,
-        filter: {
-            _id: req.params.id
-        }
-    })
+router.delete(
+    "/:id",
+    middleware,
+    useHandlers(req => ClubModel.findByIdAndDelete(req.params.id))
 );
 
 module.exports = router;

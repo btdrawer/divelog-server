@@ -1,105 +1,98 @@
 const express = require("express");
 const router = express.Router();
 const { GroupModel } = require("@btdrawer/divelog-server-utils").models;
+const { authentication } = require("../middleware");
 const { getUserId } = require("../utils/authUtils");
-const authentication = require("../middleware/authentication");
-const routeBuilder = require("../utils/routeBuilder");
-const handleSuccess = require("../handlers/handleSuccess");
-const handleError = require("../handlers/handleError");
+const { useHandlers } = require("../utils/routeUtils");
+const runListQuery = require("../utils/runListQuery");
 
 // Create new group and post first message
-router.post("/", authentication, async (req, res) => {
-    const myId = getUserId(req);
-    req.body.participants.push(myId);
-
-    await routeBuilder.post({
-        model: GroupModel,
-        res,
-        payload: {
+router.post(
+    "/",
+    authentication,
+    useHandlers(req => {
+        const userId = getUserId(req);
+        return new GroupModel({
             name: req.body.group_name,
-            participants: req.body.participants,
+            participants: [...req.body.participants, userId],
             messages: [
                 {
                     text: req.body.text,
-                    sender: myId
+                    sender: userId
                 }
             ]
-        }
-    });
-});
-
-router.post("/:id/message", authentication, (req, res) =>
-    routeBuilder.put({
-        model: GroupModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $push: {
-                messages: {
-                    text: req.body.text,
-                    sender: getUserId(req),
-                    sent: new Date().getMilliseconds()
-                }
-            }
-        }
+        });
     })
+);
+
+// Send message
+router.post(
+    "/:id/message",
+    authentication,
+    useHandlers(req =>
+        GroupModel.findByIdAndUpdate(
+            req.params.id,
+            {
+                $push: {
+                    messages: {
+                        text: req.body.text,
+                        sender: getUserId(req),
+                        sent: new Date().getMilliseconds()
+                    }
+                }
+            },
+            { new: true }
+        )
+    )
 );
 
 // List groups the user participates in
-router.get("/", authentication, async (req, res) =>
-    routeBuilder.getAll({
-        model: GroupModel,
-        req,
-        res,
-        filter: {
-            participants: getUserId(req)
-        }
-    })
+router.get(
+    "/",
+    authentication,
+    useHandlers(req =>
+        runListQuery({
+            model: GroupModel,
+            filter: {
+                participants: getUserId(req)
+            }
+        })(req)
+    )
 );
 
 // Get group
-router.get("/:id", authentication, async (req, res) =>
-    routeBuilder.getOne({
-        model: GroupModel,
-        req,
-        res,
-        filter: {
-            _id: req.params.id
-        }
-    })
+router.get(
+    "/:id",
+    authentication,
+    useHandlers(req => GroupModel.findById(req.params.id))
 );
 
 // Add member to group
-router.post("/:id/user/:userId", authentication, async (req, res) => {
-    try {
-        const group = await GroupModel.findOne({
-            _id: req.params.id
-        });
-
+router.post(
+    "/:id/user/:userId",
+    authentication,
+    useHandlers(async req => {
+        const group = await GroupModel.findById(req.params.id);
         await group.addUser(req.params.userId);
-
-        handleSuccess(res, group, "POST");
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+        return group;
+    })
+);
 
 // Leave gronp
-router.delete("/:id/leave", authentication, (req, res) =>
-    routeBuilder.put({
-        model: GroupModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: {
-            $pull: {
-                participants: getUserId(req)
-            }
-        }
-    })
+router.delete(
+    "/:id/leave",
+    authentication,
+    useHandlers(req =>
+        GroupModel.findByIdAndUpdate(
+            req.params.id,
+            {
+                $pull: {
+                    participants: getUserId(req)
+                }
+            },
+            { new: true }
+        )
+    )
 );
 
 module.exports = router;

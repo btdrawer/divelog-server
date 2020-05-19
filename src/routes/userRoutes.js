@@ -2,54 +2,54 @@ const express = require("express");
 const router = express.Router();
 const { UserModel } = require("@btdrawer/divelog-server-utils").models;
 const { getUserId, signJwt } = require("../utils/authUtils");
-const authentication = require("../middleware/authentication");
-const routeBuilder = require("../utils/routeBuilder");
+const { authentication } = require("../middleware");
+const {
+    getFieldsToReturn,
+    populateFields,
+    useHandlers
+} = require("../utils/routeUtils");
+const runListQuery = require("../utils/runListQuery");
 const errorKeys = require("../constants/errorKeys");
-const handleSuccess = require("../handlers/handleSuccess");
-const handleError = require("../handlers/handleError");
+
+const getUserAuthPayload = async userFunc => {
+    const user = await userFunc.apply();
+    const token = signJwt(user._id);
+    return {
+        data: user,
+        token
+    };
+};
 
 // Create new user
-router.post("/", async (req, res) => {
-    try {
-        const user = new UserModel({
-            name: req.body.name,
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password
-        });
-        await user.save();
-        const token = signJwt(user._id);
-        const data = {
-            data: user,
-            token
-        };
-        handleSuccess(res, data, "POST");
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.post(
+    "/",
+    useHandlers(req =>
+        getUserAuthPayload(() =>
+            new UserModel({
+                name: req.body.name,
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password
+            }).save()
+        )
+    )
+);
 
 // Login
-router.post("/login", async (req, res) => {
-    try {
-        const user = await UserModel.authenticate(
-            req.body.username,
-            req.body.password
-        );
-        const token = signJwt(user._id);
-        const data = {
-            data: user,
-            token
-        };
-        handleSuccess(res, data, "POST");
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+router.post(
+    "/login",
+    useHandlers(req =>
+        getUserAuthPayload(() =>
+            UserModel.authenticate(req.body.username, req.body.password)
+        )
+    )
+);
 
 // Send or accept friend request
-router.post("/friend/:id", authentication, async (req, res) => {
-    try {
+router.post(
+    "/friend/:id",
+    authentication,
+    useHandlers(async req => {
         let myId = await getUserId(req);
         let friendId = req.params.id;
 
@@ -61,16 +61,16 @@ router.post("/friend/:id", authentication, async (req, res) => {
             {
                 _id: myId
             },
-            ["friend_requests", "friends"]
+            ["friendRequests", "friends"]
         );
 
         let user;
 
-        if (checkInbox.friend_requests.sent.includes(friendId)) {
+        if (checkInbox.friendRequests.sent.includes(friendId)) {
             throw new Error(errorKeys.FRIEND_REQUEST_ALREADY_SENT);
         } else if (checkInbox.friends.includes(friendId)) {
             throw new Error(errorKeys.ALREADY_FRIENDS);
-        } else if (checkInbox.friend_requests.inbox.includes(friendId)) {
+        } else if (checkInbox.friendRequests.inbox.includes(friendId)) {
             // Accept request
             user = await UserModel.accept(myId, friendId);
         } else {
@@ -78,92 +78,93 @@ router.post("/friend/:id", authentication, async (req, res) => {
             user = await UserModel.add(myId, friendId);
         }
 
-        handleSuccess(res, user, "POST");
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+        return user;
+    })
+);
 
 // Unfriend
-router.delete("/friend/:id", authentication, (req, res) =>
-    routeBuilder.generic(
-        UserModel,
-        "unfriend",
-        res,
-        "DELETE",
-        getUserId(req),
-        req.params.id
-    )
+router.delete(
+    "/friend/:id",
+    authentication,
+    useHandlers(req => UserModel.unfriend(getUserId(req), req.params.id))
 );
 
 // List all users
-router.get("/", authentication, (req, res) =>
-    routeBuilder.getAll({
-        model: UserModel,
-        req,
-        res,
-        allowedFields: ["name", "username"]
-    })
+router.get(
+    "/",
+    authentication,
+    useHandlers(req =>
+        runListQuery({
+            model: UserModel,
+            allowedFields: ["name", "username"]
+        })(req)
+    )
+);
+
+const userFieldsToPopulate = [
+    "dives",
+    "clubs.manager",
+    "clubs.member",
+    "gear",
+    "friends",
+    "friendRequests.inbox",
+    "friendRequests.sent"
+];
+
+// Get authenticated user
+router.get(
+    "/me",
+    authentication,
+    useHandlers(req =>
+        populateFields(
+            () =>
+                UserModel.findById(
+                    getUserId(req),
+                    getFieldsToReturn(req.query.fields, [
+                        "name",
+                        "username",
+                        "friends",
+                        "friend_requests",
+                        "dives",
+                        "clubs",
+                        "gear"
+                    ])
+                ),
+            userFieldsToPopulate
+        )
+    )
 );
 
 // Get user by ID
-router.get("/:id", authentication, (req, res) => {
-    const isMe = req.params.id === "me";
-    const id = isMe ? getUserId(req) : req.params.id;
-    const allowedFields = isMe
-        ? [
-              "name",
-              "username",
-              "friends",
-              "friend_requests",
-              "dives",
-              "clubs",
-              "gear"
-          ]
-        : ["name", "username"];
-    const fieldsToPopulate = [
-        "dives",
-        "clubs.manager",
-        "clubs.member",
-        "gear",
-        "friends",
-        "friendRequests.inbox",
-        "friendRequests.sent"
-    ];
-
-    routeBuilder.getOne({
-        model: UserModel,
-        req,
-        res,
-        query: {
-            _id: id
-        },
-        allowedFields,
-        fieldsToPopulate
-    });
-});
+router.get(
+    "/:id",
+    authentication,
+    useHandlers(req =>
+        populateFields(
+            () =>
+                UserModel.findById(
+                    req.params.id,
+                    getFieldsToReturn(req.query.fields, ["name", "username"])
+                ),
+            userFieldsToPopulate
+        )
+    )
+);
 
 // Update user details
-router.put("/", authentication, (req, res) =>
-    routeBuilder.put({
-        model: UserModel,
-        res,
-        filter: {
-            _id: getUserId(req)
-        },
-        payload: req.body
-    })
+router.put(
+    "/",
+    authentication,
+    useHandlers(req =>
+        UserModel.findByIdAndUpdate(getUserId(req), req.body, { new: true })
+    )
 );
 
 // Delete user
-router.delete("/", authentication, (req, res) =>
-    routeBuilder.delete({
-        model: UserModel,
-        res,
-        filter: {
-            _id: getUserId(req)
-        }
-    })
+router.delete(
+    "/",
+    authentication,
+    useHandlers(req => UserModel.findByIdAndDelete(getUserId(req)))
 );
 
 module.exports = router;

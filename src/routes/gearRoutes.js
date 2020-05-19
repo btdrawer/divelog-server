@@ -5,85 +5,78 @@ const {
     GearModel
 } = require("@btdrawer/divelog-server-utils").models;
 const { getUserId } = require("../utils/authUtils");
-const authentication = require("../middleware/authentication");
-const clearCache = require("../middleware/cache/clearCache");
-const routeBuilder = require("../utils/routeBuilder");
+const { authentication, clearCache } = require("../middleware");
+const { populateFields, useHandlers } = require("../utils/routeUtils");
+const runListQuery = require("../utils/runListQuery");
 
 // Create gear
-router.post("/", authentication, clearCache, async (req, res) => {
-    const ownerId = getUserId(req);
-    await routeBuilder.post({
-        model: GearModel,
-        res,
-        payload: {
+router.post(
+    "/",
+    authentication,
+    clearCache,
+    useHandlers(async req => {
+        const ownerId = getUserId(req);
+        const gear = await new GearModel({
             brand: req.body.brand,
             name: req.body.name,
             type: req.body.type,
             owner: ownerId
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "gear",
-                id: ownerId
+        });
+        await UserModel.findByIdAndUpdate(ownerId, {
+            $push: {
+                gear: gear.id
             }
-        ]
-    });
-});
+        });
+        return gear;
+    })
+);
 
 // List all a user's gear
-router.get("/", authentication, async (req, res) =>
-    routeBuilder.getAll({
-        model: GearModel,
-        req,
-        res,
-        filter: {
-            owner: getUserId(req)
-        },
-        useCache: true
-    })
+router.get(
+    "/",
+    authentication,
+    useHandlers(req =>
+        runListQuery({
+            model: GearModel,
+            filter: {
+                owner: getUserId(req)
+            }
+        })(req)
+    )
 );
 
 // Get gear by ID
-router.get("/:id", authentication, async (req, res) =>
-    routeBuilder.getOne({
-        model: GearModel,
-        req,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        fieldsToPopulate: ["owner"]
-    })
+router.get(
+    "/:id",
+    authentication,
+    useHandlers(req =>
+        populateFields(() => GearModel.findById(req.params.id), ["owner"])
+    )
 );
 
 // Update gear
-router.put("/:id", authentication, clearCache, (req, res) =>
-    routeBuilder.put({
-        model: GearModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        payload: req.body
-    })
+router.put(
+    "/:id",
+    authentication,
+    clearCache,
+    useHandlers(req =>
+        GearModel.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    )
 );
 
 // Delete gear
-router.delete("/:id", authentication, clearCache, (req, res) =>
-    routeBuilder.delete({
-        model: GearModel,
-        res,
-        filter: {
-            _id: req.params.id
-        },
-        additionalRequests: [
-            {
-                model: UserModel,
-                ref: "gear",
-                id: getUserId(req)
+router.delete(
+    "/:id",
+    authentication,
+    clearCache,
+    useHandlers(async req => {
+        const gear = await GearModel.findByIdAndDelete(req.params.id);
+        await UserModel.findByIdAndUpdate(getUserId(req), {
+            $pull: {
+                gear: gear.id
             }
-        ]
+        });
+        return gear;
     })
 );
 
