@@ -1,15 +1,14 @@
-const { connect } = require("@btdrawer/divelog-server-utils");
+const { launchServices } = require("@btdrawer/divelog-server-utils");
 
 exports.globalSetup = async () => {
-    const { mongoose, queryWithCache, clearCache } = await connect();
+    const { cacheFunctions, closeServices } = await launchServices();
 
-    global.mongoose = mongoose;
-    global.queryWithCache = queryWithCache;
-    global.clearCache = clearCache;
+    global.cacheFunctions = cacheFunctions;
+    global.closeServices = closeServices;
 
     return undefined;
 };
 
 exports.globalTeardown = async () => {
-    await global.mongoose.close();
+    await global.closeServices();
 };

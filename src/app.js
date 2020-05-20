@@ -1,6 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const { connect } = require("@btdrawer/divelog-server-utils");
+const { launchServices } = require("@btdrawer/divelog-server-utils");
 const routerUrls = require("./constants/routerUrls");
 
 const app = express();
@@ -15,23 +15,23 @@ Object.keys(routerUrls).forEach(route => {
 });
 
 (async () => {
-    const { mongoose, queryWithCache, clearCache } = await connect();
-    global.mongoose = mongoose;
-    global.queryWithCache = queryWithCache;
-    global.clearCache = clearCache;
+    const { cacheFunctions, closeServices } = await launchServices();
+    global.cacheFunctions = cacheFunctions;
+
+    const port = process.env.SERVER_PORT;
+    const server = app.listen(port, () =>
+        console.log(`Listening on port ${port}`)
+    );
+
+    const closeServer = async () => {
+        await closeServices();
+        await server.close(() => {
+            console.log("Server closed.");
+        });
+    };
+
+    process.on("SIGTERM", closeServer);
+    process.on("SIGINT", closeServer);
 })();
-
-const port = process.env.SERVER_PORT;
-const server = app.listen(port, () => console.log(`Listening on port ${port}`));
-
-const closeServer = async () => {
-    await global.mongoose.close();
-    await server.close(() => {
-        console.log("Server closed.");
-    });
-};
-
-process.on("SIGTERM", closeServer);
-process.on("SIGINT", closeServer);
 
 module.exports = app;

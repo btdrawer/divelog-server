@@ -52,7 +52,7 @@ module.exports = ({
         const parsedCursor = parseCursor(cursor);
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
-        result = await global.queryWithCache(useCache, userId, {
+        result = await global.cacheFunctions.queryWithCache(useCache, userId, {
             model,
             filter: generateQueryFromCursor(parsedCursor),
             fields,
@@ -61,7 +61,7 @@ module.exports = ({
             }
         });
     } else {
-        result = await global.queryWithCache(useCache, userId, {
+        result = await global.cacheFunctions.queryWithCache(useCache, userId, {
             model,
             filter,
             fields,
