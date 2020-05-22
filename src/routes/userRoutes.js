@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { UserModel } = require("@btdrawer/divelog-server-utils").models;
-const { getUserId, signJwt } = require("../utils/authUtils");
 const { authentication } = require("../middleware");
+const { getUserId, signJwt } = require("../utils/authUtils");
 const {
     getFieldsToReturn,
     populateFields,
     useHandlers
 } = require("../utils/routeUtils");
 const runListQuery = require("../utils/runListQuery");
-const errorKeys = require("../constants/errorKeys");
+const errorCodes = require("../constants/errorCodes");
 
 const getUserAuthPayload = async userFunc => {
     const user = await userFunc.apply();
@@ -54,7 +54,7 @@ router.post(
         let friendId = req.params.id;
 
         if (myId === friendId) {
-            throw new Error(errorKeys.CANNOT_ADD_YOURSELF);
+            throw new Error(errorCodes.CANNOT_ADD_YOURSELF);
         }
 
         const checkInbox = await UserModel.findOne(
@@ -67,9 +67,9 @@ router.post(
         let user;
 
         if (checkInbox.friendRequests.sent.includes(friendId)) {
-            throw new Error(errorKeys.FRIEND_REQUEST_ALREADY_SENT);
+            throw new Error(errorCodes.FRIEND_REQUEST_ALREADY_SENT);
         } else if (checkInbox.friends.includes(friendId)) {
-            throw new Error(errorKeys.ALREADY_FRIENDS);
+            throw new Error(errorCodes.ALREADY_FRIENDS);
         } else if (checkInbox.friendRequests.inbox.includes(friendId)) {
             // Accept request
             user = await UserModel.accept(myId, friendId);

@@ -1,4 +1,4 @@
-const { NOT_FOUND } = require("../constants/errorKeys");
+const { NOT_FOUND } = require("../constants/errorCodes");
 const handleError = require("./handleError");
 
 module.exports = (res, data, method) => {

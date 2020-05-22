@@ -4,8 +4,8 @@ const {
     UserModel,
     ClubModel
 } = require("@btdrawer/divelog-server-utils").models;
-const { getUserId } = require("../utils/authUtils");
 const middleware = require("../middleware/authentication");
+const { getUserId } = require("../utils/authUtils");
 const {
     filterPayload,
     populateFields,

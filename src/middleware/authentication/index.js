@@ -4,7 +4,7 @@ const { getAuthData } = require("../../utils/authUtils");
 
 // Error handling
 const handleError = require("../../handlers/handleError");
-const { INVALID_AUTH } = require("../../constants/errorKeys");
+const { INVALID_AUTH } = require("../../constants/errorCodes");
 
 // Authentication files for individual resources
 const diveAuthentication = require("./resourceAccess/diveAuthentication");
@@ -42,6 +42,6 @@ module.exports = async (req, res, next) => {
 
         next();
     } catch (err) {
-        handleError(res, err);
+        handleError(res, JSON.parse(err.message));
     }
 };
