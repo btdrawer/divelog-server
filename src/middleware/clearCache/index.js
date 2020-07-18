@@ -1,6 +1,6 @@
 const { getUserId } = require("../../utils/authUtils");
 
-module.exports = async (req, res, next) => {
+module.exports = cacheUtils => async (req, res, next) => {
     await next();
-    global.cacheFunctions.clearCache(getUserId(req));
+    cacheUtils.clearCache(getUserId(req));
 };

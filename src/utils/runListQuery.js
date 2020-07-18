@@ -38,21 +38,21 @@ module.exports = ({
     model,
     filter,
     allowedFields,
-    useCache = false
+    hashKey,
+    cacheUtils
 }) => async req => {
     const { query } = req;
     const { limit = 10, cursor } = query;
     let { sortBy = "_id", sortOrder = "ASC" } = query;
 
     const fields = getFieldsToReturn(req.query.fields, allowedFields);
-    const userId = getUserId(req);
 
     let result;
     if (cursor) {
         const parsedCursor = parseCursor(cursor);
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
-        result = await global.cacheFunctions.queryWithCache(useCache, userId, {
+        result = await cacheUtils.queryWithCache(hashKey, {
             model,
             filter: generateQueryFromCursor(parsedCursor),
             fields,
@@ -61,7 +61,7 @@ module.exports = ({
             }
         });
     } else {
-        result = await global.cacheFunctions.queryWithCache(useCache, userId, {
+        result = await cacheUtils.queryWithCache(hashKey, {
             model,
             filter,
             fields,
