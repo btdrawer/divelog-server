@@ -3,29 +3,40 @@
     "version": "0.3.3",
     "private": true,
     "scripts": {
-        "start": "env-cmd -f ./config/.env nodemon src/app.js",
+        "build": "tsc",
+        "start": "tsc && env-cmd -f ./config/.env nodemon built/src/app.js",
+        "start:nocompile": "env-cmd -f ./config/.env nodemon built/src/app.js",
         "lint": "eslint --fix .",
-        "test": "env-cmd -f ./config/.test.env node ./node_modules/mocha/bin/mocha ./tests --exit",
-        "test:watch": "env-cmd -f ./.test.env node ./node_modules/mocha/bin/mocha --watch ./tests",
-        "test:ci": "node ./node_modules/mocha/bin/mocha ./tests --exit"
+        "test": "env-cmd -f ./config/.test.env ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit",
+        "test:watch": "env-cmd -f ./.test.env ts-node ./node_modules/mocha/bin/mocha --watch tests/**/*.spec.ts",
+        "test:ci": "ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit"
     },
     "dependencies": {
-        "@btdrawer/divelog-server-utils": "^0.9.0",
+        "@btdrawer/divelog-server-core": "^1.1.1",
         "cookie-parser": "^1.4.4",
-        "env-cmd": "^10.0.1",
         "express": "~4.16.0",
         "jsonwebtoken": "^8.5.1"
     },
     "devDependencies": {
+        "@types/cookie-parser": "^1.4.2",
+        "@types/express": "^4.17.8",
+        "@types/jsonwebtoken": "^8.5.0",
+        "@types/lodash": "^4.14.162",
+        "@types/mocha": "^8.0.3",
         "acorn": "^7.1.1",
         "acorn-jsx": "^5.1.0",
         "chai": "^4.2.0",
         "chai-http": "^4.3.0",
+        "env-cmd": "^10.1.0",
         "eslint": "^6.1.0",
         "eslint-config-prettier": "^6.3.0",
         "eslint-plugin-prettier": "^3.1.1",
-        "mocha": "^5.2.0",
+        "lodash": "^4.17.20",
+        "mocha": "^8.2.0",
         "nodemon": "^1.19.2",
-        "prettier": "^1.18.2"
+        "prettier": "^1.18.2",
+        "tap": "^14.10.8",
+        "ts-node": "^9.0.0",
+        "typescript": "^4.0.3"
     }
 }

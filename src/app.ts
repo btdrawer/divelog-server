@@ -1,18 +1,17 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const { Services } = require("@btdrawer/divelog-server-utils");
-const { authentication, clearCache } = require("./middleware");
-const routerUrls = require("./constants/routerUrls");
+import express from "express";
+import cookieParser from "cookie-parser";
+import { Services } from "@btdrawer/divelog-server-core";
+import { authentication, clearCache } from "./middleware";
+import { routerUrls } from "./utils";
 
 const app = express();
 
 (async () => {
     const services = await Services.launchServices();
-    const { cacheUtils } = services.cache;
 
     const middleware = {
         authentication,
-        clearCache: clearCache(cacheUtils)
+        clearCache: clearCache(services.cache.clearCache)
     };
 
     app.use(express.json());
@@ -22,7 +21,10 @@ const app = express();
     Object.values(routerUrls).forEach(route =>
         app.use(
             route,
-            require(`./routes${route}Routes`)(middleware, cacheUtils)
+            require(`./routes${route}Routes`)(
+                middleware,
+                services.cache.queryWithCache
+            )
         )
     );
 
@@ -37,9 +39,8 @@ const app = express();
             console.log("Server closed.");
         });
     };
-
     process.on("SIGTERM", closeServer);
     process.on("SIGINT", closeServer);
 })();
 
-module.exports = app;
+export default app;

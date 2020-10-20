@@ -1,7 +1,20 @@
-module.exports = (res, err) => {
+import { errorCodes } from "@btdrawer/divelog-server-core";
+
+export const handleSuccess = (res: any, data: any, method: string) => {
+    try {
+        if (method === "GET") {
+            if (!data) throw new Error(errorCodes.NOT_FOUND);
+            else if (data.length === 0) throw new Error(errorCodes.NOT_FOUND);
+        }
+        res.status(200).send(data);
+    } catch (err) {
+        handleError(res, err);
+    }
+};
+
+export const handleError = (res: any, err: any) => {
     let code = err.code || 500;
     let message = err.message || "An error occurred.";
-
     if (err.name === "ValidationError") {
         // Validation errors from MongoDB
         code = 400;
@@ -12,13 +25,11 @@ module.exports = (res, err) => {
         code = 400;
         message = `The following parameter is in an incorrect format: ${err.path}`;
     }
-
     console.log({
         error: {
             code,
             message
         }
     });
-
     res.status(code).send(message);
 };

@@ -1,22 +1,19 @@
-const {
-    convertStringToBase64,
-    convertBase64ToString
-} = require("./base64Utils");
-const { getUserId } = require("./authUtils");
-const { getFieldsToReturn } = require("./routeUtils");
+import { convertStringToBase64, convertBase64ToString } from "./base64Utils";
+import { getFieldsToReturn } from "./routeUtils";
 
-const generateCursor = ({ sortBy, sortOrder, value }) =>
-    convertStringToBase64(
-        JSON.stringify({
-            sortBy,
-            sortOrder,
-            value
-        })
-    );
+type Cursor = {
+    sortBy: string;
+    sortOrder: string;
+    value: string;
+};
 
-const parseCursor = cursor => JSON.parse(convertBase64ToString(cursor));
+const generateCursor = (cursor: Cursor) =>
+    convertStringToBase64(JSON.stringify(cursor));
 
-const generateQueryFromCursor = ({ sortBy, sortOrder, value }) => {
+const parseCursor = (cursor: string) =>
+    JSON.parse(convertBase64ToString(cursor));
+
+const generateQueryFromCursor = ({ sortBy, sortOrder, value }: Cursor) => {
     const cursorDirection = sortOrder === "DESC" ? "$lt" : "$gt";
     return {
         [sortBy]: {
@@ -25,22 +22,26 @@ const generateQueryFromCursor = ({ sortBy, sortOrder, value }) => {
     };
 };
 
-const formatLimit = limit => parseInt(limit) + 1;
+const formatLimit = (limit: string) => parseInt(limit) + 1;
 
-const formatQueryOptions = ({ sortBy, sortOrder, limit }) => ({
+const formatQueryOptions = (
+    sortBy: string,
+    sortOrder: string,
+    limit: string
+) => ({
     sort: {
         [sortBy]: sortOrder === "DESC" ? -1 : 1
     },
     limit: formatLimit(limit)
 });
 
-module.exports = ({
-    model,
-    filter,
-    allowedFields,
-    hashKey,
-    cacheUtils
-}) => async req => {
+const runListQuery = (
+    queryWithCache: any,
+    model: any,
+    filter: any,
+    allowedFields?: string[],
+    hashKey?: string
+) => async (req: any) => {
     const { query } = req;
     const { limit = 10, cursor } = query;
     let { sortBy = "_id", sortOrder = "ASC" } = query;
@@ -52,7 +53,7 @@ module.exports = ({
         const parsedCursor = parseCursor(cursor);
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
-        result = await cacheUtils.queryWithCache(hashKey, {
+        result = await queryWithCache(hashKey, {
             model,
             filter: generateQueryFromCursor(parsedCursor),
             fields,
@@ -61,11 +62,11 @@ module.exports = ({
             }
         });
     } else {
-        result = await cacheUtils.queryWithCache(hashKey, {
+        result = await queryWithCache(hashKey, {
             model,
             filter,
             fields,
-            options: formatQueryOptions({ sortBy, sortOrder, limit })
+            options: formatQueryOptions(sortBy, sortOrder, limit)
         });
     }
 
@@ -86,3 +87,5 @@ module.exports = ({
         }
     };
 };
+
+export default runListQuery;

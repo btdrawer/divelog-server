@@ -1,21 +1,21 @@
-const chai = require("chai");
-const chaiHttp = require("chai-http");
+import { get } from "lodash";
+import chai from "chai";
+import chaiHttp from "chai-http";
 chai.use(chaiHttp);
 const { request, expect } = chai;
-const app = require("../src/app");
-const { globalSetup, globalTeardown } = require("./utils/setup");
-const { seedDatabase, users, clubs } = require("./utils/seedDatabase");
-
-before(async () => await globalSetup());
+import { documentTypes, seeder } from "@btdrawer/divelog-server-core";
+import app from "../src/app";
+import { globalSetup, globalTeardown } from "./utils/setup";
+const { seedDatabase, clubs, users } = seeder;
 
 describe("Club", () => {
-    beforeEach(async () => {
-        await seedDatabase({
-            resources: {
-                clubs: true
-            }
-        });
-    });
+    before(globalSetup);
+    after(globalTeardown);
+    beforeEach(
+        seedDatabase({
+            clubs: true
+        })
+    );
 
     describe("Create club", () => {
         it("should create new club", () =>
@@ -36,7 +36,9 @@ describe("Club", () => {
                     expect(res.body.website).equal("example.com");
 
                     expect(res.body.managers).have.length(1);
-                    expect(res.body.managers[0]).equal(users[0].output.id);
+                    expect(res.body.managers[0]).equal(
+                        get(users[0], "output.id")
+                    );
                 }));
     });
 
@@ -60,7 +62,9 @@ describe("Club", () => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
 
-                    res.body.data.forEach(club => expect(club.name).equal("B"));
+                    res.body.data.forEach((club: documentTypes.ClubDocument) =>
+                        expect(club.name).equal("B")
+                    );
                 }));
 
         it("should list clubs with a particular location", () =>
@@ -72,7 +76,7 @@ describe("Club", () => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
 
-                    res.body.data.forEach(club =>
+                    res.body.data.forEach((club: documentTypes.ClubDocument) =>
                         expect(club.location).equal("A1")
                     );
                 }));
@@ -93,25 +97,31 @@ describe("Club", () => {
     describe("Get club", () => {
         it("should get club", () =>
             request(app)
-                .get(`/club/${clubs[0].output.id}`)
+                .get(`/club/${get(clubs[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
 
-                    expect(res.body.name).equal(clubs[0].output.name);
-                    expect(res.body.location).equal(clubs[0].output.location);
-                    expect(res.body.website).equal(clubs[0].output.website);
+                    expect(res.body.name).equal(get(clubs[0], "output.name"));
+                    expect(res.body.location).equal(
+                        get(clubs[0], "output.location")
+                    );
+                    expect(res.body.website).equal(
+                        get(clubs[0], "output.website")
+                    );
 
                     expect(res.body.managers).have.length(1);
-                    expect(res.body.managers[0]._id).equal(users[0].output.id);
+                    expect(res.body.managers[0]._id).equal(
+                        get(users[0], "output.id")
+                    );
                 }));
     });
 
     describe("Update club", () => {
         it("should update club", () =>
             request(app)
-                .put(`/club/${clubs[0].output.id}`)
+                .put(`/club/${get(clubs[0], "output.id")}`)
                 .send({
                     name: "New name"
                 })
@@ -122,16 +132,22 @@ describe("Club", () => {
 
                     expect(res.body.name).equal("New name");
                     // Other details should not be overwritten
-                    expect(res.body.location).equal(clubs[0].output.location);
-                    expect(res.body.website).equal(clubs[0].output.website);
+                    expect(res.body.location).equal(
+                        get(clubs[0], "output.location")
+                    );
+                    expect(res.body.website).equal(
+                        get(clubs[0], "output.website")
+                    );
 
                     expect(res.body.managers).have.length(1);
-                    expect(res.body.managers[0]).equal(users[0].output.id);
+                    expect(res.body.managers[0]).equal(
+                        get(users[0], "output.id")
+                    );
                 }));
 
         it("should fail if not a manager", () =>
             request(app)
-                .put(`/club/${clubs[0].output.id}`)
+                .put(`/club/${get(clubs[0], "output.id")}`)
                 .send({
                     name: "New name 2"
                 })
@@ -143,14 +159,19 @@ describe("Club", () => {
         it("should add manager to club", () =>
             request(app)
                 .post(
-                    `/club/${clubs[0].output.id}/manager/${users[1].output.id}`
+                    `/club/${get(clubs[0], "output.id")}/manager/${get(
+                        users[1],
+                        "output.id"
+                    )}`
                 )
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
 
                     expect(res.body.managers).have.length(2);
-                    expect(res.body.managers[1]).equal(users[1].output.id);
+                    expect(res.body.managers[1]).equal(
+                        get(users[1], "output.id")
+                    );
                 }));
     });
 
@@ -158,7 +179,10 @@ describe("Club", () => {
         it("should remove manager from club", () =>
             request(app)
                 .delete(
-                    `/club/${clubs[0].output.id}/manager/${users[1].output.id}`
+                    `/club/${get(clubs[0], "output.id")}/manager/${get(
+                        users[1],
+                        "output.id"
+                    )}`
                 )
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
@@ -172,14 +196,19 @@ describe("Club", () => {
         it("should add member to club", () =>
             request(app)
                 .post(
-                    `/club/${clubs[0].output.id}/member/${users[2].output.id}`
+                    `/club/${get(clubs[0], "output.id")}/member/${get(
+                        users[2],
+                        "output.id"
+                    )}`
                 )
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
 
                     expect(res.body.members).have.length(2);
-                    expect(res.body.members[1]).equal(users[2].output.id);
+                    expect(res.body.members[1]).equal(
+                        get(users[2], "output.id")
+                    );
                 }));
     });
 
@@ -187,7 +216,10 @@ describe("Club", () => {
         it("should remove member from club", () =>
             request(app)
                 .delete(
-                    `/club/${clubs[0].output.id}/member/${users[1].output.id}`
+                    `/club/${get(clubs[0], "output.id")}/member/${get(
+                        users[1],
+                        "output.id"
+                    )}`
                 )
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
@@ -200,20 +232,22 @@ describe("Club", () => {
     describe("Join club", () => {
         it("should join club", () =>
             request(app)
-                .post(`/club/${clubs[0].output.id}/member`)
+                .post(`/club/${get(clubs[0], "output.id")}/member`)
                 .set({ Authorization: `Bearer ${users[2].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
 
                     expect(res.body.members).have.length(2);
-                    expect(res.body.members[1]).equal(users[2].output.id);
+                    expect(res.body.members[1]).equal(
+                        get(users[2], "output.id")
+                    );
                 }));
     });
 
     describe("Leave club", () => {
         it("should leave club", () =>
             request(app)
-                .delete(`/club/${clubs[0].output.id}/member`)
+                .delete(`/club/${get(clubs[0], "output.id")}/member`)
                 .set({ Authorization: `Bearer ${users[1].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -225,7 +259,7 @@ describe("Club", () => {
     describe("Delete club", () => {
         it("should delete club", () =>
             request(app)
-                .delete(`/club/${clubs[0].output.id}`)
+                .delete(`/club/${get(clubs[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -233,5 +267,3 @@ describe("Club", () => {
                 }));
     });
 });
-
-after(async () => await globalTeardown());

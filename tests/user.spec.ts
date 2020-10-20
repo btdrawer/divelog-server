@@ -1,21 +1,21 @@
-const chai = require("chai");
-const chaiHttp = require("chai-http");
+import { get } from "lodash";
+import chai from "chai";
+import chaiHttp from "chai-http";
 chai.use(chaiHttp);
 const { request, expect } = chai;
-const app = require("../src/app");
-const { globalSetup, globalTeardown } = require("./utils/setup");
-const { seedDatabase, users } = require("./utils/seedDatabase");
-
-before(async () => await globalSetup());
+import { seeder } from "@btdrawer/divelog-server-core";
+import app from "../src/app";
+import { globalSetup, globalTeardown } from "./utils/setup";
+const { seedDatabase, users } = seeder;
 
 describe("User", () => {
-    beforeEach(async () => {
-        await seedDatabase({
-            resources: {
-                groups: true
-            }
-        });
-    });
+    before(globalSetup);
+    after(globalTeardown);
+    beforeEach(
+        seedDatabase({
+            groups: true
+        })
+    );
 
     describe("Create user", () => {
         it("should create a new user", () =>
@@ -70,7 +70,7 @@ describe("User", () => {
             request(app)
                 .post("/user")
                 .send({
-                    username: users[0].username,
+                    username: users[0].input.username,
                     password: "notTheCorrectPassword"
                 })
                 .then(res => {
@@ -105,7 +105,7 @@ describe("User", () => {
     describe("Get user", () => {
         it("should get user", () =>
             request(app)
-                .get(`/user/${users[0].output.id}`)
+                .get(`/user/${get(users[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -124,5 +124,3 @@ describe("User", () => {
                 }));
     });
 });
-
-after(async () => await globalTeardown());
