@@ -180,7 +180,7 @@ describe("Club", () => {
             request(app)
                 .delete(
                     `/club/${get(clubs[0], "output.id")}/manager/${get(
-                        users[1],
+                        users[0],
                         "output.id"
                     )}`
                 )

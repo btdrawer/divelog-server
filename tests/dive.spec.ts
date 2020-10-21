@@ -96,15 +96,12 @@ describe("Dive", () => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
 
-                    expect(res.body.data).have.length(3);
+                    expect(res.body.data).have.length(2);
 
                     expect(res.body.data[0]._id).equal(
                         get(dives[0], "output.id")
                     );
                     expect(res.body.data[1]._id).equal(
-                        get(dives[1], "output.id")
-                    );
-                    expect(res.body.data[2]._id).equal(
                         get(dives[2], "output.id")
                     );
                 }));
