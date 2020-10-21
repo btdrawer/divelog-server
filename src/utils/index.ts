@@ -1,5 +1,6 @@
-import runListQuery from "./runListQuery";
-export { runListQuery };
+import runListQuery, { ListResult } from "./runListQuery";
+
+export { runListQuery, ListResult };
 
 export * from "./authUtils";
 export * from "./base64Utils";

@@ -1,11 +1,6 @@
-import express from "express";
+import express, { Request } from "express";
 import { Club, resources } from "@btdrawer/divelog-server-core";
-const {
-    getUserId,
-    filterPayload,
-    useHandlers,
-    runListQuery
-} = require("../utils");
+import { getUserId, filterPayload, useHandlers, runListQuery } from "../utils";
 
 const router = express.Router();
 
@@ -16,7 +11,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.create({
                 name: req.body.name,
                 location: req.body.location,
@@ -31,7 +26,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.get(
         "/",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             runListQuery(
                 queryWithCache,
                 Club,
@@ -49,7 +44,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.get(
         "/:id",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.get(req.params.id, ["managers", "members"])
         )
     );
@@ -58,7 +53,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.put(
         "/:id",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.update(
                 req.params.id,
                 filterPayload({
@@ -75,7 +70,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/:id/manager/:managerId",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.addManager(req.params.id, req.params.managerId)
         )
     );
@@ -84,7 +79,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.delete(
         "/:id/manager/:managerId",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.removeManager(req.params.id, req.params.managerId)
         )
     );
@@ -93,7 +88,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/:id/member/:memberId",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.addMember(req.params.id, req.params.memberId)
         )
     );
@@ -102,7 +97,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.delete(
         "/:id/member/:memberId",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.removeMember(req.params.id, req.params.memberId)
         )
     );
@@ -111,14 +106,16 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/:id/member",
         authentication,
-        useHandlers((req: any) => Club.addMember(req.params.id, getUserId(req)))
+        useHandlers((req: Request) =>
+            Club.addMember(req.params.id, getUserId(req))
+        )
     );
 
     // Leave group
     router.delete(
         "/:id/member",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Club.removeMember(req.params.id, getUserId(req))
         )
     );
@@ -127,7 +124,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
     router.delete(
         "/:id",
         authentication,
-        useHandlers((req: any) => Club.delete(req.params.id))
+        useHandlers((req: Request) => Club.delete(req.params.id))
     );
 
     return router;

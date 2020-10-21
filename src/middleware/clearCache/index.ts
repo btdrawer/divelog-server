@@ -1,8 +1,9 @@
-const { getUserId } = require("../../utils/authUtils");
+import { Request, Response } from "express";
+import { getUserId } from "../../utils/authUtils";
 
 const clearCache = (clearCache: any) => async (
-    req: any,
-    res: any,
+    req: Request,
+    res: Response,
     next: any
 ) => {
     await next();

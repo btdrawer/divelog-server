@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { handleSuccess, handleError } from "../handlers";
 
 export const getFieldsToReturn = (
@@ -13,7 +14,7 @@ export const getFieldsToReturn = (
     return undefined;
 };
 
-export const filterPayload = (payload: any) =>
+export const filterPayload = (payload: any): any =>
     Object.keys(payload).reduce((acc, key) => {
         const value = payload[key];
         if (value !== null && value !== undefined) {
@@ -25,7 +26,10 @@ export const filterPayload = (payload: any) =>
         return acc;
     }, {});
 
-export const populateFields = async (func: any, fields: string[]) => {
+export const populateFields = async (
+    func: any,
+    fields: string[]
+): Promise<any> => {
     const data = await func.apply();
     await fields.reduce(
         (p, field) => p.then(() => data.populate(field).execPopulate()),
@@ -34,7 +38,10 @@ export const populateFields = async (func: any, fields: string[]) => {
     return data;
 };
 
-export const useHandlers = (func: any) => async (req: any, res: any) => {
+export const useHandlers = (func: any) => async (
+    req: Request,
+    res: Response
+): Promise<void> => {
     try {
         const result = await func(req, res);
         handleSuccess(res, result, req.method);

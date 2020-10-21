@@ -1,6 +1,7 @@
+import { Response } from "express";
 import { errorCodes } from "@btdrawer/divelog-server-core";
 
-export const handleSuccess = (res: any, data: any, method: string) => {
+export const handleSuccess = (res: Response, data: any, method: string) => {
     try {
         if (method === "GET") {
             if (!data) throw new Error(errorCodes.NOT_FOUND);
@@ -12,7 +13,7 @@ export const handleSuccess = (res: any, data: any, method: string) => {
     }
 };
 
-export const handleError = (res: any, err: any) => {
+export const handleError = (res: Response, err: any) => {
     let code = err.code || 500;
     let message = err.message || "An error occurred.";
     if (err.name === "ValidationError") {

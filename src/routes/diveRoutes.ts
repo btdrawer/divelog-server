@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 import { Dive, resources } from "@btdrawer/divelog-server-core";
 import {
     getUserId,
@@ -17,7 +17,7 @@ const diveRoutes = (middleware: any, queryWithCache: any) => {
         "/",
         authentication,
         clearCache,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Dive.create({
                 timeIn: req.body.time_in,
                 timeOut: req.body.time_out,
@@ -39,7 +39,7 @@ const diveRoutes = (middleware: any, queryWithCache: any) => {
     router.get(
         "/",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             runListQuery(
                 queryWithCache,
                 Dive,
@@ -61,13 +61,12 @@ const diveRoutes = (middleware: any, queryWithCache: any) => {
     router.get(
         "/:id",
         authentication,
-        useHandlers((req: any) =>
-            Dive.get(req.params.id, getFieldsToReturn(req.query.fields), [
-                "user",
-                "buddies",
-                "club",
-                "gear"
-            ])
+        useHandlers((req: Request) =>
+            Dive.get(
+                req.params.id,
+                getFieldsToReturn(<string>req.query.fields),
+                ["user", "buddies", "club", "gear"]
+            )
         )
     );
 
@@ -76,7 +75,7 @@ const diveRoutes = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         clearCache,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             Dive.update(req.params.id, {
                 timeIn: req.body.time_in,
                 timeOut: req.body.time_out,
@@ -98,7 +97,7 @@ const diveRoutes = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         clearCache,
-        useHandlers(async (req: any) => Dive.delete(req.params.id))
+        useHandlers((req: Request) => Dive.delete(req.params.id))
     );
 
     return router;

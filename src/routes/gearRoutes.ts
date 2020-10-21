@@ -1,10 +1,10 @@
-import express from "express";
+import express, { Request } from "express";
 import { Gear, resources } from "@btdrawer/divelog-server-core";
 import { getUserId, useHandlers, runListQuery } from "../utils";
 
 const router = express.Router();
 
-module.exports = (middleware: any, queryWithCache: any) => {
+const gearRoutes = (middleware: any, queryWithCache: any) => {
     const { authentication, clearCache } = middleware;
 
     // Create gear
@@ -12,7 +12,7 @@ module.exports = (middleware: any, queryWithCache: any) => {
         "/",
         authentication,
         clearCache,
-        useHandlers(async (req: any) =>
+        useHandlers(async (req: Request) =>
             Gear.create({
                 brand: req.body.brand,
                 name: req.body.name,
@@ -26,7 +26,7 @@ module.exports = (middleware: any, queryWithCache: any) => {
     router.get(
         "/",
         authentication,
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             runListQuery(
                 queryWithCache,
                 Gear,
@@ -43,7 +43,9 @@ module.exports = (middleware: any, queryWithCache: any) => {
     router.get(
         "/:id",
         authentication,
-        useHandlers((req: any) => Gear.get(req.params.id, undefined, ["owner"]))
+        useHandlers((req: Request) =>
+            Gear.get(req.params.id, undefined, ["owner"])
+        )
     );
 
     // Update gear
@@ -51,7 +53,7 @@ module.exports = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         clearCache,
-        useHandlers((req: any) => Gear.update(req.params.id, req.body))
+        useHandlers((req: Request) => Gear.update(req.params.id, req.body))
     );
 
     // Delete gear
@@ -59,8 +61,10 @@ module.exports = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         clearCache,
-        useHandlers(async (req: any) => Gear.delete(req.params.id))
+        useHandlers(async (req: Request) => Gear.delete(req.params.id))
     );
 
     return router;
 };
+
+export default gearRoutes;

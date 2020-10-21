@@ -98,7 +98,7 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-                    expect(res.body.data).have.length(3);
+                    expect(res.body.data).have.length(2);
                     expect(res.body.data[0]._id).equal(
                         get(groups[0], "output.id")
                     );

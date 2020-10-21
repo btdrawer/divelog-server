@@ -4,15 +4,15 @@
     "private": true,
     "scripts": {
         "build": "tsc",
-        "start": "tsc && env-cmd -f ./config/.env nodemon built/src/app.js",
-        "start:nocompile": "env-cmd -f ./config/.env nodemon built/src/app.js",
+        "start": "tsc && env-cmd -f ./config/.env nodemon dist/app.js",
+        "start:nocompile": "env-cmd -f ./config/.env nodemon dist/app.js",
         "lint": "eslint --fix .",
         "test": "env-cmd -f ./config/.test.env ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit",
         "test:watch": "env-cmd -f ./.test.env ts-node ./node_modules/mocha/bin/mocha --watch tests/**/*.spec.ts",
         "test:ci": "ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit"
     },
     "dependencies": {
-        "@btdrawer/divelog-server-core": "^1.1.1",
+        "@btdrawer/divelog-server-core": "^1.1.2",
         "cookie-parser": "^1.4.4",
         "express": "~4.16.0",
         "jsonwebtoken": "^8.5.1"
@@ -20,9 +20,11 @@
     "devDependencies": {
         "@types/cookie-parser": "^1.4.2",
         "@types/express": "^4.17.8",
+        "@types/ioredis": "^4.17.6",
         "@types/jsonwebtoken": "^8.5.0",
         "@types/lodash": "^4.14.162",
         "@types/mocha": "^8.0.3",
+        "@types/mongoose": "^5.7.15",
         "acorn": "^7.1.1",
         "acorn-jsx": "^5.1.0",
         "chai": "^4.2.0",

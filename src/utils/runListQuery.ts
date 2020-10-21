@@ -1,3 +1,4 @@
+import { Request } from "express";
 import { convertStringToBase64, convertBase64ToString } from "./base64Utils";
 import { getFieldsToReturn } from "./routeUtils";
 
@@ -5,6 +6,14 @@ type Cursor = {
     sortBy: string;
     sortOrder: string;
     value: string;
+};
+
+export type ListResult = {
+    data: any;
+    pageInfo: {
+        hasNextPage: boolean;
+        cursor: string | null;
+    };
 };
 
 const generateCursor = (cursor: Cursor) =>
@@ -41,16 +50,14 @@ const runListQuery = (
     filter: any,
     allowedFields?: string[],
     hashKey?: string
-) => async (req: any) => {
+) => async (req: Request): Promise<ListResult> => {
     const { query } = req;
     const { limit = 10, cursor } = query;
     let { sortBy = "_id", sortOrder = "ASC" } = query;
-
-    const fields = getFieldsToReturn(req.query.fields, allowedFields);
-
+    const fields = getFieldsToReturn(<string>req.query.fields, allowedFields);
     let result;
     if (cursor) {
-        const parsedCursor = parseCursor(cursor);
+        const parsedCursor = parseCursor(<string>cursor);
         sortBy = parsedCursor.sortBy;
         sortOrder = parsedCursor.sortOrder;
         result = await queryWithCache(hashKey, {
@@ -58,7 +65,7 @@ const runListQuery = (
             filter: generateQueryFromCursor(parsedCursor),
             fields,
             options: {
-                limit: formatLimit(limit)
+                limit: formatLimit(<string>limit)
             }
         });
     } else {
@@ -66,22 +73,24 @@ const runListQuery = (
             model,
             filter,
             fields,
-            options: formatQueryOptions(sortBy, sortOrder, limit)
+            options: formatQueryOptions(
+                <string>sortBy,
+                <string>sortOrder,
+                <string>limit
+            )
         });
     }
-
     const hasNextPage = result.length > limit;
     result = hasNextPage ? result.slice(0, limit) : result;
-
     return {
         data: result,
         pageInfo: {
             hasNextPage,
             cursor: hasNextPage
                 ? generateCursor({
-                      sortBy,
-                      sortOrder,
-                      value: result[result.length - 1][sortBy]
+                      sortBy: <string>sortBy,
+                      sortOrder: <string>sortOrder,
+                      value: result[result.length - 1][<string>sortBy]
                   })
                 : null
         }

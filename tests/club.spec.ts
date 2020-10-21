@@ -139,7 +139,7 @@ describe("Club", () => {
                         get(clubs[0], "output.website")
                     );
 
-                    expect(res.body.managers).have.length(1);
+                    expect(res.body.managers).have.length(2);
                     expect(res.body.managers[0]).equal(
                         get(users[0], "output.id")
                     );
@@ -160,7 +160,7 @@ describe("Club", () => {
             request(app)
                 .post(
                     `/club/${get(clubs[0], "output.id")}/manager/${get(
-                        users[1],
+                        users[3],
                         "output.id"
                     )}`
                 )
@@ -168,7 +168,7 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
 
-                    expect(res.body.managers).have.length(2);
+                    expect(res.body.managers).have.length(3);
                     expect(res.body.managers[1]).equal(
                         get(users[1], "output.id")
                     );

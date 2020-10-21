@@ -2,7 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { Services } from "@btdrawer/divelog-server-core";
 import { authentication, clearCache } from "./middleware";
-import { routerUrls } from "./utils";
+import routes from "./routes";
 
 const app = express();
 
@@ -18,14 +18,8 @@ const app = express();
     app.use(express.urlencoded({ extended: false }));
     app.use(cookieParser());
 
-    Object.values(routerUrls).forEach(route =>
-        app.use(
-            route,
-            require(`./routes${route}Routes`)(
-                middleware,
-                services.cache.queryWithCache
-            )
-        )
+    Object.entries(routes).forEach(([key, value]) =>
+        app.use(key, value(middleware, services.cache.queryWithCache))
     );
 
     const port = process.env.SERVER_PORT;
@@ -33,12 +27,14 @@ const app = express();
         console.log(`Listening on port ${port}`)
     );
 
-    const closeServer = async () => {
-        services.closeServices();
-        await server.close(() => {
-            console.log("Server closed.");
+    const closeServer = () =>
+        new Promise(resolve => {
+            services.closeServices();
+            server.close(() => {
+                console.log("Server closed.");
+                resolve();
+            });
         });
-    };
     process.on("SIGTERM", closeServer);
     process.on("SIGINT", closeServer);
 })();
