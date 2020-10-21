@@ -30,11 +30,9 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal("B");
                     expect(res.body.location).equal("C");
                     expect(res.body.website).equal("example.com");
-
                     expect(res.body.managers).have.length(1);
                     expect(res.body.managers[0]).equal(
                         get(users[0], "output.id")
@@ -61,7 +59,6 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-
                     res.body.data.forEach((club: documentTypes.ClubDocument) =>
                         expect(club.name).equal("B")
                     );
@@ -75,7 +72,6 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-
                     res.body.data.forEach((club: documentTypes.ClubDocument) =>
                         expect(club.location).equal("A1")
                     );
@@ -102,7 +98,6 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal(get(clubs[0], "output.name"));
                     expect(res.body.location).equal(
                         get(clubs[0], "output.location")
@@ -110,10 +105,12 @@ describe("Club", () => {
                     expect(res.body.website).equal(
                         get(clubs[0], "output.website")
                     );
-
-                    expect(res.body.managers).have.length(1);
+                    expect(res.body.managers).have.length(2);
                     expect(res.body.managers[0]._id).equal(
                         get(users[0], "output.id")
+                    );
+                    expect(res.body.managers[1]._id).equal(
+                        get(users[2], "output.id")
                     );
                 }));
     });
@@ -129,7 +126,6 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal("New name");
                     // Other details should not be overwritten
                     expect(res.body.location).equal(
@@ -138,7 +134,6 @@ describe("Club", () => {
                     expect(res.body.website).equal(
                         get(clubs[0], "output.website")
                     );
-
                     expect(res.body.managers).have.length(2);
                     expect(res.body.managers[0]).equal(
                         get(users[0], "output.id")
@@ -167,10 +162,9 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.managers).have.length(3);
-                    expect(res.body.managers[1]).equal(
-                        get(users[1], "output.id")
+                    expect(res.body.managers[2]).equal(
+                        get(users[3], "output.id")
                     );
                 }));
     });
@@ -187,7 +181,6 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.managers).have.length(1);
                 }));
     });
@@ -204,7 +197,6 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.members).have.length(2);
                     expect(res.body.members[1]).equal(
                         get(users[2], "output.id")
@@ -224,7 +216,6 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.members).have.length(0);
                 }));
     });
@@ -236,7 +227,6 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[2].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.members).have.length(2);
                     expect(res.body.members[1]).equal(
                         get(users[2], "output.id")
@@ -251,7 +241,6 @@ describe("Club", () => {
                 .set({ Authorization: `Bearer ${users[1].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
-
                     expect(res.body.members).have.length(0);
                 }));
     });

@@ -30,9 +30,7 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal("New group");
-
                     expect(res.body.participants).have.length(2);
                     expect(res.body.participants[0].toString()).equal(
                         get(users[1], "output.id")
@@ -40,7 +38,6 @@ describe("Group", () => {
                     expect(res.body.participants[1].toString()).equal(
                         get(users[0], "output.id")
                     );
-
                     expect(res.body.messages[0].text).equal(
                         get(groups[0], "output.messages[0].text")
                     );
@@ -61,7 +58,6 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.messages[1].text).equal("Hi");
                     expect(res.body.messages[1].sender).equal(
                         get(users[0], "output.id")
@@ -82,7 +78,6 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.participants).have.length(3);
                     expect(res.body.participants[2].toString()).equal(
                         get(users[2], "output.id")
@@ -103,9 +98,6 @@ describe("Group", () => {
                         get(groups[0], "output.id")
                     );
                     expect(res.body.data[1]._id).equal(
-                        get(groups[1], "output.id")
-                    );
-                    expect(res.body.data[2]._id).equal(
                         get(groups[2], "output.id")
                     );
                 }));
@@ -131,12 +123,9 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body._id).equal(get(groups[0], "output.id"));
-
                     expect(res.body.name).equal(get(groups[0], "output.name"));
                     expect(res.body.participants).have.length(2);
-
                     expect(res.body.messages).have.length(1);
                     expect(res.body.messages[0].text).equal(
                         get(groups[0], "output.messages[0].text")
@@ -155,7 +144,6 @@ describe("Group", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.participants).have.length(1);
                 }));
     });

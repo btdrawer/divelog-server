@@ -45,7 +45,7 @@ const clubRoutes = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         useHandlers((req: Request) =>
-            Club.get(req.params.id, ["managers", "members"])
+            Club.get(req.params.id, undefined, ["managers", "members"])
         )
     );
 

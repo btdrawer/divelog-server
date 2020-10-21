@@ -30,7 +30,6 @@ describe("Gear", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.brand).equal("A");
                     expect(res.body.name).equal("B");
                     expect(res.body.type).equal("C");
@@ -70,12 +69,11 @@ describe("Gear", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.brand).equal(get(gear[0], "output.brand"));
                     expect(res.body.name).equal(get(gear[0], "output.name"));
                     expect(res.body.type).equal(get(gear[0], "output.type"));
-                    expect(res.body.owner._id).equal(
-                        get(gear[0], "output.owner")
+                    expect(res.body.owner).equal(
+                        get(gear[0], "output.owner").toString()
                     );
                 }));
 
@@ -97,7 +95,6 @@ describe("Gear", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal("New name");
                 }));
     });

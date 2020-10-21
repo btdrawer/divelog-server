@@ -24,11 +24,10 @@ describe("Dive", () => {
             request(app)
                 .post("/dive")
                 .set({ Authorization: `Bearer ${users[0].token}` })
-                .send(dives[0])
+                .send(dives[0].input)
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.user).equal(get(users[0], "output.id"));
                     expect(res.body.safety_stop_time).equal(
                         dives[0].input.safety_stop_time
@@ -55,7 +54,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.buddies).eql([
                         get(users[1], "output.id"),
                         get(users[2], "output.id")
@@ -70,7 +68,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.user).equal(get(users[0], "output.id"));
                 }));
 
@@ -82,7 +79,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.dive_time).not.equal(32);
                 }));
     });
@@ -95,9 +91,7 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-
                     expect(res.body.data).have.length(2);
-
                     expect(res.body.data[0]._id).equal(
                         get(dives[0], "output.id")
                     );
@@ -140,12 +134,11 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.user._id).equal(get(users[0], "output.id"));
-                    expect(res.body.safety_stop_time).equal(
+                    expect(res.body.safetyStopTime).equal(
                         get(dives[0], "output.safetyStopTime")
                     );
-                    expect(res.body.bottom_time).equal(
+                    expect(res.body.bottomTime).equal(
                         get(dives[0], "output.bottomTime")
                     );
                     expect(res.body.description).equal(
@@ -166,7 +159,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.bottomTime).equal(16);
                     expect(res.body.maxDepth).equal(17.1);
                 }));
@@ -182,7 +174,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.diveTime).equal(34);
                 }));
 

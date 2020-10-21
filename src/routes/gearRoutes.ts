@@ -43,9 +43,7 @@ const gearRoutes = (middleware: any, queryWithCache: any) => {
     router.get(
         "/:id",
         authentication,
-        useHandlers((req: Request) =>
-            Gear.get(req.params.id, undefined, ["owner"])
-        )
+        useHandlers((req: Request) => Gear.get(req.params.id))
     );
 
     // Update gear
