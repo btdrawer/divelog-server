@@ -1,23 +1,22 @@
-const chai = require("chai");
-const chaiHttp = require("chai-http");
+import { get } from "lodash";
+import chai from "chai";
+import chaiHttp from "chai-http";
 chai.use(chaiHttp);
 const { request, expect } = chai;
-const app = require("../src/app");
-const { globalSetup, globalTeardown } = require("./utils/setup");
-const { seedDatabase, users, dives } = require("./utils/seedDatabase");
-
-before(async () => await globalSetup());
+import { seeder } from "@btdrawer/divelog-server-core";
+import app from "../src/app";
+import { globalSetup, globalTeardown } from "./utils/setup";
+const { seedDatabase, dives, users } = seeder;
 
 describe("Dive", () => {
+    before(globalSetup);
+    after(globalTeardown);
     beforeEach(
-        async () =>
-            await seedDatabase({
-                resources: {
-                    dives: true,
-                    clubs: true,
-                    gear: true
-                }
-            })
+        seedDatabase({
+            dives: true,
+            clubs: true,
+            gear: true
+        })
     );
 
     describe("Create dive", () => {
@@ -25,17 +24,20 @@ describe("Dive", () => {
             request(app)
                 .post("/dive")
                 .set({ Authorization: `Bearer ${users[0].token}` })
-                .send(dives[0])
+                .send(dives[0].input)
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
-                    expect(res.body.user).equal(users[0].output.id);
+                    expect(res.body.user).equal(get(users[0], "output.id"));
                     expect(res.body.safety_stop_time).equal(
-                        dives[0].safety_stop_time
+                        dives[0].input.safety_stop_time
                     );
-                    expect(res.body.bottom_time).equal(dives[0].bottom_time);
-                    expect(res.body.description).equal(dives[0].description);
+                    expect(res.body.bottom_time).equal(
+                        dives[0].input.bottom_time
+                    );
+                    expect(res.body.description).equal(
+                        dives[0].input.description
+                    );
                 }));
 
         it("should create new dive with buddies", () =>
@@ -44,15 +46,17 @@ describe("Dive", () => {
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .send({
                     ...dives[0],
-                    buddies: [users[1].output.id, users[2].output.id]
+                    buddies: [
+                        get(users[1], "output.id"),
+                        get(users[2], "output.id")
+                    ]
                 })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.buddies).eql([
-                        users[1].output.id,
-                        users[2].output.id
+                        get(users[1], "output.id"),
+                        get(users[2], "output.id")
                     ]);
                 }));
 
@@ -60,12 +64,11 @@ describe("Dive", () => {
             request(app)
                 .post("/dive")
                 .set({ Authorization: `Bearer ${users[0].token}` })
-                .send({ ...dives[0], user_id: users[1].output.id })
+                .send({ ...dives[0], user_id: get(users[1], "output.id") })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
-                    expect(res.body.user).equal(users[0].output.id);
+                    expect(res.body.user).equal(get(users[0], "output.id"));
                 }));
 
         it("should not add dive_time", () =>
@@ -76,7 +79,6 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.dive_time).not.equal(32);
                 }));
     });
@@ -89,12 +91,13 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-
-                    expect(res.body.data).have.length(3);
-
-                    expect(res.body.data[0]._id).equal(dives[0].output.id);
-                    expect(res.body.data[1]._id).equal(dives[1].output.id);
-                    expect(res.body.data[2]._id).equal(dives[2].output.id);
+                    expect(res.body.data).have.length(2);
+                    expect(res.body.data[0]._id).equal(
+                        get(dives[0], "output.id")
+                    );
+                    expect(res.body.data[1]._id).equal(
+                        get(dives[2], "output.id")
+                    );
                 }));
 
         it("should limit results", () =>
@@ -114,7 +117,7 @@ describe("Dive", () => {
                 .get("/dive")
                 .set({ Authorization: `Bearer ${users[1].token}` })
                 .query({
-                    user: users[0].output.id
+                    user: get(users[0], "output.id")
                 })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -126,21 +129,20 @@ describe("Dive", () => {
     describe("Get dive", () => {
         it("should get dive by ID", () =>
             request(app)
-                .get(`/dive/${dives[0].output.id}`)
+                .get(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
-                    expect(res.body.user._id).equal(users[0].output.id);
-                    expect(res.body.safety_stop_time).equal(
-                        dives[0].output.safety_stop_time
+                    expect(res.body.user._id).equal(get(users[0], "output.id"));
+                    expect(res.body.safetyStopTime).equal(
+                        get(dives[0], "output.safetyStopTime")
                     );
-                    expect(res.body.bottom_time).equal(
-                        dives[0].output.bottom_time
+                    expect(res.body.bottomTime).equal(
+                        get(dives[0], "output.bottomTime")
                     );
                     expect(res.body.description).equal(
-                        dives[0].output.description
+                        get(dives[0], "output.description")
                     );
                 }));
     });
@@ -148,7 +150,7 @@ describe("Dive", () => {
     describe("Update dive", () => {
         it("should update dive", () =>
             request(app)
-                .put(`/dive/${dives[0].output.id}`)
+                .put(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .send({
                     bottom_time: 16,
@@ -157,14 +159,13 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.bottomTime).equal(16);
                     expect(res.body.maxDepth).equal(17.1);
                 }));
 
         it("should calculate dive time if timeIn and timeOut are supplied", () =>
             request(app)
-                .put(`/dive/${dives[0].output.id}`)
+                .put(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .send({
                     time_in: 1577873897000,
@@ -173,25 +174,24 @@ describe("Dive", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.diveTime).equal(34);
                 }));
 
         it("should not update user", () =>
             request(app)
-                .put(`/dive/${dives[0].output.id}`)
+                .put(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .send({
-                    user: [users[1].output.id]
+                    user: [get(users[1], "output.id")]
                 })
                 .then(res => {
                     expect(res.status).equal(200);
-                    expect(res.body.user).equal(users[0].output.id);
+                    expect(res.body.user).equal(get(users[0], "output.id"));
                 }));
 
         it("should not update dive_time", () =>
             request(app)
-                .put(`/dive/${dives[0].output.id}`)
+                .put(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .send({
                     dive_time: 32
@@ -205,7 +205,7 @@ describe("Dive", () => {
     describe("Delete dive", () => {
         it("should delete dive", () =>
             request(app)
-                .delete(`/dive/${dives[0].output.id}`)
+                .delete(`/dive/${get(dives[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -213,5 +213,3 @@ describe("Dive", () => {
                 }));
     });
 });
-
-after(async () => await globalTeardown());

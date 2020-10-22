@@ -1,21 +1,21 @@
-const chai = require("chai");
-const chaiHttp = require("chai-http");
+import { get } from "lodash";
+import chai from "chai";
+import chaiHttp from "chai-http";
 chai.use(chaiHttp);
 const { request, expect } = chai;
-const app = require("../src/app");
-const { globalSetup, globalTeardown } = require("./utils/setup");
-const { seedDatabase, users, gear } = require("./utils/seedDatabase");
-
-before(async () => await globalSetup());
+import { seeder } from "@btdrawer/divelog-server-core";
+import app from "../src/app";
+import { globalSetup, globalTeardown } from "./utils/setup";
+const { seedDatabase, gear, users } = seeder;
 
 describe("Gear", () => {
-    beforeEach(async () => {
-        await seedDatabase({
-            resources: {
-                gear: true
-            }
-        });
-    });
+    before(globalSetup);
+    after(globalTeardown);
+    beforeEach(
+        seedDatabase({
+            gear: true
+        })
+    );
 
     describe("Create gear", () => {
         it("should create new gear", () =>
@@ -30,11 +30,10 @@ describe("Gear", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.brand).equal("A");
                     expect(res.body.name).equal("B");
                     expect(res.body.type).equal("C");
-                    expect(res.body.owner).equal(users[0].output.id);
+                    expect(res.body.owner).equal(get(users[0], "output.id"));
                 }));
     });
 
@@ -65,23 +64,22 @@ describe("Gear", () => {
     describe("Get gear", () => {
         it("should get gear", () =>
             request(app)
-                .get(`/gear/${gear[0].output.id}`)
+                .get(`/gear/${get(gear[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
-                    expect(res.body.brand).equal(gear[0].output.brand);
-                    expect(res.body.name).equal(gear[0].output.name);
-                    expect(res.body.type).equal(gear[0].output.type);
-                    expect(res.body.owner._id).equal(
-                        gear[0].output.owner.toString()
+                    expect(res.body.brand).equal(get(gear[0], "output.brand"));
+                    expect(res.body.name).equal(get(gear[0], "output.name"));
+                    expect(res.body.type).equal(get(gear[0], "output.type"));
+                    expect(res.body.owner).equal(
+                        get(gear[0], "output.owner").toString()
                     );
                 }));
 
         it("should fail if not the owner", () =>
             request(app)
-                .get(`/gear/${gear[0].output.id}`)
+                .get(`/gear/${get(gear[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[1].token}` })
                 .then(res => expect(res.status).equal(403)));
     });
@@ -89,7 +87,7 @@ describe("Gear", () => {
     describe("Update gear", () => {
         it("should update gear", () =>
             request(app)
-                .put(`/gear/${gear[0].output.id}`)
+                .put(`/gear/${get(gear[0], "output.id")}`)
                 .send({
                     name: "New name"
                 })
@@ -97,7 +95,6 @@ describe("Gear", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body).be.an("object");
-
                     expect(res.body.name).equal("New name");
                 }));
     });
@@ -105,7 +102,7 @@ describe("Gear", () => {
     describe("Delete gear", () => {
         it("should delete gear", () =>
             request(app)
-                .delete(`/gear/${gear[0].output.id}`)
+                .delete(`/gear/${get(gear[0], "output.id")}`)
                 .set({ Authorization: `Bearer ${users[0].token}` })
                 .then(res => {
                     expect(res.status).equal(200);
@@ -113,5 +110,3 @@ describe("Gear", () => {
                 }));
     });
 });
-
-after(async () => await globalTeardown());

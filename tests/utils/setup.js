@@ -1,4 +1,4 @@
-const { Services } = require("@btdrawer/divelog-server-utils");
+const { Services } = require("@btdrawer/divelog-server-core");
 
 exports.globalSetup = async () => {
     global.services = await Services.launchServices();
@@ -7,4 +7,5 @@ exports.globalSetup = async () => {
 
 exports.globalTeardown = async () => {
     await global.services.closeServices();
+    return undefined;
 };
