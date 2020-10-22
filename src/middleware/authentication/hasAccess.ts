@@ -1,13 +1,13 @@
 import { Request } from "express";
 import {
     getResourceId,
-    documentTypes,
+    UserDocument,
     Dive,
     Club,
     Gear,
-    Group,
-    errorCodes
+    Group
 } from "@btdrawer/divelog-server-core";
+import { errorCodes } from "../../utils";
 
 export const diveAuthentication = async (
     req: Request,
@@ -36,7 +36,7 @@ export const clubAuthentication = async (
             throw new Error(JSON.stringify(errorCodes.NOT_FOUND));
         } else if (req.method === "PUT" || req.method === "DELETE") {
             const isManager = club.managers.some(
-                (manager: documentTypes.UserDocument | string) =>
+                (manager: UserDocument | string) =>
                     getResourceId(manager) === user
             );
             if (!isManager && req.url !== `/${req.params.id}/member`) {
@@ -70,7 +70,7 @@ export const groupAuthentication = async (
             throw new Error(JSON.stringify(errorCodes.NOT_FOUND));
         }
         const isParticipant = group.participants.some(
-            (participant: documentTypes.UserDocument | string) =>
+            (participant: UserDocument | string) =>
                 getResourceId(participant) === user
         );
         if (!isParticipant) {

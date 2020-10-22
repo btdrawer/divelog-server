@@ -3,7 +3,7 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 chai.use(chaiHttp);
 const { request, expect } = chai;
-import { documentTypes, seeder } from "@btdrawer/divelog-server-core";
+import { ClubDocument, seeder } from "@btdrawer/divelog-server-core";
 import app from "../src/app";
 import { globalSetup, globalTeardown } from "./utils/setup";
 const { seedDatabase, clubs, users } = seeder;
@@ -59,7 +59,7 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-                    res.body.data.forEach((club: documentTypes.ClubDocument) =>
+                    res.body.data.forEach((club: ClubDocument) =>
                         expect(club.name).equal("B")
                     );
                 }));
@@ -72,7 +72,7 @@ describe("Club", () => {
                 .then(res => {
                     expect(res.status).equal(200);
                     expect(res.body.data).be.an("array");
-                    res.body.data.forEach((club: documentTypes.ClubDocument) =>
+                    res.body.data.forEach((club: ClubDocument) =>
                         expect(club.location).equal("A1")
                     );
                 }));

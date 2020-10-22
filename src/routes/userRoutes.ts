@@ -1,5 +1,5 @@
 import express from "express";
-import { documentTypes, User, errorCodes } from "@btdrawer/divelog-server-core";
+import { UserDocument, User, errorCodes } from "@btdrawer/divelog-server-core";
 import {
     signJwt,
     getUserId,
@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 const getUserAuthPayload = async (userFunc: any): Promise<{
-    data: documentTypes.UserDocument, 
+    data: UserDocument, 
     token: string
 }> => {
     const user = await userFunc.apply();
