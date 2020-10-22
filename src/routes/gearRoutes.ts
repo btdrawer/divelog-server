@@ -12,7 +12,7 @@ const gearRoutes = (middleware: any, queryWithCache: any) => {
         "/",
         authentication,
         clearCache,
-        useHandlers(async (req: Request) =>
+        useHandlers((req: Request) =>
             Gear.create({
                 brand: req.body.brand,
                 name: req.body.name,
@@ -59,7 +59,7 @@ const gearRoutes = (middleware: any, queryWithCache: any) => {
         "/:id",
         authentication,
         clearCache,
-        useHandlers(async (req: Request) => Gear.delete(req.params.id))
+        useHandlers((req: Request) => Gear.delete(req.params.id))
     );
 
     return router;

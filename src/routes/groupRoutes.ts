@@ -62,7 +62,7 @@ const groupRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/:id/user/:userId",
         authentication,
-        useHandlers(async (req: Request) =>
+        useHandlers((req: Request) =>
             Group.addUser(req.params.id, req.params.userId)
         )
     );

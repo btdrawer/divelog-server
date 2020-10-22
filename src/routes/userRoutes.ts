@@ -1,5 +1,5 @@
-import express from "express";
-import { UserDocument, User, errorCodes } from "@btdrawer/divelog-server-core";
+import express, { Request } from "express";
+import { UserDocument, User, errorCodes, getResourceId } from "@btdrawer/divelog-server-core";
 import {
     signJwt,
     getUserId,
@@ -28,7 +28,7 @@ const userRoutes = (middleware: any, queryWithCache: any) => {
     // Create new user
     router.post(
         "/",
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             getUserAuthPayload(() =>
                 User.create({
                     name: req.body.name,
@@ -43,7 +43,7 @@ const userRoutes = (middleware: any, queryWithCache: any) => {
     // Login
     router.post(
         "/login",
-        useHandlers((req: any) =>
+        useHandlers((req: Request) =>
             getUserAuthPayload(() =>
                 User.login(req.body.username, req.body.password)
             )
@@ -54,19 +54,28 @@ const userRoutes = (middleware: any, queryWithCache: any) => {
     router.post(
         "/friend/:id",
         authentication,
-        useHandlers(async (req: any) => {
-            let myId = await getUserId(req);
+        useHandlers(async (req: Request) => {
+            let myId = getUserId(req);
             let friendId = req.params.id;
             if (myId === friendId) {
                 throw new Error(errorCodes.CANNOT_ADD_YOURSELF);
             }
             const checkInbox = await User.get(myId);
+            const hasSentFriendRequest = checkInbox?.friendRequests.sent.some(
+                (friend: UserDocument | string) => getResourceId(friend) === friendId
+            );
+            const isFriend = checkInbox?.friends.some(
+                (friend: UserDocument | string) => getResourceId(friend) === friendId
+            );
+            const inInbox = checkInbox?.friendRequests.inbox.some(
+                (friend: UserDocument | string) => getResourceId(friend) === friendId
+            );
             let user;
-            if (checkInbox?.friendRequests.sent.includes(friendId)) {
+            if (hasSentFriendRequest) {
                 throw new Error(errorCodes.FRIEND_REQUEST_ALREADY_SENT);
-            } else if (checkInbox?.friends.includes(friendId)) {
+            } else if (isFriend) {
                 throw new Error(errorCodes.ALREADY_FRIENDS);
-            } else if (checkInbox?.friendRequests.inbox.includes(friendId)) {
+            } else if (inInbox) {
                 // Accept request
                 user = await User.accept(myId, friendId);
             } else {
@@ -81,7 +90,7 @@ const userRoutes = (middleware: any, queryWithCache: any) => {
     router.delete(
         "/friend/:id",
         authentication,
-        useHandlers((req: any) => User.unfriend(getUserId(req), req.params.id))
+        useHandlers((req: Request) => User.unfriend(getUserId(req), req.params.id))
     );
 
     // List all users
