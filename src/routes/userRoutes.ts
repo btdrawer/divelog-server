@@ -1,166 +1,61 @@
-import express, { Request } from "express";
-import { UserDocument, User, errorCodes, getResourceId } from "@btdrawer/divelog-server-core";
-import {
-    signJwt,
-    getUserId,
-    getFieldsToReturn,
-    useHandlers,
-    runListQuery,
-} from "../utils";
+import { Services } from "@btdrawer/divelog-server-core";
+import Routes from "./Routes";
+import { UserController } from "../controllers";
+import { authentication } from "../middlewares";
 
-const router = express.Router();
+class UserRoutes extends Routes {
+    userController: UserController;
 
-const getUserAuthPayload = async (userFunc: any): Promise<{
-    data: UserDocument, 
-    token: string
-}> => {
-    const user = await userFunc.apply();
-    const token = signJwt(user._id);
-    return {
-        data: user,
-        token
-    };
-};
+    constructor(services: Services) {
+        super(services);
+        this.userController = new UserController(services);
+    }
 
-const userRoutes = (middleware: any, queryWithCache: any) => {
-    const { authentication } = middleware;
+    configure() {
+        super.router.post(
+            "/",
+            super.sendResult(this.userController.createUser)
+        );
+        super.router.post(
+            "/login",
+            super.sendResult(this.userController.login)
+        );
+        super.router.get(
+            "/",
+            authentication,
+            super.sendResult(this.userController.listUsers)
+        );
+        super.router.get(
+            "/me",
+            authentication,
+            super.sendResult(this.userController.getMe)
+        );
+        super.router.get(
+            "/:id",
+            authentication,
+            super.sendResult(this.userController.getUser)
+        );
+        super.router.put(
+            "/",
+            authentication,
+            super.sendResult(this.userController.updateUser)
+        );
+        super.router.put(
+            "/friend/:id",
+            authentication,
+            super.sendResult(this.userController.sendOrAcceptFriendRequest)
+        );
+        super.router.delete(
+            "/friend/:id",
+            authentication,
+            super.sendResult(this.userController.removeFriend)
+        );
+        super.router.delete(
+            "/",
+            authentication,
+            super.sendResult(this.userController.deleteUser)
+        );
+    }
+}
 
-    // Create new user
-    router.post(
-        "/",
-        useHandlers((req: Request) =>
-            getUserAuthPayload(() =>
-                User.create({
-                    name: req.body.name,
-                    username: req.body.username,
-                    email: req.body.email,
-                    password: req.body.password
-                })
-            )
-        )
-    );
-
-    // Login
-    router.post(
-        "/login",
-        useHandlers((req: Request) =>
-            getUserAuthPayload(() =>
-                User.login(req.body.username, req.body.password)
-            )
-        )
-    );
-
-    // Send or accept friend request
-    router.post(
-        "/friend/:id",
-        authentication,
-        useHandlers(async (req: Request) => {
-            let myId = getUserId(req);
-            let friendId = req.params.id;
-            if (myId === friendId) {
-                throw new Error(errorCodes.CANNOT_ADD_YOURSELF);
-            }
-            const checkInbox = await User.get(myId);
-            const hasSentFriendRequest = checkInbox?.friendRequests.sent.some(
-                (friend: UserDocument | string) => getResourceId(friend) === friendId
-            );
-            const isFriend = checkInbox?.friends.some(
-                (friend: UserDocument | string) => getResourceId(friend) === friendId
-            );
-            const inInbox = checkInbox?.friendRequests.inbox.some(
-                (friend: UserDocument | string) => getResourceId(friend) === friendId
-            );
-            let user;
-            if (hasSentFriendRequest) {
-                throw new Error(errorCodes.FRIEND_REQUEST_ALREADY_SENT);
-            } else if (isFriend) {
-                throw new Error(errorCodes.ALREADY_FRIENDS);
-            } else if (inInbox) {
-                // Accept request
-                user = await User.accept(myId, friendId);
-            } else {
-                // Send request
-                user = await User.add(myId, friendId);
-            }
-            return user;
-        })
-    );
-
-    // Unfriend
-    router.delete(
-        "/friend/:id",
-        authentication,
-        useHandlers((req: Request) => User.unfriend(getUserId(req), req.params.id))
-    );
-
-    // List all users
-    router.get(
-        "/",
-        authentication,
-        useHandlers(
-            runListQuery(queryWithCache, User, undefined, ["name", "username"])
-        )
-    );
-
-    const userFieldsToPopulate = [
-        "dives",
-        "clubs.manager",
-        "clubs.member",
-        "gear",
-        "friends",
-        "friendRequests.inbox",
-        "friendRequests.sent"
-    ];
-
-    // Get authenticated user
-    router.get(
-        "/me",
-        authentication,
-        useHandlers((req: any) =>
-            User.get(
-                getUserId(req),
-                getFieldsToReturn(req.query.fields, [
-                    "name",
-                    "username",
-                    "friends",
-                    "friend_requests",
-                    "dives",
-                    "clubs",
-                    "gear"
-                ]),
-                userFieldsToPopulate
-            )
-        )
-    );
-
-    // Get user by ID
-    router.get(
-        "/:id",
-        authentication,
-        useHandlers((req: any) =>
-            User.get(
-                req.params.id,
-                getFieldsToReturn(req.query.fields, ["name", "username"]),
-                userFieldsToPopulate
-            )
-        )
-    );
-
-    // Update user details
-    router.put(
-        "/",
-        authentication,
-        useHandlers((req: any) => User.update(getUserId(req), req.body))
-    );
-
-    // Delete user
-    router.delete(
-        "/",
-        authentication,
-        useHandlers((req: any) => User.delete(getUserId(req)))
-    );
-
-    return router;
-};
-
-export default userRoutes;
+export default UserRoutes;

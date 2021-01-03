@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { handleSuccess, handleError } from "../handlers";
 
 export const getFieldsToReturn = (
     requestedFields?: string,
@@ -36,16 +35,4 @@ export const populateFields = async (
         Promise.resolve()
     );
     return data;
-};
-
-export const useHandlers = (func: any) => async (
-    req: Request,
-    res: Response
-): Promise<void> => {
-    try {
-        const result = await func(req, res);
-        handleSuccess(res, result, req.method);
-    } catch (err) {
-        handleError(res, err);
-    }
 };

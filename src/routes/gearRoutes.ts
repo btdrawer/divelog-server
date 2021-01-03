@@ -1,68 +1,45 @@
-import express, { Request } from "express";
-import { Gear, resources } from "@btdrawer/divelog-server-core";
-import { getUserId, useHandlers, runListQuery } from "../utils";
+import { Services } from "@btdrawer/divelog-server-core";
+import Routes from "./Routes";
+import { GearController } from "../controllers";
+import { authentication } from "../middlewares";
 
-const router = express.Router();
+class GearRoutes extends Routes {
+    gearController: GearController;
 
-const gearRoutes = (middleware: any, queryWithCache: any) => {
-    const { authentication, clearCache } = middleware;
+    constructor(services: Services) {
+        super(services);
+        this.gearController = new GearController(services);
+    }
 
-    // Create gear
-    router.post(
-        "/",
-        authentication,
-        clearCache,
-        useHandlers((req: Request) =>
-            Gear.create({
-                brand: req.body.brand,
-                name: req.body.name,
-                type: req.body.type,
-                owner: getUserId(req)
-            })
-        )
-    );
+    configure() {
+        super.router.post(
+            "/",
+            authentication,
+            super.services.cache.clearCache,
+            super.sendResult(this.gearController.createGear)
+        );
+        super.router.get(
+            "/",
+            authentication,
+            super.sendResult(this.gearController.listGear)
+        );
+        super.router.get(
+            "/:id",
+            authentication,
+            super.sendResult(this.gearController.getGear)
+        );
+        super.router.put(
+            "/:id",
+            authentication,
+            super.sendResult(this.gearController.updateGear)
+        );
+        super.router.delete(
+            "/:id",
+            authentication,
+            super.services.cache.clearCache,
+            super.sendResult(this.gearController.deleteGear)
+        );
+    }
+}
 
-    // List all a user's gear
-    router.get(
-        "/",
-        authentication,
-        useHandlers((req: Request) =>
-            runListQuery(
-                queryWithCache,
-                Gear,
-                {
-                    owner: getUserId(req)
-                },
-                undefined,
-                resources.GEAR
-            )(req)
-        )
-    );
-
-    // Get gear by ID
-    router.get(
-        "/:id",
-        authentication,
-        useHandlers((req: Request) => Gear.get(req.params.id))
-    );
-
-    // Update gear
-    router.put(
-        "/:id",
-        authentication,
-        clearCache,
-        useHandlers((req: Request) => Gear.update(req.params.id, req.body))
-    );
-
-    // Delete gear
-    router.delete(
-        "/:id",
-        authentication,
-        clearCache,
-        useHandlers((req: Request) => Gear.delete(req.params.id))
-    );
-
-    return router;
-};
-
-export default gearRoutes;
+export default GearRoutes;

@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { IResource } from "@btdrawer/divelog-server-core";
 import { convertStringToBase64, convertBase64ToString } from "./base64Utils";
 import { getFieldsToReturn } from "./routeUtils";
 
@@ -44,17 +45,17 @@ const formatQueryOptions = (
     limit: formatLimit(limit)
 });
 
-const runListQuery = (
+const runListQuery = async (
+    { query }: Request,
     queryWithCache: any,
-    model: any,
-    filter: any,
+    model: IResource<any, any, any>,
+    filter?: object,
     allowedFields?: string[],
     hashKey?: string
-) => async (req: Request): Promise<ListResult> => {
-    const { query } = req;
+): Promise<ListResult> => {
     const { limit = 10, cursor } = query;
     let { sortBy = "_id", sortOrder = "ASC" } = query;
-    const fields = getFieldsToReturn(<string>req.query.fields, allowedFields);
+    const fields = getFieldsToReturn(<string>query.fields, allowedFields);
     let result;
     if (cursor) {
         const parsedCursor = parseCursor(<string>cursor);

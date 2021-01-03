@@ -1,15 +1,6 @@
-import userRoutes from "./userRoutes";
-import diveRoutes from "./diveRoutes";
-import clubRoutes from "./clubRoutes";
-import gearRoutes from "./gearRoutes";
-import groupRoutes from "./groupRoutes";
+import UserRoutes from "./UserRoutes";
+import DiveRoutes from "./DiveRoutes";
+import ClubRoutes from "./ClubRoutes";
+import GearRoutes from "./GearRoutes";
 
-const routes = {
-    "/user": userRoutes,
-    "/dive": diveRoutes,
-    "/club": clubRoutes,
-    "/gear": gearRoutes,
-    "/group": groupRoutes
-};
-
-export default routes;
+export { UserRoutes, DiveRoutes, ClubRoutes, GearRoutes };
