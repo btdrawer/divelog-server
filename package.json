@@ -4,15 +4,15 @@
     "private": true,
     "scripts": {
         "build": "tsc",
-        "start": "tsc && env-cmd -f ./config/.env nodemon dist/app.js",
-        "start:nocompile": "env-cmd -f ./config/.env nodemon dist/app.js",
+        "start": "tsc && env-cmd -f ./config/.env nodemon lib/app.js",
+        "start:nocompile": "env-cmd -f ./config/.env nodemon lib/app.js",
         "lint": "eslint --fix .",
         "test": "env-cmd -f ./config/.test.env ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit",
         "test:watch": "env-cmd -f ./.test.env ts-node ./node_modules/mocha/bin/mocha --watch tests/**/*.spec.ts",
         "test:ci": "ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit"
     },
     "dependencies": {
-        "@btdrawer/divelog-server-core": "^1.2.0",
+        "@btdrawer/divelog-server-core": "^1.2.1",
         "cookie-parser": "^1.4.4",
         "express": "~4.16.0",
         "jsonwebtoken": "^8.5.1",
