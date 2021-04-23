@@ -3,7 +3,7 @@ import { Express } from "express";
 import { get } from "lodash";
 import chai from "chai";
 import chaiHttp from "chai-http";
-import App from "../src/app";
+import App from "../src/App";
 
 chai.use(chaiHttp);
 const { request, expect } = chai;
