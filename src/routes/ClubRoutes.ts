@@ -1,72 +1,76 @@
+import express, { Router } from "express";
 import { Services } from "@btdrawer/divelog-server-core";
 import Routes from "./Routes";
 import { ClubController } from "../controllers";
-import { authentication } from "../middlewares";
 
 class ClubRoutes extends Routes {
     clubController: ClubController;
+    router: Router;
 
     constructor(services: Services) {
         super(services);
         this.clubController = new ClubController(services);
+        this.router = this.init();
     }
 
-    configure() {
-        super.router.post(
+    init(): Router {
+        const router = express.Router();
+        router.post(
             "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.clubController.createClub)
         );
-        super.router.get(
+        router.get(
             "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.clubController.listClubs)
         );
-        super.router.get(
+        router.get(
             "/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.clubController.getClub)
         );
-        super.router.put(
+        router.put(
             "/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.clubController.updateClub)
         );
-        super.router.post(
+        router.post(
             "/:id/manager/:managerId",
-            authentication,
-            this.clubController.addManager
+            this.authenticate,
+            super.sendResult(this.clubController.addManager)
         );
-        super.router.delete(
+        router.delete(
             "/:id/manager/:managerId",
-            authentication,
-            this.clubController.removeManager
+            this.authenticate,
+            super.sendResult(this.clubController.removeManager)
         );
-        super.router.post(
+        router.post(
             "/:id/member/:memberId",
-            authentication,
-            this.clubController.addMember
+            this.authenticate,
+            super.sendResult(this.clubController.addMember)
         );
-        super.router.delete(
+        router.delete(
             "/:id/member/:memberId",
-            authentication,
-            this.clubController.removeMember
+            this.authenticate,
+            super.sendResult(this.clubController.removeMember)
         );
-        super.router.post(
+        router.post(
             "/:id/member",
-            authentication,
-            this.clubController.joinClub
+            this.authenticate,
+            super.sendResult(this.clubController.joinClub)
         );
-        super.router.delete(
+        router.delete(
             "/:id/member",
-            authentication,
-            this.clubController.leaveClub
+            this.authenticate,
+            super.sendResult(this.clubController.leaveClub)
         );
-        super.router.delete(
+        router.delete(
             "/:id",
-            authentication,
-            this.clubController.deleteClub
+            this.authenticate,
+            super.sendResult(this.clubController.deleteClub)
         );
+        return router;
     }
 }
 

@@ -45,46 +45,86 @@ const formatQueryOptions = (
     limit: formatLimit(limit)
 });
 
-const runListQuery = async (
-    { query }: Request,
-    queryWithCache: any,
+const getResultWithCursor = async (
+    cursor: string,
+    queryWithCache: Function,
+    hashKey: string,
+    model: any,
+    fields: string[] | undefined,
+    limit: string
+) => {
+    const parsedCursor = parseCursor(<string>cursor);
+    return queryWithCache(hashKey, {
+        model,
+        filter: generateQueryFromCursor(parsedCursor),
+        fields,
+        options: {
+            limit: formatLimit(<string>limit)
+        }
+    });
+};
+
+const getResultWithoutCursor = async (
+    sortBy: string,
+    sortOrder: string,
+    queryWithCache: Function,
+    hashKey: string,
+    model: any,
+    filter: any,
+    fields: string[] | undefined,
+    limit: string
+) => {
+    return queryWithCache(hashKey, {
+        model,
+        filter,
+        fields,
+        options: formatQueryOptions(
+            <string>sortBy,
+            <string>sortOrder,
+            <string>limit
+        )
+    });
+};
+
+async function runListQuery(
+    {
+        query: {
+            limit = "10",
+            cursor,
+            sortBy = "_id",
+            sortOrder = "ASC",
+            fields
+        }
+    }: Request,
+    queryWithCache: Function,
     model: IResource<any, any, any>,
     filter?: object,
     allowedFields?: string[],
     hashKey?: string
-): Promise<ListResult> => {
-    const { limit = 10, cursor } = query;
-    let { sortBy = "_id", sortOrder = "ASC" } = query;
-    const fields = getFieldsToReturn(<string>query.fields, allowedFields);
-    let result;
-    if (cursor) {
-        const parsedCursor = parseCursor(<string>cursor);
-        sortBy = parsedCursor.sortBy;
-        sortOrder = parsedCursor.sortOrder;
-        result = await queryWithCache(hashKey, {
-            model,
-            filter: generateQueryFromCursor(parsedCursor),
-            fields,
-            options: {
-                limit: formatLimit(<string>limit)
-            }
-        });
-    } else {
-        result = await queryWithCache(hashKey, {
-            model,
-            filter,
-            fields,
-            options: formatQueryOptions(
-                <string>sortBy,
-                <string>sortOrder,
-                <string>limit
-            )
-        });
-    }
+): Promise<ListResult> {
+    const fieldsToReturn = getFieldsToReturn(<string>fields, allowedFields);
+    const result = cursor
+        ? await getResultWithCursor(
+              <string>cursor,
+              queryWithCache,
+              <string>hashKey,
+              model,
+              fieldsToReturn,
+              <string>limit
+          )
+        : await getResultWithoutCursor(
+              <string>sortBy,
+              <string>sortOrder,
+              queryWithCache,
+              <string>hashKey,
+              model,
+              filter,
+              fieldsToReturn,
+              <string>limit
+          );
     const hasNextPage = result.length > limit;
-    result = hasNextPage ? result.slice(0, limit) : result;
     return {
-        data: result,
+        data: hasNextPage ? result.slice(0, limit) : result,
         pageInfo: {
             hasNextPage,
             cursor: hasNextPage
@@ -96,6 +136,6 @@ const runListQuery = async (
                 : null
         }
     };
-};
+}
 
 export default runListQuery;

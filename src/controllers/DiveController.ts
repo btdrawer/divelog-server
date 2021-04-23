@@ -1,10 +1,10 @@
-import { Request } from "express";
 import {
     Services,
     Dive,
     DiveDocument,
     resources
 } from "@btdrawer/divelog-server-core";
+import { Request } from "express";
 import Controller from "./Controller";
 import {
     getUserId,
@@ -35,10 +35,10 @@ class DiveController extends Controller {
         });
     }
 
-    async listDives(req: Request): Promise<ListResult> {
+    listDives = async (req: Request): Promise<ListResult> => {
         return runListQuery(
             req,
-            super.services.cache.queryWithCache,
+            this.services.cache.queryWithCache,
             Dive,
             req.query.user
                 ? {
@@ -51,7 +51,7 @@ class DiveController extends Controller {
             undefined,
             resources.DIVE
         );
-    }
+    };
 
     async getDive(req: Request): Promise<DiveDocument | null> {
         return Dive.get(

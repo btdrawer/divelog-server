@@ -49,7 +49,7 @@ class UserController extends Controller {
         return this.getAuthPayload(user);
     }
 
-    async listUsers(req: Request): Promise<ListResult> {
+    listUsers = async (req: Request): Promise<ListResult> => {
         return runListQuery(req, this.services.cache.queryWithCache, User, undefined, ["name", "username"])
     }
 

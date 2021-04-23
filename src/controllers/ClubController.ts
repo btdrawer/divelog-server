@@ -23,10 +23,10 @@ class ClubController extends Controller {
         });
     }
 
-    async listClubs(req: Request): Promise<ListResult> {
+    listClubs = async (req: Request): Promise<ListResult> => {
         return runListQuery(
             req,
-            super.services.cache.queryWithCache,
+            this.services.cache.queryWithCache,
             Club,
             filterPayload({
                 name: req.query.name,
@@ -35,7 +35,7 @@ class ClubController extends Controller {
             undefined,
             resources.CLUB
         );
-    }
+    };
 
     async getClub(req: Request): Promise<ClubDocument | null> {
         return Club.get(req.params.id, undefined, ["managers", "members"]);

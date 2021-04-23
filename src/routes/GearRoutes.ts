@@ -1,44 +1,48 @@
+import express, { Router } from "express";
 import { Services } from "@btdrawer/divelog-server-core";
 import Routes from "./Routes";
 import { GearController } from "../controllers";
-import { authentication } from "../middlewares";
 
 class GearRoutes extends Routes {
     gearController: GearController;
+    router: Router;
 
     constructor(services: Services) {
         super(services);
         this.gearController = new GearController(services);
+        this.router = this.init();
     }
 
-    configure() {
-        super.router.post(
+    init(): Router {
+        const router = express.Router();
+        router.post(
             "/",
-            authentication,
-            super.services.cache.clearCache,
+            this.authenticate,
+            this.services.cache.clearCache,
             super.sendResult(this.gearController.createGear)
         );
-        super.router.get(
+        router.get(
             "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.gearController.listGear)
         );
-        super.router.get(
+        router.get(
             "/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.gearController.getGear)
         );
-        super.router.put(
+        router.put(
             "/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.gearController.updateGear)
         );
-        super.router.delete(
+        router.delete(
             "/:id",
-            authentication,
-            super.services.cache.clearCache,
+            this.authenticate,
+            this.services.cache.clearCache,
             super.sendResult(this.gearController.deleteGear)
         );
+        return router;
     }
 }
 

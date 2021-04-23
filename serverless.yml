@@ -1,0 +1,47 @@
+service: divelog-server-rest
+
+plugins:
+    - serverless-offline
+    - serverless-dotenv-plugin
+
+package:
+    exclude:
+        - src/**
+
+provider:
+    name: aws
+    region: eu-west-2
+    runtime: nodejs12.x
+    stage: dev
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/${env:AWS_ROLE_ID}
+    endpointType: private
+    vpc:
+        securityGroupIds:
+            - ${env:AWS_SECURITY_GROUP_ID}
+        subnetIds:
+            - ${env:AWS_SUBNET_ID_1}
+            - ${env:AWS_SUBNET_ID_2}
+            - ${env:AWS_SUBNET_ID_3}
+    environment:
+        AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID}
+        REGION: ${self:provider.region}
+        RDS_DB_NAME: ${env:RDS_DB_NAME}
+        RDS_DB_SECRET_ID: ${env:RDS_DB_SECRET_ID}
+    resourcePolicy:
+        - Effect: Allow
+          Principal: "*"
+          Action: "execute-api:Invoke"
+          Resource:
+              - execute-api:/*
+          Condition:
+              IpAddress:
+                  aws:SourceIp:
+                      - ${env:AWS_VPC_IP_RANGE}
+
+functions:
+    app:
+        handler: dist/handler.default
+        events:
+            - http:
+                  method: any
+                  path: /

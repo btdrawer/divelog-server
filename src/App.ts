@@ -1,7 +1,13 @@
-import express, { Express, Request, Response } from "express";
-import cookieParser from "cookie-parser";
 import { Services } from "@btdrawer/divelog-server-core";
-import { UserRoutes, DiveRoutes, ClubRoutes, GearRoutes } from "./routes";
+import express, { Express, NextFunction, Request, Response } from "express";
+import cookieParser from "cookie-parser";
+import {
+    UserRoutes,
+    DiveRoutes,
+    ClubRoutes,
+    GearRoutes,
+    GroupRoutes
+} from "./routes";
 
 class App {
     app: Express;
@@ -11,6 +17,7 @@ class App {
     private diveRoutes: DiveRoutes;
     private clubRoutes: ClubRoutes;
     private gearRoutes: GearRoutes;
+    private groupRoutes: GroupRoutes;
 
     constructor(services: Services) {
         this.app = express();
@@ -25,32 +32,39 @@ class App {
         this.diveRoutes = new DiveRoutes(this.services);
         this.clubRoutes = new ClubRoutes(this.services);
         this.gearRoutes = new GearRoutes(this.services);
+        this.groupRoutes = new GroupRoutes(this.services);
 
         this.app.use("/user", this.userRoutes.router);
         this.app.use("/dive", this.diveRoutes.router);
         this.app.use("/club", this.clubRoutes.router);
         this.app.use("/gear", this.gearRoutes.router);
+        this.app.use("/group", this.groupRoutes.router);
     }
 
-    handleError(err: any, _: Request, res: Response) {
-        let code = err.code || 500;
-        let message = err.message || "An error occurred.";
+    private formatError(err: any): any {
         if (err.name === "ValidationError") {
             // Validation errors from MongoDB
-            code = 400;
-            message = `Missing required fields: ${Object.keys(err.errors).join(
-                ", "
-            )}`;
-        } else if (err.name === "CastError") {
-            code = 400;
-            message = `The following parameter is in an incorrect format: ${err.path}`;
+            return {
+                code: 400,
+                message: `Missing required fields: ${Object.keys(
+                    err.errors
+                ).join(", ")}`
+            };
         }
-        console.log({
-            error: {
-                code,
-                message
-            }
-        });
+        if (err.name === "CastError") {
+            return {
+                code: 400,
+                message: `The following parameter is in an incorrect format: ${err.path}`
+            };
+        }
+        return {
+            code: err.code || 500,
+            message: err.message || "An error occurred."
+        };
+    }
+
+    handleError(err: any, req: Request, res: Response, next: NextFunction) {
+        const { code, message } = this.formatError(err);
         res.status(code).send(message);
     }
 }

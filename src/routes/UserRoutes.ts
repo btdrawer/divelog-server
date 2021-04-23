@@ -1,60 +1,58 @@
+import express, { Router } from "express";
 import { Services } from "@btdrawer/divelog-server-core";
 import Routes from "./Routes";
 import { UserController } from "../controllers";
-import { authentication } from "../middlewares";
 
 class UserRoutes extends Routes {
     userController: UserController;
+    router: Router;
 
     constructor(services: Services) {
         super(services);
         this.userController = new UserController(services);
+        this.router = this.init();
     }
 
-    configure() {
-        super.router.post(
+    init(): Router {
+        const router = express.Router();
+        router.post("/", super.sendResult(this.userController.createUser));
+        router.post("/login", super.sendResult(this.userController.login));
+        router.get(
             "/",
-            super.sendResult(this.userController.createUser)
-        );
-        super.router.post(
-            "/login",
-            super.sendResult(this.userController.login)
-        );
-        super.router.get(
-            "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.listUsers)
         );
-        super.router.get(
+        router.get(
             "/me",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.getMe)
         );
-        super.router.get(
+        router.get(
             "/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.getUser)
         );
-        super.router.put(
+        router.put(
             "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.updateUser)
         );
-        super.router.put(
+        router.put(
             "/friend/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.sendOrAcceptFriendRequest)
         );
-        super.router.delete(
+        router.delete(
             "/friend/:id",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.removeFriend)
         );
-        super.router.delete(
+        router.delete(
             "/",
-            authentication,
+            this.authenticate,
             super.sendResult(this.userController.deleteUser)
         );
+        return router;
     }
 }
 

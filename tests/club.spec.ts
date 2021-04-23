@@ -1,16 +1,22 @@
+import { Services, ClubDocument, seeder } from "@btdrawer/divelog-server-core";
+import { Express } from "express";
 import { get } from "lodash";
 import chai from "chai";
 import chaiHttp from "chai-http";
+import App from "../src/app";
+
 chai.use(chaiHttp);
 const { request, expect } = chai;
-import { ClubDocument, seeder } from "@btdrawer/divelog-server-core";
-import app from "../src/app";
-import { globalSetup, globalTeardown } from "./utils/setup";
 const { seedDatabase, clubs, users } = seeder;
 
+let app: Express;
+
 describe("Club", () => {
-    before(globalSetup);
-    after(globalTeardown);
+    before(async () => {
+        const services = await Services.launchServices();
+        app = new App(services).app;
+    });
+
     beforeEach(
         seedDatabase({
             clubs: true

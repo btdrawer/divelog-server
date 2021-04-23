@@ -1,4 +1,3 @@
-import authentication from "./authentication";
-import clearCache from "./clearCache";
+import Authenticator from "./Authenticator";
 
-export { authentication, clearCache };
+export { Authenticator };

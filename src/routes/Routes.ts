@@ -1,17 +1,22 @@
-import express, { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { errorCodes, Services } from "@btdrawer/divelog-server-core";
+import { Authenticator } from "../middlewares";
+import { getUserId } from "../utils";
 
 abstract class Routes {
-    router: Router;
     services: Services;
+    authenticate: (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => Promise<void>;
 
     constructor(services: Services) {
-        this.router = express.Router();
         this.services = services;
-        this.configure();
+        this.authenticate = Authenticator.authenticate;
     }
 
-    abstract configure(): void;
+    abstract init(): Router;
 
     sendResult(fn: (req: Request) => any) {
         return async (req: Request, res: Response) => {
@@ -24,6 +29,13 @@ abstract class Routes {
                 }
             }
             res.send(result);
+        };
+    }
+
+    async clearCache(clearCache: any) {
+        return async (req: Request, res: Response, next: any) => {
+            await next();
+            clearCache(getUserId(req));
         };
     }
 }

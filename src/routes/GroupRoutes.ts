@@ -1,15 +1,15 @@
 import express, { Router } from "express";
 import { Services } from "@btdrawer/divelog-server-core";
 import Routes from "./Routes";
-import { DiveController } from "../controllers";
+import { GroupController } from "../controllers";
 
-class DiveRoutes extends Routes {
-    diveController: DiveController;
+class GroupRoutes extends Routes {
+    groupController: GroupController;
     router: Router;
 
     constructor(services: Services) {
         super(services);
-        this.diveController = new DiveController(services);
+        this.groupController = new GroupController(services);
         this.router = this.init();
     }
 
@@ -18,30 +18,30 @@ class DiveRoutes extends Routes {
         router.post(
             "/",
             this.authenticate,
-            super.sendResult(this.diveController.createDive)
+            super.sendResult(this.groupController.createGroup)
         );
-        router.get(
-            "/",
+        router.post(
+            "/:id/message",
             this.authenticate,
-            super.sendResult(this.diveController.listDives)
+            super.sendResult(this.groupController.sendMessage)
         );
         router.get(
             "/:id",
             this.authenticate,
-            super.sendResult(this.diveController.getDive)
+            super.sendResult(this.groupController.getGroup)
         );
-        router.put(
-            "/:id",
+        router.post(
+            "/:id/user/:userId",
             this.authenticate,
-            super.sendResult(this.diveController.updateDive)
+            super.sendResult(this.groupController.addMemberToGroup)
         );
         router.delete(
-            "/:id",
+            "/:id/leave",
             this.authenticate,
-            super.sendResult(this.diveController.deleteDive)
+            super.sendResult(this.groupController.leaveGroup)
         );
         return router;
     }
 }
 
-export default DiveRoutes;
+export default GroupRoutes;
