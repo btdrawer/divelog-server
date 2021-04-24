@@ -12,7 +12,7 @@ class DiveController extends Controller {
         super(services);
     }
 
-    async createDive(req: Request): Promise<DiveDocument> {
+    createDive = async (req: Request): Promise<DiveDocument> => {
         return Dive.create({
             timeIn: req.body.time_in,
             timeOut: req.body.time_out,
@@ -46,7 +46,7 @@ class DiveController extends Controller {
         );
     };
 
-    async getDive(req: Request): Promise<DiveDocument | null> {
+    getDive = async (req: Request): Promise<DiveDocument | null> => {
         return Dive.get(
             req.params.id,
             Controller.getFieldsToReturn(<string>req.query.fields),
@@ -54,7 +54,7 @@ class DiveController extends Controller {
         );
     }
 
-    async updateDive(req: Request): Promise<DiveDocument | null> {
+    updateDive = async (req: Request): Promise<DiveDocument | null> => {
         return Dive.update(req.params.id, {
             timeIn: req.body.time_in,
             timeOut: req.body.time_out,
@@ -70,7 +70,7 @@ class DiveController extends Controller {
         });
     }
 
-    async deleteDive(req: Request): Promise<DiveDocument | null> {
+    deleteDive = async (req: Request): Promise<DiveDocument | null> => {
         return Dive.delete(req.params.id);
     }
 }

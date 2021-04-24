@@ -12,7 +12,7 @@ class GearController extends Controller {
         super(services);
     }
 
-    async createGear(req: Request): Promise<GearDocument> {
+    createGear = async (req: Request): Promise<GearDocument> => {
         return Gear.create({
             brand: req.body.brand,
             name: req.body.name,
@@ -33,15 +33,15 @@ class GearController extends Controller {
         );
     };
 
-    async getGear(req: Request): Promise<GearDocument | null> {
+    getGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.get(req.params.id);
     }
 
-    async updateGear(req: Request): Promise<GearDocument | null> {
+    updateGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.update(req.params.id, req.body);
     }
 
-    async deleteGear(req: Request): Promise<GearDocument | null> {
+    deleteGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.delete(req.params.id);
     }
 }

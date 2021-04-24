@@ -7,7 +7,7 @@ class GroupController extends Controller {
         super(services);
     }
 
-    async createGroup(req: Request): Promise<GroupDocument> {
+    createGroup = async (req: Request): Promise<GroupDocument> => {
         const userId = this.getUserId(req);
         return Group.create({
             name: req.body.group_name,
@@ -22,7 +22,7 @@ class GroupController extends Controller {
         });
     }
 
-    async sendMessage(req: Request): Promise<GroupDocument | null> {
+    sendMessage = async (req: Request): Promise<GroupDocument | null> => {
         return Group.sendMessage(req.params.id, {
             text: req.body.text,
             sender: this.getUserId(req),
@@ -30,15 +30,15 @@ class GroupController extends Controller {
         });
     }
 
-    async getGroup(req: Request): Promise<GroupDocument | null> {
+    getGroup = async (req: Request): Promise<GroupDocument | null> => {
         return Group.get(req.params.id);
     }
 
-    async addMemberToGroup(req: Request): Promise<GroupDocument | null> {
+    addMemberToGroup = (req: Request): Promise<GroupDocument | null> => {
         return Group.addUser(req.params.id, req.params.userId);
     }
 
-    async leaveGroup(req: Request): Promise<GroupDocument | null> {
+    leaveGroup = async (req: Request): Promise<GroupDocument | null> => {
         return Group.removeUser(req.params.id, this.getUserId(req));
     }
 }

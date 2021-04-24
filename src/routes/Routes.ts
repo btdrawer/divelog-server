@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response, Router } from "express";
 import { errorCodes, Services } from "@btdrawer/divelog-server-core";
+import { NextFunction, Request, Response, Router } from "express";
+import { isEmpty } from 'lodash';
 import { Authenticator } from "../middlewares";
 
 abstract class Routes {
@@ -20,21 +21,19 @@ abstract class Routes {
     sendResult(fn: (req: Request) => any) {
         return async (req: Request, res: Response) => {
             const result = await fn(req);
-            if (req.method === "GET") {
-                if (!result) {
-                    throw new Error(errorCodes.NOT_FOUND);
-                } else if (result.length === 0) {
-                    throw new Error(errorCodes.NOT_FOUND);
-                }
+            if (req.method === "GET" && isEmpty(result)) {
+                throw new Error(errorCodes.NOT_FOUND);
             }
-            res.send(result);
+            return res.send(result);
         };
     }
 
-    async clearCache(clearCache: any) {
-        return async (req: Request, res: Response, next: any) => {
-            await next();
-            clearCache(Authenticator.getUserId(req));
+    async clearCache() {
+        return async (req: Request, res: Response, next: NextFunction) => {
+            next();
+            this.services.cache.clearCache(
+                Authenticator.getUserId(req)
+            );
         };
     }
 }

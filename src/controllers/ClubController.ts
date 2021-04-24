@@ -12,7 +12,7 @@ class ClubController extends Controller {
         super(services);
     }
 
-    async createClub(req: Request): Promise<ClubDocument> {
+    createClub = async (req: Request): Promise<ClubDocument> => {
         return Club.create({
             name: req.body.name,
             location: req.body.location,
@@ -35,11 +35,11 @@ class ClubController extends Controller {
         );
     };
 
-    async getClub(req: Request): Promise<ClubDocument | null> {
+    getClub = async (req: Request): Promise<ClubDocument | null> => {
         return Club.get(req.params.id, undefined, ["managers", "members"]);
     }
 
-    async updateClub(req: Request): Promise<ClubDocument | null> {
+    updateClub = async (req: Request): Promise<ClubDocument | null> => {
         return Club.update(
             req.params.id,
             Controller.filterPayload({
@@ -51,31 +51,31 @@ class ClubController extends Controller {
         );
     }
 
-    async addManager(req: Request): Promise<ClubDocument | null> {
+    addManager = async (req: Request): Promise<ClubDocument | null> => {
         return Club.addManager(req.params.id, req.params.managerId);
     }
 
-    async removeManager(req: Request): Promise<ClubDocument | null> {
+    removeManager = async (req: Request): Promise<ClubDocument | null> => {
         return Club.removeManager(req.params.id, req.params.managerId);
     }
 
-    async addMember(req: Request): Promise<ClubDocument | null> {
+    addMember = async (req: Request): Promise<ClubDocument | null> => {
         return Club.addMember(req.params.id, req.params.memberId);
     }
 
-    async removeMember(req: Request): Promise<ClubDocument | null> {
+    removeMember = async (req: Request): Promise<ClubDocument | null> => {
         return Club.removeMember(req.params.id, req.params.memberId);
     }
 
-    async joinClub(req: Request): Promise<ClubDocument | null> {
+    joinClub = async (req: Request): Promise<ClubDocument | null> => {
         return Club.addMember(req.params.id, this.getUserId(req));
     }
 
-    async leaveClub(req: Request): Promise<ClubDocument | null> {
+    leaveClub = async (req: Request): Promise<ClubDocument | null> => {
         return Club.removeMember(req.params.id, this.getUserId(req));
     }
 
-    async deleteClub(req: Request): Promise<ClubDocument | null> {
+    deleteClub = async (req: Request): Promise<ClubDocument | null> => {
         return Club.delete(req.params.id);
     }
 }

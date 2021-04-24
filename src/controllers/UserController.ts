@@ -1,6 +1,12 @@
 import { Request } from "express";
 import { Services, User, UserDocument, errorCodes, getResourceId } from "@btdrawer/divelog-server-core";
 import Controller, { ListResult } from "./Controller";
+import {
+    alreadyFriendsHttpError,
+    cannotAddYourselfHttpError,
+    friendRequestAlreadySentHttpError,
+    notFoundHttpError
+} from '../HttpError';
 
 export interface AuthPayload {
     data: UserDocument;
@@ -22,6 +28,21 @@ class UserController extends Controller {
         "friendRequests.sent"
     ];
 
+    private authenticatedUserFieldsToReturn = [
+        "name",
+        "username",
+        "friends",
+        "friend_requests",
+        "dives",
+        "clubs",
+        "gear"
+    ];
+
+    private basicUserFieldsToReturn = [
+        "name",
+        "username"
+    ]
+
     private getAuthPayload(user: UserDocument): AuthPayload {
         const token = this.signJwt(user._id);
         return {
@@ -30,7 +51,7 @@ class UserController extends Controller {
         };
     }
 
-    async createUser(req: Request): Promise<AuthPayload> {
+    createUser = async (req: Request): Promise<AuthPayload> => {
         const user = await User.create({
             name: req.body.name,
             username: req.body.username,
@@ -40,10 +61,10 @@ class UserController extends Controller {
         return this.getAuthPayload(user);
     }
 
-    async login(req: Request): Promise<AuthPayload> {
+    login = async (req: Request): Promise<AuthPayload> => {
         const user = await User.login(req.body.username, req.body.password);
         if (!user) {
-            throw new Error("User not found.");
+            throw notFoundHttpError;
         }
         return this.getAuthPayload(user);
     }
@@ -53,74 +74,76 @@ class UserController extends Controller {
             req,
             User, 
             undefined, 
-            ["name", "username"]
+            this.basicUserFieldsToReturn
         )
     }
 
-    async getMe(req: Request): Promise<UserDocument | null> {
+    getMe = async (req: Request): Promise<UserDocument | null> => {
         return User.get(
             this.getUserId(req),
-            Controller.getFieldsToReturn(<string>req.query.fields, [
-                "name",
-                "username",
-                "friends",
-                "friend_requests",
-                "dives",
-                "clubs",
-                "gear"
-            ]),
+            Controller.getFieldsToReturn(
+                <string>req.query.fields,
+                this.authenticatedUserFieldsToReturn
+            ),
             this.userFieldsToPopulate
         )
     }
 
-    async getUser(req: Request): Promise<UserDocument | null> {
+    getUser = async (req: Request): Promise<UserDocument | null> => {
         return User.get(
             req.params.id,
-            Controller.getFieldsToReturn(<string>req.query.fields, ["name", "username"]),
+            Controller.getFieldsToReturn(
+                <string>req.query.fields, 
+                this.basicUserFieldsToReturn
+            ),
             this.userFieldsToPopulate
         )
     }
 
-    async updateUser(req: Request): Promise<UserDocument | null> {
+    updateUser = async (req: Request): Promise<UserDocument | null> => {
         return User.update(this.getUserId(req), req.body);
     }
 
-    async sendOrAcceptFriendRequest(req: Request): Promise<UserDocument | null> {
+    private validateHasSentFriendRequest = (inbox: UserDocument | null, friendId: string): void => {
+        const hasSentFriendRequest = inbox?.friendRequests.sent.some(
+            (friend: UserDocument | string) => getResourceId(friend) === friendId
+        );
+        if (hasSentFriendRequest) {
+            throw friendRequestAlreadySentHttpError;
+        }
+    }
+
+    private validateIsFriend = (inbox: UserDocument | null, friendId: string): void => {
+        const isFriend = inbox?.friends.some(
+            (friend: UserDocument | string) => getResourceId(friend) === friendId
+        );
+        if (isFriend) {
+            throw alreadyFriendsHttpError;
+        }
+    }
+
+    sendOrAcceptFriendRequest = async (req: Request): Promise<UserDocument | null> => {
         let myId = this.getUserId(req);
         let friendId = req.params.id;
         if (myId === friendId) {
-            throw new Error(errorCodes.CANNOT_ADD_YOURSELF);
+            throw cannotAddYourselfHttpError;
         }
-        const checkInbox = await User.get(myId);
-        const hasSentFriendRequest = checkInbox?.friendRequests.sent.some(
+        const inbox = await User.get(myId);
+        this.validateHasSentFriendRequest(inbox, friendId);
+        this.validateIsFriend(inbox, friendId);
+        const inInbox = inbox?.friendRequests.inbox.some(
             (friend: UserDocument | string) => getResourceId(friend) === friendId
         );
-        const isFriend = checkInbox?.friends.some(
-            (friend: UserDocument | string) => getResourceId(friend) === friendId
-        );
-        const inInbox = checkInbox?.friendRequests.inbox.some(
-            (friend: UserDocument | string) => getResourceId(friend) === friendId
-        );
-        let user;
-        if (hasSentFriendRequest) {
-            throw new Error(errorCodes.FRIEND_REQUEST_ALREADY_SENT);
-        } else if (isFriend) {
-            throw new Error(errorCodes.ALREADY_FRIENDS);
-        } else if (inInbox) {
-            // Accept request
-            user = await User.accept(myId, friendId);
-        } else {
-            // Send request
-            user = await User.add(myId, friendId);
-        }
-        return user;
+        return inInbox ? 
+            User.accept(myId, friendId) : 
+            User.add(myId, friendId);
     }
 
-    async removeFriend(req: Request): Promise<UserDocument | null> {
+    removeFriend = async (req: Request): Promise<UserDocument | null> => {
         return User.unfriend(this.getUserId(req), req.params.id)
     }
 
-    async deleteUser(req: Request): Promise<UserDocument | null> {
+    deleteUser = (req: Request): Promise<UserDocument | null> => {
         return User.delete(this.getUserId(req))
     }
 }

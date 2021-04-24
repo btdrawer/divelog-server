@@ -9,6 +9,14 @@ import {
     GroupRoutes
 } from "./routes";
 
+export enum RouterUrls {
+    User = "/user",
+    Dive = "/dive",
+    Club = "/club",
+    Gear = "/gear",
+    Group = "/group"
+}
+
 class App {
     app: Express;
     private services: Services;
@@ -26,7 +34,6 @@ class App {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(cookieParser());
-        this.app.use(this.handleError);
 
         this.userRoutes = new UserRoutes(this.services);
         this.diveRoutes = new DiveRoutes(this.services);
@@ -34,14 +41,16 @@ class App {
         this.gearRoutes = new GearRoutes(this.services);
         this.groupRoutes = new GroupRoutes(this.services);
 
-        this.app.use("/user", this.userRoutes.router);
-        this.app.use("/dive", this.diveRoutes.router);
-        this.app.use("/club", this.clubRoutes.router);
-        this.app.use("/gear", this.gearRoutes.router);
-        this.app.use("/group", this.groupRoutes.router);
+        this.app.use(RouterUrls.User, this.userRoutes.router);
+        this.app.use(RouterUrls.Dive, this.diveRoutes.router);
+        this.app.use(RouterUrls.Club, this.clubRoutes.router);
+        this.app.use(RouterUrls.Gear, this.gearRoutes.router);
+        this.app.use(RouterUrls.Group, this.groupRoutes.router);
+
+        this.app.use(this.handleError);
     }
 
-    private formatError(err: any): any {
+    private formatError = (err: any): any => {
         if (err.name === "ValidationError") {
             // Validation errors from MongoDB
             return {
@@ -58,14 +67,15 @@ class App {
             };
         }
         return {
-            code: err.code || 500,
+            code: err.statusCode || err.code || 500,
             message: err.message || "An error occurred."
         };
     }
 
-    handleError(err: any, req: Request, res: Response, next: NextFunction) {
+    private handleError = (err: any, req: Request, res: Response, next: NextFunction) => {
+        console.error('err', err);
         const { code, message } = this.formatError(err);
-        res.status(code).send(message);
+        return res.status(code).send(message);
     }
 }
 
