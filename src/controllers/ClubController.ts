@@ -5,8 +5,7 @@ import {
     ClubDocument,
     resources
 } from "@btdrawer/divelog-server-core";
-import Controller from "./Controller";
-import { getUserId, filterPayload, runListQuery, ListResult } from "../utils";
+import Controller, { ListResult } from "./Controller";
 
 class ClubController extends Controller {
     constructor(services: Services) {
@@ -18,17 +17,16 @@ class ClubController extends Controller {
             name: req.body.name,
             location: req.body.location,
             description: req.body.description,
-            managers: [getUserId(req)],
+            managers: [this.getUserId(req)],
             website: req.body.website
         });
     }
 
     listClubs = async (req: Request): Promise<ListResult> => {
-        return runListQuery(
+        return this.runListQuery(
             req,
-            this.services.cache.queryWithCache,
             Club,
-            filterPayload({
+            Controller.filterPayload({
                 name: req.query.name,
                 location: req.query.location
             }),
@@ -44,7 +42,7 @@ class ClubController extends Controller {
     async updateClub(req: Request): Promise<ClubDocument | null> {
         return Club.update(
             req.params.id,
-            filterPayload({
+            Controller.filterPayload({
                 name: req.body.name,
                 location: req.body.location,
                 description: req.body.description,
@@ -70,11 +68,11 @@ class ClubController extends Controller {
     }
 
     async joinClub(req: Request): Promise<ClubDocument | null> {
-        return Club.addMember(req.params.id, getUserId(req));
+        return Club.addMember(req.params.id, this.getUserId(req));
     }
 
     async leaveClub(req: Request): Promise<ClubDocument | null> {
-        return Club.removeMember(req.params.id, getUserId(req));
+        return Club.removeMember(req.params.id, this.getUserId(req));
     }
 
     async deleteClub(req: Request): Promise<ClubDocument | null> {

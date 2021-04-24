@@ -5,13 +5,7 @@ import {
     resources
 } from "@btdrawer/divelog-server-core";
 import { Request } from "express";
-import Controller from "./Controller";
-import {
-    getUserId,
-    ListResult,
-    runListQuery,
-    getFieldsToReturn
-} from "../utils";
+import Controller, { ListResult } from "./Controller";
 
 class DiveController extends Controller {
     constructor(services: Services) {
@@ -28,7 +22,7 @@ class DiveController extends Controller {
             location: req.body.location,
             description: req.body.description,
             club: req.body.club_id,
-            user: getUserId(req),
+            user: this.getUserId(req),
             buddies: req.body.buddies,
             gear: req.body.gear,
             public: req.body.is_public
@@ -36,9 +30,8 @@ class DiveController extends Controller {
     }
 
     listDives = async (req: Request): Promise<ListResult> => {
-        return runListQuery(
+        return this.runListQuery(
             req,
-            this.services.cache.queryWithCache,
             Dive,
             req.query.user
                 ? {
@@ -46,7 +39,7 @@ class DiveController extends Controller {
                       public: true
                   }
                 : {
-                      user: getUserId(req)
+                      user: this.getUserId(req)
                   },
             undefined,
             resources.DIVE
@@ -56,7 +49,7 @@ class DiveController extends Controller {
     async getDive(req: Request): Promise<DiveDocument | null> {
         return Dive.get(
             req.params.id,
-            getFieldsToReturn(<string>req.query.fields),
+            Controller.getFieldsToReturn(<string>req.query.fields),
             ["user", "buddies", "club", "gear"]
         );
     }

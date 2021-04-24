@@ -9,9 +9,29 @@ import {
     UserDocument,
     errorCodes
 } from "@btdrawer/divelog-server-core";
-import { getUserId, routerUrls } from "../utils";
+import * as jwt from "jsonwebtoken";
+import { routerUrls } from "../utils";
 
 class Authenticator {
+    private static getAuthData(req: Request): any {
+        const header = req.header("Authorization");
+        if (!header) {
+            throw new Error(errorCodes.INVALID_AUTH);
+        }
+        const token = header.replace("Bearer ", "");
+        return jwt.verify(token, <string>process.env.JWT_KEY);
+    }
+
+    static getUserId(req: Request): string {
+        return Authenticator.getAuthData(req).id;
+    }
+
+    static signJwt(id: string): string {
+        return jwt.sign({ id }, <string>process.env.JWT_KEY, {
+            expiresIn: "3h"
+        });
+    }
+
     private static async authenticateDive(req: Request, userId: string) {
         if (req.method !== "POST" && req.params.id) {
             const dive = await Dive.get(req.params.id);
@@ -75,7 +95,7 @@ class Authenticator {
         res: Response,
         next: NextFunction
     ): Promise<void> {
-        const userId = getUserId(req);
+        const userId = Authenticator.getUserId(req);
         const user = await User.get(userId);
         if (!user) {
             throw new Error(errorCodes.INVALID_AUTH);

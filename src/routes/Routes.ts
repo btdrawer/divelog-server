@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { errorCodes, Services } from "@btdrawer/divelog-server-core";
 import { Authenticator } from "../middlewares";
-import { getUserId } from "../utils";
 
 abstract class Routes {
     services: Services;
@@ -35,7 +34,7 @@ abstract class Routes {
     async clearCache(clearCache: any) {
         return async (req: Request, res: Response, next: any) => {
             await next();
-            clearCache(getUserId(req));
+            clearCache(Authenticator.getUserId(req));
         };
     }
 }

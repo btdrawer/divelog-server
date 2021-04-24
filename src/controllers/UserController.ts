@@ -1,7 +1,6 @@
 import { Request } from "express";
 import { Services, User, UserDocument, errorCodes, getResourceId } from "@btdrawer/divelog-server-core";
-import Controller from "./Controller";
-import { signJwt, getUserId, runListQuery, ListResult, getFieldsToReturn } from "../utils";
+import Controller, { ListResult } from "./Controller";
 
 export interface AuthPayload {
     data: UserDocument;
@@ -24,7 +23,7 @@ class UserController extends Controller {
     ];
 
     private getAuthPayload(user: UserDocument): AuthPayload {
-        const token = signJwt(user._id);
+        const token = this.signJwt(user._id);
         return {
             data: user,
             token
@@ -50,13 +49,18 @@ class UserController extends Controller {
     }
 
     listUsers = async (req: Request): Promise<ListResult> => {
-        return runListQuery(req, this.services.cache.queryWithCache, User, undefined, ["name", "username"])
+        return this.runListQuery(
+            req,
+            User, 
+            undefined, 
+            ["name", "username"]
+        )
     }
 
     async getMe(req: Request): Promise<UserDocument | null> {
         return User.get(
-            getUserId(req),
-            getFieldsToReturn(<string>req.query.fields, [
+            this.getUserId(req),
+            Controller.getFieldsToReturn(<string>req.query.fields, [
                 "name",
                 "username",
                 "friends",
@@ -72,17 +76,17 @@ class UserController extends Controller {
     async getUser(req: Request): Promise<UserDocument | null> {
         return User.get(
             req.params.id,
-            getFieldsToReturn(<string>req.query.fields, ["name", "username"]),
+            Controller.getFieldsToReturn(<string>req.query.fields, ["name", "username"]),
             this.userFieldsToPopulate
         )
     }
 
     async updateUser(req: Request): Promise<UserDocument | null> {
-        return User.update(getUserId(req), req.body);
+        return User.update(this.getUserId(req), req.body);
     }
 
     async sendOrAcceptFriendRequest(req: Request): Promise<UserDocument | null> {
-        let myId = getUserId(req);
+        let myId = this.getUserId(req);
         let friendId = req.params.id;
         if (myId === friendId) {
             throw new Error(errorCodes.CANNOT_ADD_YOURSELF);
@@ -113,11 +117,11 @@ class UserController extends Controller {
     }
 
     async removeFriend(req: Request): Promise<UserDocument | null> {
-        return User.unfriend(getUserId(req), req.params.id)
+        return User.unfriend(this.getUserId(req), req.params.id)
     }
 
     async deleteUser(req: Request): Promise<UserDocument | null> {
-        return User.delete(getUserId(req))
+        return User.delete(this.getUserId(req))
     }
 }
 

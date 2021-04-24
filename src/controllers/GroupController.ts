@@ -1,7 +1,6 @@
 import { Request } from "express";
 import { Services, Group, GroupDocument } from "@btdrawer/divelog-server-core";
 import Controller from "./Controller";
-import { getUserId } from "../utils";
 
 class GroupController extends Controller {
     constructor(services: Services) {
@@ -9,7 +8,7 @@ class GroupController extends Controller {
     }
 
     async createGroup(req: Request): Promise<GroupDocument> {
-        const userId = getUserId(req);
+        const userId = this.getUserId(req);
         return Group.create({
             name: req.body.group_name,
             participants: [...req.body.participants, userId],
@@ -26,7 +25,7 @@ class GroupController extends Controller {
     async sendMessage(req: Request): Promise<GroupDocument | null> {
         return Group.sendMessage(req.params.id, {
             text: req.body.text,
-            sender: getUserId(req),
+            sender: this.getUserId(req),
             sent: new Date()
         });
     }
@@ -40,7 +39,7 @@ class GroupController extends Controller {
     }
 
     async leaveGroup(req: Request): Promise<GroupDocument | null> {
-        return Group.removeUser(req.params.id, getUserId(req));
+        return Group.removeUser(req.params.id, this.getUserId(req));
     }
 }
 

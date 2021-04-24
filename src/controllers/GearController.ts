@@ -5,8 +5,7 @@ import {
     resources
 } from "@btdrawer/divelog-server-core";
 import { Request } from "express";
-import Controller from "./Controller";
-import { getUserId, runListQuery, ListResult } from "../utils";
+import Controller, { ListResult } from "./Controller";
 
 class GearController extends Controller {
     constructor(services: Services) {
@@ -18,17 +17,16 @@ class GearController extends Controller {
             brand: req.body.brand,
             name: req.body.name,
             type: req.body.type,
-            owner: getUserId(req)
+            owner: this.getUserId(req)
         });
     }
 
     listGear = async (req: Request): Promise<ListResult> => {
-        return runListQuery(
+        return this.runListQuery(
             req,
-            this.services.cache.queryWithCache,
             Gear,
             {
-                owner: getUserId(req)
+                owner: this.getUserId(req)
             },
             undefined,
             resources.GEAR
