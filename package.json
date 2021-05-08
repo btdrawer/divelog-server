@@ -4,8 +4,8 @@
     "private": true,
     "scripts": {
         "build": "tsc",
-        "start": "tsc && env-cmd -f ./config/.env nodemon lib/app.js",
-        "start:nocompile": "env-cmd -f ./config/.env nodemon lib/app.js",
+        "start": "tsc && env-cmd -f ./config/.env nodemon lib/Runner.js",
+        "start:nocompile": "env-cmd -f ./config/.env nodemon lib/Runner.js",
         "lint": "eslint --fix .",
         "test": "env-cmd -f ./config/.test.env ts-node ./node_modules/mocha/bin/mocha tests/**/*.spec.ts --exit",
         "test:watch": "env-cmd -f ./.test.env ts-node ./node_modules/mocha/bin/mocha --watch tests/**/*.spec.ts",

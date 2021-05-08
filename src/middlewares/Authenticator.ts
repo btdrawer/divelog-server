@@ -13,8 +13,8 @@ import {
     invalidAuthHttpError,
     forbiddenHttpError,
     notFoundHttpError
-} from '../HttpError';
-import { RouterUrls } from "../App";
+} from '../ErrorHandling';
+import { RouterUrls } from "../AppWrapper";
 
 class Authenticator {
     private static getAuthData(req: Request): any {

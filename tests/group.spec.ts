@@ -3,7 +3,7 @@ import { Express } from "express";
 import { get } from "lodash";
 import chai from "chai";
 import chaiHttp from "chai-http";
-import App from "../src/App";
+import AppWrapper from "../src/AppWrapper";
 
 chai.use(chaiHttp);
 const { request, expect } = chai;
@@ -13,8 +13,8 @@ let app: Express;
 
 describe("Group", () => {
     before(async () => {
-        const services = await Services.launchServices();
-        app = new App(services).app;
+        const wrapper = await AppWrapper.init();
+        app = wrapper.app;
     });
 
     beforeEach(

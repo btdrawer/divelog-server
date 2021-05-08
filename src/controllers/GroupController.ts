@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { Services, Group, GroupDocument } from "@btdrawer/divelog-server-core";
-import Controller from "./Controller";
+import Controller, { ListResult } from "./Controller";
 
 class GroupController extends Controller {
     constructor(services: Services) {
@@ -28,6 +28,16 @@ class GroupController extends Controller {
             sender: this.getUserId(req),
             sent: new Date()
         });
+    }
+
+    listGroups = async (req: Request): Promise<ListResult> => {
+        return this.runListQuery(
+            req,
+            Group,
+            {
+                participants: this.getUserId(req)
+            },
+        );
     }
 
     getGroup = async (req: Request): Promise<GroupDocument | null> => {

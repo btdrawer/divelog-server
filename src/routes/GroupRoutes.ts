@@ -26,6 +26,11 @@ class GroupRoutes extends Routes {
             super.sendResult(this.groupController.sendMessage)
         );
         router.get(
+            "/",
+            this.authenticate,
+            super.sendResult(this.groupController.listGroups)
+        );
+        router.get(
             "/:id",
             this.authenticate,
             super.sendResult(this.groupController.getGroup)

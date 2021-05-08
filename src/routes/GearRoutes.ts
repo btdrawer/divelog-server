@@ -18,7 +18,7 @@ class GearRoutes extends Routes {
         router.post(
             "/",
             this.authenticate,
-            this.services.cache.clearCache,
+            this.clearCache,
             super.sendResult(this.gearController.createGear)
         );
         router.get(
@@ -39,7 +39,7 @@ class GearRoutes extends Routes {
         router.delete(
             "/:id",
             this.authenticate,
-            this.services.cache.clearCache,
+            this.clearCache,
             super.sendResult(this.gearController.deleteGear)
         );
         return router;

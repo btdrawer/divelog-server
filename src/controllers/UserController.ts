@@ -6,7 +6,7 @@ import {
     cannotAddYourselfHttpError,
     friendRequestAlreadySentHttpError,
     notFoundHttpError
-} from '../HttpError';
+} from '../ErrorHandling';
 
 export interface AuthPayload {
     data: UserDocument;

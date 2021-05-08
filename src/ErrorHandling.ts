@@ -1,4 +1,10 @@
 import { errorCodes } from "@btdrawer/divelog-server-core";
+import { NextFunction, Request, Response } from "express";
+
+export interface ErrorResponse {
+    code: number,
+    message: string
+};
 
 export class HttpError extends Error {
     statusCode: number;
@@ -9,7 +15,39 @@ export class HttpError extends Error {
         this.statusCode = statusCode;
         this.message = message;
     }
-}
+};
+
+function formatError(err: any): any {
+    if (err.name === "ValidationError") {
+        // Validation errors from MongoDB
+        return {
+            code: 400,
+            message: `Missing required fields: ${Object.keys(
+                err.errors
+            ).join(", ")}`
+        };
+    }
+    if (err.name === "CastError") {
+        return {
+            code: 400,
+            message: `The following parameter is in an incorrect format: ${err.path}`
+        };
+    }
+    return {
+        code: err.statusCode || err.code || 500,
+        message: err.message || "An error occurred."
+    };
+};
+
+export function handleError(
+    err: Error | HttpError,
+    req: Request,
+    res: Response,
+    next?: NextFunction
+) {
+    const { code, message } = formatError(err);
+    return res.status(code).send(message);
+};
 
 export const cannotAddYourselfHttpError = new HttpError(
     400,
