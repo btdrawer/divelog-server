@@ -1,16 +1,22 @@
+import { Services, seeder } from "@btdrawer/divelog-server-core";
+import { Express } from "express";
 import { get } from "lodash";
 import chai from "chai";
 import chaiHttp from "chai-http";
+import AppWrapper from "../src/AppWrapper";
+
 chai.use(chaiHttp);
 const { request, expect } = chai;
-import { seeder } from "@btdrawer/divelog-server-core";
-import app from "../src/app";
-import { globalSetup, globalTeardown } from "./utils/setup";
 const { seedDatabase, users } = seeder;
 
+let app: Express;
+
 describe("User", () => {
-    before(globalSetup);
-    after(globalTeardown);
+    before(async () => {
+        const wrapper = await AppWrapper.init();
+        app = wrapper.app;
+    });
+
     beforeEach(
         seedDatabase({
             groups: true
