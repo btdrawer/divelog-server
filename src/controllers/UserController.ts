@@ -123,8 +123,8 @@ class UserController extends Controller {
     }
 
     sendOrAcceptFriendRequest = async (req: Request): Promise<UserDocument | null> => {
-        let myId = this.getUserId(req);
-        let friendId = req.params.id;
+        const myId = this.getUserId(req);
+        const friendId = req.params.id;
         if (myId === friendId) {
             throw cannotAddYourselfHttpError;
         }

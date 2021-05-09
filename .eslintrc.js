@@ -17,7 +17,9 @@ module.exports = {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "plugins": ["prettier"],
+    "plugins": [
+        "prettier"
+    ],
     "rules": {
         "prettier/prettier": "error"
     }

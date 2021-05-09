@@ -1,10 +1,6 @@
 import { errorCodes } from "@btdrawer/divelog-server-core";
 import { NextFunction, Request, Response } from "express";
-
-export interface ErrorResponse {
-    code: number,
-    message: string
-};
+import { Error as MongooseError } from "mongoose";
 
 export class HttpError extends Error {
     statusCode: number;
@@ -15,29 +11,39 @@ export class HttpError extends Error {
         this.statusCode = statusCode;
         this.message = message;
     }
-};
+}
 
-function formatError(err: any): any {
-    if (err.name === "ValidationError") {
-        // Validation errors from MongoDB
+export interface ErrorResponse {
+    code: number;
+    message: string;
+}
+
+function formatError(err: Error | HttpError | MongooseError): ErrorResponse {
+    if (err instanceof HttpError) {
         return {
-            code: 400,
-            message: `Missing required fields: ${Object.keys(
-                err.errors
-            ).join(", ")}`
+            code: err.statusCode || 500,
+            message: err.message || "An error occurred."
         };
     }
-    if (err.name === "CastError") {
+    if (err instanceof MongooseError.ValidationError) {
+        return {
+            code: 400,
+            message: `Missing required fields: ${Object.keys(err.errors).join(
+                ", "
+            )}`
+        };
+    }
+    if (err instanceof MongooseError.CastError) {
         return {
             code: 400,
             message: `The following parameter is in an incorrect format: ${err.path}`
         };
     }
     return {
-        code: err.statusCode || err.code || 500,
+        code: 500,
         message: err.message || "An error occurred."
     };
-};
+}
 
 export function handleError(
     err: Error | HttpError,
@@ -47,7 +53,7 @@ export function handleError(
 ) {
     const { code, message } = formatError(err);
     return res.status(code).send(message);
-};
+}
 
 export const cannotAddYourselfHttpError = new HttpError(
     400,
@@ -64,7 +70,7 @@ export const friendRequestAlreadySentHttpError = new HttpError(
     errorCodes.FRIEND_REQUEST_ALREADY_SENT
 );
 
-export const alreadyFriendsHttpError =  new HttpError(
+export const alreadyFriendsHttpError = new HttpError(
     400,
     errorCodes.ALREADY_FRIENDS
 );
@@ -74,20 +80,11 @@ export const clubDetailsMissingHttpError = new HttpError(
     errorCodes.CLUB_DETAILS_MISSING
 );
 
-export const invalidAuthHttpError = new HttpError(
-    401,
-    errorCodes.INVALID_AUTH
-);
+export const invalidAuthHttpError = new HttpError(401, errorCodes.INVALID_AUTH);
 
-export const forbiddenHttpError = new HttpError(
-    403,
-    errorCodes.FORBIDDEN
-);
+export const forbiddenHttpError = new HttpError(403, errorCodes.FORBIDDEN);
 
-export const notFoundHttpError = new HttpError(
-    404,
-    errorCodes.NOT_FOUND
-);
+export const notFoundHttpError = new HttpError(404, errorCodes.NOT_FOUND);
 
 export const usernameExistsHttpError = new HttpError(
     409,

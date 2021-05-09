@@ -20,7 +20,7 @@ class GroupController extends Controller {
                 }
             ]
         });
-    }
+    };
 
     sendMessage = async (req: Request): Promise<GroupDocument | null> => {
         return Group.sendMessage(req.params.id, {
@@ -28,29 +28,25 @@ class GroupController extends Controller {
             sender: this.getUserId(req),
             sent: new Date()
         });
-    }
+    };
 
     listGroups = async (req: Request): Promise<ListResult> => {
-        return this.runListQuery(
-            req,
-            Group,
-            {
-                participants: this.getUserId(req)
-            },
-        );
-    }
+        return this.runListQuery(req, Group, {
+            participants: this.getUserId(req)
+        });
+    };
 
     getGroup = async (req: Request): Promise<GroupDocument | null> => {
         return Group.get(req.params.id);
-    }
+    };
 
     addMemberToGroup = (req: Request): Promise<GroupDocument | null> => {
         return Group.addUser(req.params.id, req.params.userId);
-    }
+    };
 
     leaveGroup = async (req: Request): Promise<GroupDocument | null> => {
         return Group.removeUser(req.params.id, this.getUserId(req));
-    }
+    };
 }
 
 export default GroupController;

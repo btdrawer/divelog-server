@@ -1,4 +1,4 @@
-import { Services, seeder } from "@btdrawer/divelog-server-core";
+import { seeder } from "@btdrawer/divelog-server-core";
 import { Express } from "express";
 import { get } from "lodash";
 import chai from "chai";
