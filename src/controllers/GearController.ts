@@ -19,7 +19,7 @@ class GearController extends Controller {
             type: req.body.type,
             owner: this.getUserId(req)
         });
-    }
+    };
 
     listGear = async (req: Request): Promise<ListResult> => {
         return this.runListQuery(
@@ -35,15 +35,15 @@ class GearController extends Controller {
 
     getGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.get(req.params.id);
-    }
+    };
 
     updateGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.update(req.params.id, req.body);
-    }
+    };
 
     deleteGear = async (req: Request): Promise<GearDocument | null> => {
         return Gear.delete(req.params.id);
-    }
+    };
 }
 
 export default GearController;

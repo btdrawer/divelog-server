@@ -1,20 +1,21 @@
 import { Services, IResource } from "@btdrawer/divelog-server-core";
-import { Request } from 'express';
-import { Authenticator } from '../middlewares';
+import { Request } from "express";
+import { Document } from "mongoose";
+import { Authenticator } from "../middlewares";
 
 export interface Cursor {
     sortBy: string;
     sortOrder: string;
     value: string;
-};
+}
 
 export interface ListResult {
-    data: any;
+    data: object;
     pageInfo: {
         hasNextPage: boolean;
         cursor: string | null;
     };
-};
+}
 
 abstract class Controller {
     services: Services;
@@ -40,40 +41,30 @@ abstract class Controller {
         return undefined;
     }
 
-    static filterPayload(payload: any): any {
-        return Object.keys(payload).reduce((acc, key) => {
-            const value = payload[key];
-            if (value !== null && value !== undefined) {
-                return {
-                    ...acc,
-                    [key]: value
-                };
-            }
-            return acc;
+    static filterPayload(payload: object): object {
+        return Object.entries(payload).reduce((acc, [key, value]) => {
+            return value !== null && value !== undefined
+                ? {
+                      ...acc,
+                      [key]: value
+                  }
+                : acc;
         }, {});
     }
 
-    static async populateFields(func: any, fields: string[]): Promise<any> {
-        const data = await func.apply();
-        await fields.reduce(
-            (p, field) => p.then(() => data.populate(field).execPopulate()),
-            Promise.resolve()
-        );
-        return data;
-    }
-
     private static generateCursor(cursor: Cursor): string {
-        return Buffer.from(JSON.stringify(cursor))
-            .toString('base64');
+        return Buffer.from(JSON.stringify(cursor)).toString("base64");
     }
 
     private static parseCursor(cursor: string): Cursor {
-        return JSON.parse(
-            Buffer.from(cursor).toString('ascii')
-        );
+        return JSON.parse(Buffer.from(cursor).toString("ascii"));
     }
 
-    private static generateQueryFromCursor({ sortBy, sortOrder, value }: Cursor) {
+    private static generateQueryFromCursor({
+        sortBy,
+        sortOrder,
+        value
+    }: Cursor) {
         const cursorDirection = sortOrder === "DESC" ? "$lt" : "$gt";
         return {
             [sortBy]: {
@@ -82,7 +73,7 @@ abstract class Controller {
         };
     }
 
-    private static formatLimit (limit: string) {
+    private static formatLimit(limit: string) {
         return parseInt(limit) + 1;
     }
 
@@ -96,13 +87,13 @@ abstract class Controller {
                 [sortBy]: sortOrder === "DESC" ? -1 : 1
             },
             limit: Controller.formatLimit(limit)
-        }
-    };
+        };
+    }
 
-    private async getResultWithCursor(
+    private async getResultWithCursor<T extends Document, U, V, W>(
         cursor: string,
         hashKey: string,
-        model: any,
+        model: IResource<T, U, V>,
         fields: string[] | undefined,
         limit: string
     ) {
@@ -117,12 +108,12 @@ abstract class Controller {
         });
     }
 
-    private async getResultWithoutCursor (
+    private async getResultWithoutCursor<T extends Document, U, V, W>(
         sortBy: string,
         sortOrder: string,
         hashKey: string,
-        model: any,
-        filter: any,
+        model: IResource<T, U, V>,
+        filter: W,
         fields: string[] | undefined,
         limit: string
     ) {
@@ -136,9 +127,9 @@ abstract class Controller {
                 <string>limit
             )
         });
-    };
+    }
 
-    async runListQuery(
+    async runListQuery<T extends Document, U, V, W>(
         {
             query: {
                 limit = "10",
@@ -148,13 +139,13 @@ abstract class Controller {
                 fields
             }
         }: Request,
-        model: IResource<any, any, any>,
-        filter?: object,
+        model: IResource<T, U, V>,
+        filter?: W,
         allowedFields?: string[],
         hashKey?: string
     ): Promise<ListResult> {
         const fieldsToReturn = Controller.getFieldsToReturn(
-            <string>fields, 
+            <string>fields,
             allowedFields
         );
         const result = cursor

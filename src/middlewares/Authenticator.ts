@@ -13,17 +13,24 @@ import {
     invalidAuthHttpError,
     forbiddenHttpError,
     notFoundHttpError
-} from '../ErrorHandling';
+} from "../ErrorHandling";
 import { RouterUrls } from "../AppWrapper";
 
+export interface AuthData {
+    id: string;
+}
+
 class Authenticator {
-    private static getAuthData(req: Request): any {
+    private static getAuthData(req: Request): AuthData {
         const header = req.header("Authorization");
         if (!header) {
             throw invalidAuthHttpError;
         }
         const token = header.replace("Bearer ", "");
-        return jwt.verify(token, <string>process.env.JWT_KEY);
+        const verified = jwt.verify(token, <string>process.env.JWT_KEY);
+        const parsed =
+            typeof verified === "string" ? JSON.parse(verified) : verified;
+        return parsed;
     }
 
     static getUserId(req: Request): string {
@@ -36,7 +43,10 @@ class Authenticator {
         });
     }
 
-    private static async authenticateDive(req: Request, userId: string) {
+    private static async authenticateDive(
+        req: Request,
+        userId: string
+    ): Promise<void> {
         if (req.method !== "POST" && req.params.id) {
             const dive = await Dive.get(req.params.id);
             if (!dive) {
@@ -50,7 +60,10 @@ class Authenticator {
         }
     }
 
-    private static async authenticateClub(req: Request, userId: string) {
+    private static async authenticateClub(
+        req: Request,
+        userId: string
+    ): Promise<void> {
         if (req.method !== "POST" && req.params.id) {
             const club = await Club.get(req.params.id);
             if (!club) {
@@ -67,7 +80,10 @@ class Authenticator {
         }
     }
 
-    private static async authenticateGear(req: Request, userId: string) {
+    private static async authenticateGear(
+        req: Request,
+        userId: string
+    ): Promise<void> {
         if (req.method !== "POST" && req.params.id) {
             const gear = await Gear.get(req.params.id);
             if (!gear) {
@@ -78,7 +94,10 @@ class Authenticator {
         }
     }
 
-    private static async authenticateGroup(req: Request, userId: string) {
+    private static async authenticateGroup(
+        req: Request,
+        userId: string
+    ): Promise<void> {
         if (req.params.id) {
             const group = await Group.get(req.params.id);
             if (!group) {
@@ -94,7 +113,11 @@ class Authenticator {
         }
     }
 
-    static async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+    static async authenticate(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
         try {
             const userId = Authenticator.getUserId(req);
             const user = await User.get(userId);

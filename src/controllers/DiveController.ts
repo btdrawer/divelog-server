@@ -27,7 +27,7 @@ class DiveController extends Controller {
             gear: req.body.gear,
             public: req.body.is_public
         });
-    }
+    };
 
     listDives = async (req: Request): Promise<ListResult> => {
         return this.runListQuery(
@@ -52,7 +52,7 @@ class DiveController extends Controller {
             Controller.getFieldsToReturn(<string>req.query.fields),
             ["user", "buddies", "club", "gear"]
         );
-    }
+    };
 
     updateDive = async (req: Request): Promise<DiveDocument | null> => {
         return Dive.update(req.params.id, {
@@ -68,11 +68,11 @@ class DiveController extends Controller {
             gear: req.body.gear,
             public: req.body.public
         });
-    }
+    };
 
     deleteDive = async (req: Request): Promise<DiveDocument | null> => {
         return Dive.delete(req.params.id);
-    }
+    };
 }
 
 export default DiveController;
